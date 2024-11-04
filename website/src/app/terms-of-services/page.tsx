@@ -26,9 +26,9 @@ export default function page() {
             1. Acceptance of Terms
           </h2>
           <p className=" mb-3">
-            By downloading, installing, or using [Your App Name] ("the App"),
-            you agree to be bound by these Terms of Service. If you do not agree
-            to these terms, please do not use the App.
+            By downloading, installing, or using [Your App Name] (&#34;the
+            App&#34; ), you agree to be bound by these Terms of Service. If you
+            do not agree to these terms, please do not use the App.
           </p>
         </section>
 
@@ -113,9 +113,9 @@ export default function page() {
             7. Limitation of Liability
           </h2>
           <p className=" mb-3">
-            The App is provided "as is" without any guarantees or warranty. In
-            no event shall Pixel be liable for any damages arising from the use
-            or inability to use the App.
+            The App is provided &#34;as is&#34; without any guarantees or
+            warranty. In no event shall Pixel be liable for any damages arising
+            from the use or inability to use the App.
           </p>
         </section>
 
