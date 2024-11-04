@@ -14,6 +14,7 @@ import {
   Images,
   Fullscreen,
 } from "lucide-react";
+import Image from "next/image";
 
 const AhlanPromo = () => {
   const details = [
@@ -143,7 +144,13 @@ const AhlanPromo = () => {
           </div>
         </div>
         <div className="flex-1 flex justify-end items-center ">
-          <img src="/about.png" alt="" className=" h-[100%]" />
+          <Image
+            src="/about.png"
+            alt=""
+            width={500}
+            height={500}
+            className=" h-[100%]"
+          />
         </div>
       </div>
     </>

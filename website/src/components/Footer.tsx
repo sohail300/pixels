@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -9,7 +10,13 @@ const Footer = () => {
       <div className="bg-[#181818] flex flex-col justify-start items-center pb-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mt-8 text-gray-200 px-16 w-4/5">
           <div>
-            <img src="/logo.png" alt="" className=" w-[65%] rounded-3xl" />
+            <Image
+              src="/logo.png"
+              alt=""
+              width={200}
+              height={200}
+              className="w-[65%] rounded-3xl"
+            />
           </div>
           <div />
           <div className="p-4 flex flex-col">

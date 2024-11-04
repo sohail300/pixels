@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 const AppDownload = () => {
@@ -15,20 +16,30 @@ const AppDownload = () => {
               mobile!
             </h2>
             <div className=" flex flex-row gap-8">
-              <img
+              <Image
                 src="/google_play.webp"
                 alt=""
+                width={400}
+                height={60}
                 className=" w-[15%] cursor-pointer"
               />
-              <img
+              <Image
                 src="/google_play.webp"
                 alt=""
+                width={400}
+                height={60}
                 className=" w-[15%] cursor-pointer"
               />
             </div>
           </div>
           <div className=" absolute bottom-0 right-0">
-            <img src="/download.png" alt="" className=" w-[75%]" />
+            <Image
+              src="/download.png"
+              alt=""
+              width={400}
+              height={40}
+              className=" w-[75%]"
+            />
           </div>
         </div>
         <div className="inline-block"></div>

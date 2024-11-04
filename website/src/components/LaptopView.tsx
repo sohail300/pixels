@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 const LaptopView = () => {
@@ -10,7 +11,13 @@ const LaptopView = () => {
           </h2>
         </div>
         <div className=" w-[60%]">
-          <img src="/laptop.png" alt="" className=" w-[100%]" />
+          <Image
+            src="/laptop.png"
+            alt=""
+            width={1000}
+            height={1000}
+            className=" w-[100%]"
+          />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8 text-gray-200 px-16 w-4/5">
           <div className="p-4 text-center">
