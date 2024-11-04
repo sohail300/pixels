@@ -1,4 +1,3 @@
-// app/terms/page.tsx
 import React from "react";
 
 export default function page() {

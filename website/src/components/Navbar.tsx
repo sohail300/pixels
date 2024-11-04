@@ -17,15 +17,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const Navbar: React.FC = () => {
-  const { data: session } = useSession();
-  const router = useRouter();
-
-  let isLoggedIn = false;
-  if (session?.user) {
-    console.log(session.user);
-    isLoggedIn = true;
-  }
-
   return (
     <nav className="bg-gradient-to-r from-[#3D3D3D] to-[#1F1F1F] text-white p-4 fixed w-full top-0 z-20">
       <div className="container mx-auto flex justify-between items-center">
