@@ -1,9 +1,8 @@
 import BottomSheetComponent from "@/components/BottomSheet";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
 import Photos from "@/components/Photos";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 import { useContext } from "react";
-import { View, Text, Button } from "react-native";
+import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ExplorePage() {
