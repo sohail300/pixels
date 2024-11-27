@@ -5,14 +5,22 @@ import {
   Image,
   Dimensions,
   Button,
+  useColorScheme,
+  ToastAndroid,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { DarkTheme, DefaultTheme } from "@react-navigation/native";
+import * as FileSystem from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
+import { formatDate } from "@/lib/date";
+import Feather from "@expo/vector-icons/Feather";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export default function BottomSheetComponent({
   close,
@@ -25,19 +33,63 @@ export default function BottomSheetComponent({
 }) {
   // ref
   const bottomSheetRef = useRef<BottomSheet>(null);
-
-  // callbacks
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
-
+  const theme = useColorScheme();
   const width = Dimensions.get("window").width;
+
+  const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
+
+  const callback = (downloadProgress) => {
+    const progress =
+      downloadProgress.totalBytesWritten /
+      downloadProgress.totalBytesExpectedToWrite;
+    console.log(`Download Progress: ${progress}`);
+  };
+
+  async function download(name, url) {
+    try {
+      const filePath = FileSystem.documentDirectory + `${name}.png`;
+      const downloadResumable = FileSystem.createDownloadResumable(
+        url,
+        filePath,
+        {},
+        callback
+      );
+
+      const result = await downloadResumable.downloadAsync();
+      getAlbums(filePath);
+
+      console.log("Finished downloading to ", result);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function getAlbums(filePath) {
+    if (permissionResponse.status !== "granted") {
+      await requestPermission();
+    }
+
+    try {
+      const asset = await MediaLibrary.createAssetAsync(filePath);
+      const album = await MediaLibrary.getAlbumAsync("Download/Pixels");
+      if (album == null) {
+        await MediaLibrary.createAlbumAsync("Download/Pixels", asset, false);
+      } else {
+        await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+      }
+      ToastAndroid.show(
+        "File downloaded at Pictures/Download/Pixels",
+        ToastAndroid.LONG
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <View style={StyleSheet.absoluteFillObject}>
       <BottomSheet
         ref={bottomSheetRef}
-        onChange={handleSheetChanges}
         handleIndicatorStyle={{ display: "none" }}
         handleStyle={{
           height: 0,
@@ -52,7 +104,15 @@ export default function BottomSheetComponent({
         onClose={close}
         overDragResistanceFactor={0}
       >
-        <BottomSheetView style={styles.contentContainer}>
+        <BottomSheetView
+          style={{
+            ...styles.contentContainer,
+            backgroundColor:
+              theme === "dark"
+                ? DarkTheme.colors.background
+                : DefaultTheme.colors.background,
+          }}
+        >
           <View style={styles.icon}>
             <TouchableOpacity>
               <AntDesign
@@ -66,11 +126,45 @@ export default function BottomSheetComponent({
             source={{ uri: url }}
             style={{ width: width, height: 420, borderRadius: 16 }}
           />
-          <Text style={styles.text}>{name}</Text>
-          <TouchableOpacity>
-            <View style={styles.button}>
-              <Ionicons name="image-outline" size={32} color="black" />
-              <Text style={styles.buttonText}>Get Wallpaper</Text>
+          <Text
+            style={{
+              ...styles.text,
+              color:
+                theme === "dark"
+                  ? DarkTheme.colors.text
+                  : DefaultTheme.colors.text,
+            }}
+          >
+            {name}
+          </Text>
+          <TouchableOpacity onPress={() => download(name, url)}>
+            <View
+              style={{
+                ...styles.button,
+                backgroundColor:
+                  theme === "dark" ? DarkTheme.colors.primary : "#2c2c2c",
+              }}
+            >
+              <Ionicons
+                name="image-outline"
+                size={32}
+                color={`${
+                  theme === "dark"
+                    ? DarkTheme.colors.background
+                    : DefaultTheme.colors.primary
+                }`}
+              />
+              <Text
+                style={{
+                  ...styles.buttonText,
+                  color:
+                    theme === "dark"
+                      ? DarkTheme.colors.background
+                      : DefaultTheme.colors.primary,
+                }}
+              >
+                Get Wallpaper
+              </Text>
             </View>
           </TouchableOpacity>
           <View
@@ -81,8 +175,62 @@ export default function BottomSheetComponent({
               width: "80%",
             }}
           >
-            <Text style={{ color: "white" }}>Category: Nature</Text>
-            <Text style={{ color: "white" }}>50+ Downloads</Text>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <MaterialCommunityIcons
+                name="cards-outline"
+                size={24}
+                color={
+                  theme === "dark"
+                    ? DarkTheme.colors.text
+                    : DefaultTheme.colors.text
+                }
+                style={{ marginRight: 8 }}
+              />
+              <Text
+                style={{
+                  color:
+                    theme === "dark"
+                      ? DarkTheme.colors.text
+                      : DefaultTheme.colors.text,
+                }}
+              >
+                Category: Nature
+              </Text>
+            </View>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  color:
+                    theme === "dark"
+                      ? DarkTheme.colors.text
+                      : DefaultTheme.colors.text,
+                }}
+              >
+                50+ Downloads
+              </Text>
+              <Feather
+                name="download"
+                size={20}
+                color={
+                  theme === "dark"
+                    ? DarkTheme.colors.text
+                    : DefaultTheme.colors.text
+                }
+                style={{ marginLeft: 8 }}
+              />
+            </View>
           </View>
         </BottomSheetView>
       </BottomSheet>
@@ -95,18 +243,15 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 0,
     alignItems: "center",
-    backgroundColor: Colors.brand.blackBackgroundColor,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     gap: 20,
   },
   text: {
-    color: "white",
     fontSize: 24,
     fontWeight: "bold",
   },
   button: {
-    backgroundColor: Colors.brand.accentColor,
     padding: 12,
     borderRadius: 8,
     width: 300,
@@ -117,7 +262,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   buttonText: {
-    color: "black",
     fontSize: 20,
     fontWeight: "bold",
   },

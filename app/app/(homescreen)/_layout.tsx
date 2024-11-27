@@ -3,16 +3,34 @@ import React from "react";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const colorTheme = useColorScheme();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarHideOnKeyboard: true,
+        tabBarActiveTintColor:
+          colorTheme === "dark"
+            ? DarkTheme.colors.primary
+            : DefaultTheme.colors.text,
         tabBarItemStyle: {
-          backgroundColor: Colors[colorScheme ?? "light"].background,
+          backgroundColor:
+            colorTheme === "dark"
+              ? DarkTheme.colors.background
+              : DefaultTheme.colors.background,
+        },
+        tabBarStyle: {
+          backgroundColor:
+            colorTheme === "dark"
+              ? DarkTheme.colors.background
+              : DefaultTheme.colors.background,
+          height: 60,
+          paddingTop: 10,
+          paddingBottom: 10,
+          borderColor: "transparent",
         },
         headerShown: false,
       }}

@@ -3,13 +3,21 @@ import Liked from "../foryou/Liked";
 import Suggested from "../foryou/Suggested";
 import Library from "../foryou/Library";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, Image, Dimensions, StyleSheet } from "react-native";
-import logo from "../../assets/images/pixels.png";
+import {
+  View,
+  Text,
+  Image,
+  Dimensions,
+  StyleSheet,
+  useColorScheme,
+} from "react-native";
+import logo from "../../assets/images/logo.png";
 import user from "../../assets/images/user.jpg";
 import { Colors } from "@/constants/Colors";
 import { useContext } from "react";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 import BottomSheetComponent from "@/components/BottomSheet";
+import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -17,18 +25,56 @@ export default function MyTabs() {
   const screenWidth = Dimensions.get("window").width;
   const tabWidth = screenWidth / 2;
 
+  const colorTheme = useColorScheme();
+
   const { showBottomSheet, setShowBottomSheet, name, url } =
     useContext(BottomSheetContext);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor:
+          colorTheme === "dark"
+            ? DarkTheme.colors.background
+            : DefaultTheme.colors.background,
+      }}
+    >
+      <View
+        style={{
+          ...styles.header,
+          backgroundColor:
+            colorTheme === "dark"
+              ? DarkTheme.colors.background
+              : DefaultTheme.colors.background,
+        }}
+      >
         <Image source={logo} style={styles.logoImage} />
 
         <View style={styles.userContainer}>
           <View style={styles.userInfo}>
-            <Text style={styles.greeting}>Hello User!</Text>
-            <Text style={styles.welcome}>Welcome to Pixels</Text>
+            <Text
+              style={{
+                fontSize: 16,
+                color:
+                  colorTheme === "dark"
+                    ? DarkTheme.colors.text
+                    : DefaultTheme.colors.text,
+              }}
+            >
+              Hello User!
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                color:
+                  colorTheme === "dark"
+                    ? DarkTheme.colors.text
+                    : DefaultTheme.colors.text,
+              }}
+            >
+              Welcome to Pixels
+            </Text>
           </View>
 
           <Image source={user} style={styles.userImage} />
@@ -39,7 +85,10 @@ export default function MyTabs() {
           screenOptions={{
             tabBarStyle: {
               width: "100%",
-              backgroundColor: Colors.brand.grayBackgroundColor,
+              backgroundColor:
+                colorTheme === "dark"
+                  ? DarkTheme.colors.background
+                  : DefaultTheme.colors.background,
             },
             tabBarItemStyle: {
               width: tabWidth,
@@ -49,6 +98,10 @@ export default function MyTabs() {
               fontSize: 14,
               textTransform: "capitalize",
               width: "100%",
+              color:
+                colorTheme === "dark"
+                  ? DarkTheme.colors.text
+                  : DefaultTheme.colors.text,
             },
             tabBarIndicatorStyle: {
               height: 4,
@@ -73,14 +126,10 @@ export default function MyTabs() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 16,
-    backgroundColor: Colors.brand.grayBackgroundColor,
   },
   logoImage: {
     width: 64,
@@ -95,14 +144,6 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "flex-end",
     paddingHorizontal: 8,
-  },
-  greeting: {
-    color: "white",
-    fontSize: 16,
-  },
-  welcome: {
-    color: "white",
-    fontSize: 14,
   },
   userImage: {
     width: 64,

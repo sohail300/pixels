@@ -1,4 +1,11 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  useColorScheme,
+} from "react-native";
 import React, { useContext } from "react";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Colors } from "@/constants/Colors";
@@ -6,6 +13,8 @@ import BottomSheetComponent from "./BottomSheet";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 
 const Card = ({ uri, name }) => {
+  const theme = useColorScheme();
+
   const { setShowBottomSheet, setUrl, setName } =
     useContext(BottomSheetContext);
 

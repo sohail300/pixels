@@ -1,20 +1,100 @@
-import { View, Text, Pressable, StyleSheet, Image } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  Image,
+  useColorScheme,
+} from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { DarkTheme, DefaultTheme } from "@react-navigation/native";
+import * as WebBrowser from "expo-web-browser";
+import { Link } from "expo-router";
 
 const About = () => {
+  const theme = useColorScheme();
+
+  const handleRedirect = async (url) => {
+    let result = await WebBrowser.openBrowserAsync(url);
+    console.log(result);
+  };
+
   return (
     <SafeAreaView>
-      <Text style={{ fontSize: 24, color: "#fff", fontWeight: "bold" }}>
+      <Text
+        style={{
+          fontSize: 24,
+          color:
+            theme === "dark" ? DarkTheme.colors.text : DefaultTheme.colors.text,
+          fontWeight: "bold",
+        }}
+      >
         About
       </Text>
-      <Text style={styles.text}>Downloads</Text>
-      <Text style={styles.text}>Privay Policy</Text>
-      <Text style={styles.text}>Terms of Service</Text>
-      <Text style={styles.text}>Licenses</Text>
+      {/* <Link
+        href="/downloadOptions"
+        style={{ paddingVertical: 4, marginVertical: 4 }}
+      >
+        <Text
+          style={{
+            ...styles.text,
+            color:
+              theme === "dark"
+                ? DarkTheme.colors.text
+                : DefaultTheme.colors.text,
+          }}
+        >
+          Downloads
+        </Text>
+      </Link> */}
+      <Text
+        style={{
+          ...styles.text,
+          color:
+            theme === "dark" ? DarkTheme.colors.text : DefaultTheme.colors.text,
+        }}
+        onPress={() =>
+          handleRedirect("https://pixels.heysohail.me/privacy-policy")
+        }
+      >
+        Privay Policy
+      </Text>
+      <Text
+        style={{
+          ...styles.text,
+          color:
+            theme === "dark" ? DarkTheme.colors.text : DefaultTheme.colors.text,
+        }}
+        onPress={() =>
+          handleRedirect("https://pixels.heysohail.me/terms-of-services")
+        }
+      >
+        Terms of Service
+      </Text>
       <View>
-        <Text style={styles.text}>Version</Text>
-        <Text style={styles.subtext}>1.3.0</Text>
+        <Text
+          style={{
+            ...styles.text,
+            color:
+              theme === "dark"
+                ? DarkTheme.colors.text
+                : DefaultTheme.colors.text,
+          }}
+        >
+          Version
+        </Text>
+        <Text
+          style={{
+            ...styles.subtext,
+            color:
+              theme === "dark"
+                ? DarkTheme.colors.text
+                : DefaultTheme.colors.text,
+          }}
+        >
+          1.0.0
+        </Text>
       </View>
     </SafeAreaView>
   );
@@ -28,12 +108,10 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     marginVertical: 4,
     fontWeight: "medium",
-    color: "#fff",
   },
   subtext: {
     fontSize: 14,
     fontWeight: "light",
-    color: "#fff",
     marginTop: -8,
   },
 });

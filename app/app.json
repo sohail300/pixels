@@ -1,38 +1,41 @@
 {
   "expo": {
-    "name": "pixel",
-    "slug": "pixel",
+    "name": "Pixels",
+    "slug": "pixels",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FFD700"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/logo.png",
+        "backgroundColor": "#FFD700"
       },
       "package": "com.sohail300.pixel"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/logo.png"
     },
     "plugins": [
       "expo-router",
+      "@react-native-google-signin/google-signin",
       [
-        "@react-native-google-signin/google-signin",
+        "expo-media-library",
         {
-          "iosUrlScheme": "com.googleusercontent.apps._some_id_here_"
+          "photosPermission": "Allow Pixels to access your photos.",
+          "savePhotosPermission": "Allow Pixels to save photos.",
+          "isAccessMediaLocationEnabled": true
         }
       ]
     ],

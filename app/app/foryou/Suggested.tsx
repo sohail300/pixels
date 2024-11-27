@@ -1,4 +1,4 @@
-import { SafeAreaView, Text, StyleSheet } from "react-native";
+import { SafeAreaView, Text, StyleSheet, useColorScheme } from "react-native";
 import React from "react";
 import SpiltView from "@/components/SpiltView";
 import Animated, {
@@ -8,14 +8,24 @@ import Animated, {
   useScrollViewOffset,
 } from "react-native-reanimated";
 import { ThemedView } from "@/components/ThemedView";
+import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 
 const Suggested = () => {
+  const theme = useColorScheme();
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
 
   return (
     <SafeAreaView style={styles.container}>
       <Animated.ScrollView ref={scrollRef} scrollEventThrottle={16}>
-        <ThemedView style={styles.content}>
+        <ThemedView
+          style={{
+            ...styles.content,
+            backgroundColor:
+              theme === "dark"
+                ? DarkTheme.colors.background
+                : DefaultTheme.colors.background,
+          }}
+        >
           <SpiltView />
         </ThemedView>
       </Animated.ScrollView>

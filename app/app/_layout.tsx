@@ -1,17 +1,16 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StyleSheet } from "react-native";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
+import { Provider } from "react-redux";
+import { store } from "@/redux/store";
+import ThemeProvider from "@/components/ThemeProvider";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -21,7 +20,6 @@ export default function RootLayout() {
   const [url, setUrl] = useState("");
   const [name, setName] = useState("");
 
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     Poppins: require("../assets/fonts/Poppins-Regular.ttf"),
   });
@@ -37,22 +35,26 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <GestureHandlerRootView style={styles.container}>
-        <BottomSheetContext.Provider
-          value={{
-            showBottomSheet,
-            setShowBottomSheet,
-            url,
-            setUrl,
-            name,
-            setName,
-          }}
-        >
-          <Stack screenOptions={{ headerShown: false }}></Stack>
-        </BottomSheetContext.Provider>
-      </GestureHandlerRootView>
-    </ThemeProvider>
+    <GestureHandlerRootView style={styles.container}>
+      <BottomSheetContext.Provider
+        value={{
+          showBottomSheet,
+          setShowBottomSheet,
+          url,
+          setUrl,
+          name,
+          setName,
+        }}
+      >
+        <Provider store={store}>
+          <ThemeProvider>
+            <Animated.View style={{ flex: 1 }} entering={FadeIn.duration(300)}>
+              <Stack screenOptions={{ headerShown: false }}></Stack>
+            </Animated.View>
+          </ThemeProvider>
+        </Provider>
+      </BottomSheetContext.Provider>
+    </GestureHandlerRootView>
   );
 }
 

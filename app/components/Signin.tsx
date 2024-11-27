@@ -1,77 +1,131 @@
-import { View, Text, Pressable, Image, StyleSheet } from "react-native";
-import React from "react";
+import {
+  View,
+  Text,
+  Pressable,
+  Image,
+  StyleSheet,
+  useColorScheme,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
+import { supabase } from "../lib/supabase";
+import { Session } from "@supabase/supabase-js";
+import "react-native-url-polyfill/auto";
+import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 
 const Signin = () => {
+  const [session, setSession] = useState<Session | null>(null);
+  const theme = useColorScheme();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+  }, []);
+
+  // GoogleSignin.configure({
+  //   scopes: ["https://www.googleapis.com/auth/drive.readonly"],
+  //   webClientId:
+  //     "1026701954227-r8npbs4m7vte67o1m1u3h2c9clgj3qoe.apps.googleusercontent.com",
+  // });
+
   return (
-    <SafeAreaView>
+    <View>
       <Text
         style={{
           fontSize: 24,
-          color: "#fff",
+          color:
+            theme === "dark" ? DarkTheme.colors.text : DefaultTheme.colors.text,
           fontWeight: "bold",
         }}
       >
         Signin
       </Text>
-      <Text style={{ fontSize: 16, color: "#fff", marginVertical: 2 }}>
+      <Text
+        style={{
+          fontSize: 16,
+          color:
+            theme === "dark" ? DarkTheme.colors.text : DefaultTheme.colors.text,
+          marginVertical: 2,
+        }}
+      >
         Signin to save your data
       </Text>
-      <View style={styles.buttonContainer}>
-        <Pressable style={styles.button}>
-          <View style={styles.buttonContent}>
-            <Image
-              source={{
-                uri: "https://cdn.iconscout.com/icon/free/png-256/google-160-189824.png",
-              }}
-              style={styles.googleIcon}
-            />
-            <Text style={styles.buttonText}>Sign In</Text>
-          </View>
+      <View
+        style={{
+          backgroundColor:
+            theme === "dark" ? DarkTheme.colors.card : DefaultTheme.colors.card,
+          borderRadius: 12,
+          padding: 24,
+          marginVertical: 8,
+          marginTop: 16,
+        }}
+      >
+        <Pressable
+          style={{
+            borderRadius: 8,
+            height: 48,
+            width: "100%",
+            justifyContent: "center",
+            borderWidth: 2,
+            borderColor:
+              theme === "dark"
+                ? DarkTheme.colors.text
+                : DefaultTheme.colors.text,
+          }}
+        >
+          {/* <GoogleSigninButton
+            size={GoogleSigninButton.Size.Wide}
+            color={GoogleSigninButton.Color.Dark}
+            onPress={async () => {
+              try {
+                await GoogleSignin.hasPlayServices();
+                const userInfo = await GoogleSignin.signIn();
+                console.log(userInfo);
+                if (userInfo?.data?.idToken) {
+                  const { data, error } = await supabase.auth.signInWithIdToken(
+                    {
+                      provider: "google",
+                      token: userInfo?.data.idToken,
+                    }
+                  );
+                  console.log("1");
+                  console.log(error, data);
+                } else {
+                  throw new Error("no ID token present!");
+                }
+              } catch (error: any) {
+                if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+                  console.log("user cancelled the login flow");
+                } else if (error.code === statusCodes.IN_PROGRESS) {
+                  console.log(
+                    "operation (e.g. sign in) is in progress already"
+                  );
+                } else if (
+                  error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE
+                ) {
+                  console.log("play services not available or outdated");
+                } else {
+                  console.log(error);
+                }
+              }
+            }}
+          /> */}
         </Pressable>
+
+        {session && session.user && <Text>{session.user.id}</Text>}
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
 export default Signin;
-
-const styles = StyleSheet.create({
-  buttonContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderRadius: 12,
-    padding: 24,
-    marginVertical: 8,
-  },
-  button: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
-    height: 48,
-    width: "100%",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  buttonContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-  },
-  googleIcon: {
-    width: 18,
-    height: 18,
-  },
-  buttonText: {
-    color: "#3C4043",
-    fontSize: 16,
-    fontWeight: "500",
-    letterSpacing: 0.25,
-  },
-});

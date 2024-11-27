@@ -1,4 +1,10 @@
-import { SafeAreaView, Text, View, StyleSheet } from "react-native";
+import {
+  SafeAreaView,
+  Text,
+  View,
+  StyleSheet,
+  useColorScheme,
+} from "react-native";
 import React, { useState } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Colors } from "@/constants/Colors";
@@ -14,14 +20,24 @@ import useWallpaper from "@/hooks/useWallpaper";
 import { FlatList, ScrollView } from "react-native-gesture-handler";
 import Card from "@/components/Card";
 import LikedCard from "@/components/LikedCard";
+import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 
 const Liked = () => {
+  const theme = useColorScheme();
+
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
-  const [liked, setLiked] = useState(true);
+  const [liked, setLiked] = useState(false);
   const [wallpaper1] = useWallpaper();
 
   return (
-    <SafeAreaView>
+    <SafeAreaView
+      style={{
+        backgroundColor:
+          theme === "dark"
+            ? DarkTheme.colors.background
+            : DefaultTheme.colors.background,
+      }}
+    >
       <ScrollView>
         {liked ? (
           <FlatList
@@ -35,7 +51,17 @@ const Liked = () => {
           />
         ) : (
           <View style={styles.emptyStateContainer}>
-            <Text style={styles.emptyStateText}>No favourites found!</Text>
+            <Text
+              style={{
+                ...styles.emptyStateText,
+                color:
+                  theme === "dark"
+                    ? DarkTheme.colors.text
+                    : DefaultTheme.colors.text,
+              }}
+            >
+              No favourites found!
+            </Text>
             <FontAwesome
               name="heart"
               size={80}
@@ -45,7 +71,17 @@ const Liked = () => {
           </View>
         )}
 
-        <Text style={styles.text}>Suggested for you!</Text>
+        <Text
+          style={{
+            ...styles.text,
+            color:
+              theme === "dark"
+                ? DarkTheme.colors.text
+                : DefaultTheme.colors.text,
+          }}
+        >
+          Suggested for you!
+        </Text>
         <ThemedView style={styles.content}>
           <SpiltView />
         </ThemedView>
@@ -71,7 +107,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   text: {
-    color: "white",
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
@@ -84,7 +119,6 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   emptyStateText: {
-    color: "white",
     textAlign: "center",
     marginVertical: 16,
   },
