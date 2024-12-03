@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -7,8 +7,12 @@ import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 
 export default function TabLayout() {
-  const colorTheme =
-    useSelector((state) => state.theme.data) || useColorScheme();
+  const themeState = useSelector((state) => state.theme);
+  const systemColorScheme = useColorScheme();
+
+  const colorTheme = useMemo(() => {
+    return themeState.data === "system" ? systemColorScheme : themeState.data;
+  }, [themeState.data, systemColorScheme]);
 
   return (
     <Tabs

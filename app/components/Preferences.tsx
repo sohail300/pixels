@@ -6,7 +6,7 @@ import {
   Image,
   useColorScheme,
 } from "react-native";
-import React from "react";
+import React, { useMemo } from "react";
 import version1 from "../assets/images/v1.png";
 import version2 from "../assets/images/v2.png";
 import version3 from "../assets/images/v3.png";
@@ -17,12 +17,14 @@ import { changeTheme } from "@/redux/ThemeSlice";
 import { useDispatch } from "react-redux";
 
 const Preferences = () => {
-  const colorTheme =
-    useSelector((state) => state.theme.data) || useColorScheme();
-
-  const tempTheme = useColorScheme();
-
   const dispatch = useDispatch();
+
+  const themeState = useSelector((state) => state.theme);
+  const systemColorScheme = useColorScheme();
+
+  const colorTheme = useMemo(() => {
+    return themeState.data === "system" ? systemColorScheme : themeState.data;
+  }, [themeState.data, systemColorScheme]);
 
   return (
     <SafeAreaView>
@@ -52,61 +54,87 @@ const Preferences = () => {
       </Text>
       <View style={styles.buttonContainer}>
         <Pressable
-          style={{
-            ...styles.button,
-            backgroundColor:
-              colorTheme === "dark"
-                ? DarkTheme.colors.text
-                : DefaultTheme.colors.text,
-          }}
-          onPress={() => {
-            dispatch(changeTheme(tempTheme));
-          }}
+          style={[
+            styles.button,
+            themeState.data === "system" && {
+              backgroundColor:
+                colorTheme === "dark"
+                  ? DarkTheme.colors.text
+                  : DefaultTheme.colors.text,
+            },
+          ]}
+          onPress={() => dispatch(changeTheme("system"))}
         >
           <Text
-            style={{
-              ...styles.buttonText,
-              color:
-                colorTheme === "dark"
-                  ? DefaultTheme.colors.text
-                  : DarkTheme.colors.text,
-            }}
+            style={[
+              styles.buttonText,
+              {
+                color:
+                  colorTheme === "dark"
+                    ? DarkTheme.colors.text
+                    : DefaultTheme.colors.text,
+              },
+              themeState.data === "system" && {
+                color:
+                  colorTheme === "dark"
+                    ? DefaultTheme.colors.text
+                    : DarkTheme.colors.text,
+              },
+            ]}
           >
             System
           </Text>
         </Pressable>
+
         <Pressable
-          style={styles.button}
-          onPress={() => {
-            dispatch(changeTheme("light"));
-          }}
+          style={[
+            styles.button,
+            themeState.data === "light" && {
+              backgroundColor: DefaultTheme.colors.text,
+            },
+          ]}
+          onPress={() => dispatch(changeTheme("light"))}
         >
           <Text
-            style={{
-              ...styles.buttonText,
-              color:
-                colorTheme === "dark"
-                  ? DarkTheme.colors.text
-                  : DefaultTheme.colors.text,
-            }}
+            style={[
+              styles.buttonText,
+              {
+                color:
+                  colorTheme === "dark"
+                    ? DarkTheme.colors.text
+                    : DefaultTheme.colors.text,
+              },
+              themeState.data === "light" && {
+                color: DefaultTheme.colors.background,
+              },
+            ]}
           >
             Light
           </Text>
         </Pressable>
+
         <Pressable
-          style={styles.button}
-          onPress={() => {
-            dispatch(changeTheme("dark"));
-          }}
+          style={[
+            styles.button,
+            themeState.data === "dark" && {
+              backgroundColor: DarkTheme.colors.text,
+            },
+          ]}
+          onPress={() => dispatch(changeTheme("dark"))}
         >
           <Text
-            style={{
-              ...styles.buttonText,
-              color:
-                colorTheme === "dark"
-                  ? DarkTheme.colors.text
-                  : DefaultTheme.colors.text,
-            }}
+            style={[
+              styles.buttonText,
+              {
+                color:
+                  colorTheme === "dark"
+                    ? DarkTheme.colors.text
+                    : DefaultTheme.colors.text,
+              },
+              themeState.data === "dark" && {
+                color: DarkTheme.colors.background,
+              },
+            ]}
           >
             Dark
           </Text>

@@ -6,7 +6,7 @@ import {
   Image,
   useColorScheme,
 } from "react-native";
-import React from "react";
+import React, { useMemo } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import * as WebBrowser from "expo-web-browser";
@@ -14,7 +14,12 @@ import { Link } from "expo-router";
 import { useSelector } from "react-redux";
 
 const About = () => {
-  const theme = useSelector((state) => state.theme.data) || useColorScheme();
+  const themeState = useSelector((state) => state.theme);
+  const systemColorScheme = useColorScheme();
+
+  const theme = useMemo(() => {
+    return themeState.data === "system" ? systemColorScheme : themeState.data;
+  }, [themeState.data, systemColorScheme]);
 
   const handleRedirect = async (url) => {
     let result = await WebBrowser.openBrowserAsync(url);

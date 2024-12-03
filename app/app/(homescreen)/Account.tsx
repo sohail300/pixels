@@ -2,6 +2,7 @@ import About from "@/components/About";
 import Preferences from "@/components/Preferences";
 import Signin from "@/components/Signin";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
+import { useMemo } from "react";
 import {
   View,
   Text,
@@ -16,8 +17,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 
 export default function AccountPage() {
-  const colorTheme =
-    useSelector((state) => state.theme.data) || useColorScheme();
+  const themeState = useSelector((state) => state.theme);
+  const systemColorScheme = useColorScheme();
+
+  const colorTheme = useMemo(() => {
+    return themeState.data === "system" ? systemColorScheme : themeState.data;
+  }, [themeState.data, systemColorScheme]);
 
   return (
     <SafeAreaView

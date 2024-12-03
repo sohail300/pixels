@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   useColorScheme,
 } from "react-native";
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Colors } from "@/constants/Colors";
 import BottomSheetComponent from "./BottomSheet";
@@ -14,7 +14,12 @@ import { BottomSheetContext } from "@/context/BottomSheetContext";
 import { useSelector } from "react-redux";
 
 const Card = ({ uri, name }) => {
-  const theme = useSelector((state) => state.theme.data) || useColorScheme();
+  const themeState = useSelector((state) => state.theme);
+  const systemColorScheme = useColorScheme();
+
+  const theme = useMemo(() => {
+    return themeState.data === "system" ? systemColorScheme : themeState.data;
+  }, [themeState.data, systemColorScheme]);
 
   const { setShowBottomSheet, setUrl, setName } =
     useContext(BottomSheetContext);

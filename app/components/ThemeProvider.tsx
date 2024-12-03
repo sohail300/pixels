@@ -1,20 +1,15 @@
 import { View, useColorScheme } from "react-native";
-import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { changeTheme } from "@/redux/ThemeSlice";
+import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 
 const ThemeProvider = ({ children }) => {
   const themeState = useSelector((state) => state.theme);
+  const systemColorScheme = useColorScheme();
 
-  const colorTheme =
-    themeState.data !== "" ? themeState.data : useColorScheme();
-
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(changeTheme(colorTheme));
-  }, [colorTheme, dispatch]);
+  const colorTheme = useMemo(() => {
+    // Only use system color scheme when theme is set to "system"
+    return themeState.data === "system" ? systemColorScheme : themeState.data;
+  }, [themeState.data, systemColorScheme]);
 
   return <>{children}</>;
 };

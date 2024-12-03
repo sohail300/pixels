@@ -9,7 +9,7 @@ import {
   useColorScheme,
   KeyboardAvoidingView,
 } from "react-native";
-import React from "react";
+import React, { useMemo } from "react";
 import SpiltView from "./SpiltView";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import CarouselComponent from "./CarouselComponent";
@@ -19,7 +19,12 @@ import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 
 const HomePage = () => {
-  const theme = useSelector((state) => state.theme.data) || useColorScheme();
+  const themeState = useSelector((state) => state.theme);
+  const systemColorScheme = useColorScheme();
+
+  const theme = useMemo(() => {
+    return themeState.data === "system" ? systemColorScheme : themeState.data;
+  }, [themeState.data, systemColorScheme]);
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "transparent" }}>
@@ -37,6 +42,11 @@ const HomePage = () => {
         <View
           style={{
             backgroundColor: theme === "dark" ? "#333" : "#fff",
+            borderColor:
+              theme === "dark"
+                ? DarkTheme.colors.text
+                : DefaultTheme.colors.text,
+            borderWidth: 1,
             marginHorizontal: 48,
             marginVertical: 24,
             padding: 16,
@@ -54,7 +64,13 @@ const HomePage = () => {
           />
           <TextInput
             placeholder="Search"
-            style={{ color: "white", width: "100%" }}
+            style={{
+              color:
+                theme === "dark"
+                  ? DarkTheme.colors.text
+                  : DefaultTheme.colors.text,
+              width: "100%",
+            }}
             placeholderTextColor={"#aaa"}
           />
         </View>

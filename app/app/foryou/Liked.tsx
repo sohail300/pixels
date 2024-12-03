@@ -5,7 +5,7 @@ import {
   StyleSheet,
   useColorScheme,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Colors } from "@/constants/Colors";
 import SpiltView from "@/components/SpiltView";
@@ -24,8 +24,12 @@ import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 
 const Liked = () => {
-  const colorTheme =
-    useSelector((state) => state.theme.data) || useColorScheme();
+  const themeState = useSelector((state) => state.theme);
+  const systemColorScheme = useColorScheme();
+
+  const colorTheme = useMemo(() => {
+    return themeState.data === "system" ? systemColorScheme : themeState.data;
+  }, [themeState.data, systemColorScheme]);
 
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const [liked, setLiked] = useState(false);

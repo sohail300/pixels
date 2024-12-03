@@ -1,5 +1,5 @@
 import { SafeAreaView, Text, StyleSheet, useColorScheme } from "react-native";
-import React from "react";
+import React, { useMemo } from "react";
 import SpiltView from "@/components/SpiltView";
 import Animated, {
   interpolate,
@@ -12,8 +12,13 @@ import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 
 const Suggested = () => {
-  const colorTheme =
-    useSelector((state) => state.theme.data) || useColorScheme();
+  const themeState = useSelector((state) => state.theme);
+  const systemColorScheme = useColorScheme();
+
+  const colorTheme = useMemo(() => {
+    return themeState.data === "system" ? systemColorScheme : themeState.data;
+  }, [themeState.data, systemColorScheme]);
+
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
 
   return (

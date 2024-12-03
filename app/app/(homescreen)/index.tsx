@@ -17,9 +17,12 @@ export default function ExplorePage() {
   initializeTheme(dispatch);
 
   const themeState = useSelector((state) => state.theme);
+  console.log(themeState);
+  const systemColorScheme = useColorScheme();
 
   const colorTheme =
-    themeState.data !== "" ? themeState.data : useColorScheme();
+    themeState.data !== "system" ? themeState.data : systemColorScheme;
+  console.log(colorTheme);
 
   return (
     <SafeAreaView

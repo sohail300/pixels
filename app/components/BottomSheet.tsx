@@ -34,7 +34,12 @@ export default function BottomSheetComponent({
 }) {
   // ref
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const theme = useSelector((state) => state.theme.data) || useColorScheme();
+  const themeState = useSelector((state) => state.theme);
+  const systemColorScheme = useColorScheme();
+
+  const theme = useMemo(() => {
+    return themeState.data === "system" ? systemColorScheme : themeState.data;
+  }, [themeState.data, systemColorScheme]);
 
   const width = Dimensions.get("window").width;
 

@@ -6,7 +6,7 @@ import {
   StyleSheet,
   useColorScheme,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   GoogleSignin,
@@ -21,7 +21,12 @@ import { useSelector } from "react-redux";
 
 const Signin = () => {
   const [session, setSession] = useState<Session | null>(null);
-  const theme = useSelector((state) => state.theme.data) || useColorScheme();
+  const themeState = useSelector((state) => state.theme);
+  const systemColorScheme = useColorScheme();
+
+  const theme = useMemo(() => {
+    return themeState.data === "system" ? systemColorScheme : themeState.data;
+  }, [themeState.data, systemColorScheme]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {

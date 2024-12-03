@@ -14,7 +14,7 @@ import {
 import logo from "../../assets/images/logo.png";
 import user from "../../assets/images/user.jpg";
 import { Colors } from "@/constants/Colors";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 import BottomSheetComponent from "@/components/BottomSheet";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
@@ -26,8 +26,12 @@ export default function MyTabs() {
   const screenWidth = Dimensions.get("window").width;
   const tabWidth = screenWidth / 2;
 
-  const colorTheme =
-    useSelector((state) => state.theme.data) || useColorScheme();
+  const themeState = useSelector((state) => state.theme);
+  const systemColorScheme = useColorScheme();
+
+  const colorTheme = useMemo(() => {
+    return themeState.data === "system" ? systemColorScheme : themeState.data;
+  }, [themeState.data, systemColorScheme]);
 
   const { showBottomSheet, setShowBottomSheet, name, url } =
     useContext(BottomSheetContext);

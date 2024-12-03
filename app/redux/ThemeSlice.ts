@@ -4,10 +4,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const ThemeSlice = createSlice({
   name: "theme",
   initialState: {
-    data: "dark",
+    data: "system", // Default to system
   },
   reducers: {
     changeTheme(state, action) {
+      // Explicitly set the theme, avoiding any automatic switching
       state.data = action.payload;
       AsyncStorage.setItem("theme", action.payload);
     },
@@ -18,11 +19,12 @@ export async function initializeTheme(dispatch) {
   try {
     const savedTheme = await AsyncStorage.getItem("theme");
 
-    if (savedTheme) {
-      dispatch(changeTheme(savedTheme));
-    }
+    // If no saved theme, default to system
+    dispatch(changeTheme(savedTheme || "system"));
   } catch (error) {
     console.error("Error loading theme:", error);
+    // Fallback to system if there's an error
+    dispatch(changeTheme("system"));
   }
 }
 
