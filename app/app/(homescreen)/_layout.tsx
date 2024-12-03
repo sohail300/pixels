@@ -4,9 +4,11 @@ import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 
 export default function TabLayout() {
-  const colorTheme = useColorScheme();
+  const colorTheme =
+    useSelector((state) => state.theme.data) || useColorScheme();
 
   return (
     <Tabs

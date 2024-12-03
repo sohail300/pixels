@@ -21,6 +21,7 @@ import * as MediaLibrary from "expo-media-library";
 import { formatDate } from "@/lib/date";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useSelector } from "react-redux";
 
 export default function BottomSheetComponent({
   close,
@@ -33,7 +34,8 @@ export default function BottomSheetComponent({
 }) {
   // ref
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const theme = useColorScheme();
+  const theme = useSelector((state) => state.theme.data) || useColorScheme();
+
   const width = Dimensions.get("window").width;
 
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();

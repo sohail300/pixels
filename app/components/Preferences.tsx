@@ -13,13 +13,16 @@ import version3 from "../assets/images/v3.png";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";
+import { changeTheme } from "@/redux/ThemeSlice";
+import { useDispatch } from "react-redux";
 
 const Preferences = () => {
-  const theme = useColorScheme();
+  const colorTheme =
+    useSelector((state) => state.theme.data) || useColorScheme();
 
-  // const colorTheme = useSelector((state) => state.theme.data);
-  // console.log(colorTheme);
-  console.log("run");
+  const tempTheme = useColorScheme();
+
+  const dispatch = useDispatch();
 
   return (
     <SafeAreaView>
@@ -27,7 +30,9 @@ const Preferences = () => {
         style={{
           fontSize: 24,
           color:
-            theme === "dark" ? DarkTheme.colors.text : DefaultTheme.colors.text,
+            colorTheme === "dark"
+              ? DarkTheme.colors.text
+              : DefaultTheme.colors.text,
           fontWeight: "bold",
         }}
       >
@@ -37,7 +42,9 @@ const Preferences = () => {
         style={{
           fontSize: 16,
           color:
-            theme === "dark" ? DarkTheme.colors.text : DefaultTheme.colors.text,
+            colorTheme === "dark"
+              ? DarkTheme.colors.text
+              : DefaultTheme.colors.text,
           marginVertical: 4,
         }}
       >
@@ -48,16 +55,19 @@ const Preferences = () => {
           style={{
             ...styles.button,
             backgroundColor:
-              theme === "dark"
+              colorTheme === "dark"
                 ? DarkTheme.colors.text
                 : DefaultTheme.colors.text,
+          }}
+          onPress={() => {
+            dispatch(changeTheme(tempTheme));
           }}
         >
           <Text
             style={{
               ...styles.buttonText,
               color:
-                theme === "dark"
+                colorTheme === "dark"
                   ? DefaultTheme.colors.text
                   : DarkTheme.colors.text,
             }}
@@ -65,12 +75,17 @@ const Preferences = () => {
             System
           </Text>
         </Pressable>
-        <Pressable style={styles.button}>
+        <Pressable
+          style={styles.button}
+          onPress={() => {
+            dispatch(changeTheme("light"));
+          }}
+        >
           <Text
             style={{
               ...styles.buttonText,
               color:
-                theme === "dark"
+                colorTheme === "dark"
                   ? DarkTheme.colors.text
                   : DefaultTheme.colors.text,
             }}
@@ -78,12 +93,17 @@ const Preferences = () => {
             Light
           </Text>
         </Pressable>
-        <Pressable style={styles.button}>
+        <Pressable
+          style={styles.button}
+          onPress={() => {
+            dispatch(changeTheme("dark"));
+          }}
+        >
           <Text
             style={{
               ...styles.buttonText,
               color:
-                theme === "dark"
+                colorTheme === "dark"
                   ? DarkTheme.colors.text
                   : DefaultTheme.colors.text,
             }}
@@ -99,7 +119,9 @@ const Preferences = () => {
         style={{
           fontSize: 16,
           color:
-            theme === "dark" ? DarkTheme.colors.text : DefaultTheme.colors.text,
+            colorTheme === "dark"
+              ? DarkTheme.colors.text
+              : DefaultTheme.colors.text,
           marginVertical: 4,
         }}
       >
@@ -114,7 +136,7 @@ const Preferences = () => {
             borderRadius: 16,
             ...styles.selectedIcon,
             borderColor:
-              theme === "dark"
+              colorTheme === "dark"
                 ? DarkTheme.colors.text
                 : DefaultTheme.colors.text,
           }}

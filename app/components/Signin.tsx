@@ -17,10 +17,11 @@ import { supabase } from "../lib/supabase";
 import { Session } from "@supabase/supabase-js";
 import "react-native-url-polyfill/auto";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 
 const Signin = () => {
   const [session, setSession] = useState<Session | null>(null);
-  const theme = useColorScheme();
+  const theme = useSelector((state) => state.theme.data) || useColorScheme();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {

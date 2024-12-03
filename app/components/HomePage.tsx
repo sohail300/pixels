@@ -16,9 +16,10 @@ import CarouselComponent from "./CarouselComponent";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Colors } from "@/constants/Colors";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 
 const HomePage = () => {
-  const theme = useColorScheme();
+  const theme = useSelector((state) => state.theme.data) || useColorScheme();
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "transparent" }}>

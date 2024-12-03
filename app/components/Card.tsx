@@ -11,9 +11,10 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { Colors } from "@/constants/Colors";
 import BottomSheetComponent from "./BottomSheet";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
+import { useSelector } from "react-redux";
 
 const Card = ({ uri, name }) => {
-  const theme = useColorScheme();
+  const theme = useSelector((state) => state.theme.data) || useColorScheme();
 
   const { setShowBottomSheet, setUrl, setName } =
     useContext(BottomSheetContext);

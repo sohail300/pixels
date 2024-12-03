@@ -9,9 +9,11 @@ import Animated, {
 } from "react-native-reanimated";
 import { ThemedView } from "@/components/ThemedView";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 
 const Suggested = () => {
-  const theme = useColorScheme();
+  const colorTheme =
+    useSelector((state) => state.theme.data) || useColorScheme();
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
 
   return (
@@ -21,7 +23,7 @@ const Suggested = () => {
           style={{
             ...styles.content,
             backgroundColor:
-              theme === "dark"
+              colorTheme === "dark"
                 ? DarkTheme.colors.background
                 : DefaultTheme.colors.background,
           }}

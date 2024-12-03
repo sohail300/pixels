@@ -21,9 +21,11 @@ import { FlatList, ScrollView } from "react-native-gesture-handler";
 import Card from "@/components/Card";
 import LikedCard from "@/components/LikedCard";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 
 const Liked = () => {
-  const theme = useColorScheme();
+  const colorTheme =
+    useSelector((state) => state.theme.data) || useColorScheme();
 
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const [liked, setLiked] = useState(false);
@@ -33,7 +35,7 @@ const Liked = () => {
     <SafeAreaView
       style={{
         backgroundColor:
-          theme === "dark"
+          colorTheme === "dark"
             ? DarkTheme.colors.background
             : DefaultTheme.colors.background,
       }}
@@ -55,7 +57,7 @@ const Liked = () => {
               style={{
                 ...styles.emptyStateText,
                 color:
-                  theme === "dark"
+                  colorTheme === "dark"
                     ? DarkTheme.colors.text
                     : DefaultTheme.colors.text,
               }}
@@ -75,7 +77,7 @@ const Liked = () => {
           style={{
             ...styles.text,
             color:
-              theme === "dark"
+              colorTheme === "dark"
                 ? DarkTheme.colors.text
                 : DefaultTheme.colors.text,
           }}

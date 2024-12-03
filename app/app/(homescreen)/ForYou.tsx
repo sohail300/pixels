@@ -18,6 +18,7 @@ import { useContext } from "react";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 import BottomSheetComponent from "@/components/BottomSheet";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -25,7 +26,8 @@ export default function MyTabs() {
   const screenWidth = Dimensions.get("window").width;
   const tabWidth = screenWidth / 2;
 
-  const colorTheme = useColorScheme();
+  const colorTheme =
+    useSelector((state) => state.theme.data) || useColorScheme();
 
   const { showBottomSheet, setShowBottomSheet, name, url } =
     useContext(BottomSheetContext);
