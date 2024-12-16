@@ -1,7 +1,6 @@
 import { Tabs } from "expo-router";
 import React, { useMemo } from "react";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
-import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";

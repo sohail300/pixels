@@ -8,17 +8,9 @@ import {
 import React, { useMemo, useState } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Colors } from "@/constants/Colors";
-import SpiltView from "@/components/SpiltView";
-import Animated, {
-  interpolate,
-  useAnimatedRef,
-  useAnimatedStyle,
-  useScrollViewOffset,
-} from "react-native-reanimated";
-import { ThemedView } from "@/components/ThemedView";
+import Animated, { useAnimatedRef } from "react-native-reanimated";
 import useWallpaper from "@/hooks/useWallpaper";
 import { FlatList, ScrollView } from "react-native-gesture-handler";
-import Card from "@/components/Card";
 import LikedCard from "@/components/LikedCard";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";
@@ -38,6 +30,7 @@ const Liked = () => {
   return (
     <SafeAreaView
       style={{
+        height: "100%",
         backgroundColor:
           colorTheme === "dark"
             ? DarkTheme.colors.background
@@ -76,21 +69,6 @@ const Liked = () => {
             />
           </View>
         )}
-
-        <Text
-          style={{
-            ...styles.text,
-            color:
-              colorTheme === "dark"
-                ? DarkTheme.colors.text
-                : DefaultTheme.colors.text,
-          }}
-        >
-          Suggested for you!
-        </Text>
-        <ThemedView style={styles.content}>
-          <SpiltView />
-        </ThemedView>
       </ScrollView>
     </SafeAreaView>
   );

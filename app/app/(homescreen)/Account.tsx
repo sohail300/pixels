@@ -3,15 +3,7 @@ import Preferences from "@/components/Preferences";
 import Signin from "@/components/Signin";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useMemo } from "react";
-import {
-  View,
-  Text,
-  Button,
-  Pressable,
-  StyleSheet,
-  Image,
-  useColorScheme,
-} from "react-native";
+import { useColorScheme } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";

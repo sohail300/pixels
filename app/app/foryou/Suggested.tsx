@@ -1,12 +1,7 @@
-import { SafeAreaView, Text, StyleSheet, useColorScheme } from "react-native";
+import { SafeAreaView, StyleSheet, useColorScheme } from "react-native";
 import React, { useMemo } from "react";
 import SpiltView from "@/components/SpiltView";
-import Animated, {
-  interpolate,
-  useAnimatedRef,
-  useAnimatedStyle,
-  useScrollViewOffset,
-} from "react-native-reanimated";
+import Animated, { useAnimatedRef } from "react-native-reanimated";
 import { ThemedView } from "@/components/ThemedView";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";

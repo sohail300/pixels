@@ -15,6 +15,7 @@ import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 import { changeTheme } from "@/redux/ThemeSlice";
 import { useDispatch } from "react-redux";
+import { setAppIcon } from "expo-dynamic-app-icon";
 
 const Preferences = () => {
   const dispatch = useDispatch();
@@ -156,27 +157,33 @@ const Preferences = () => {
         App Icon
       </Text>
       <View style={styles.iconContainer}>
-        <Image
-          source={version1}
-          style={{
-            width: 80,
-            height: 80,
-            borderRadius: 16,
-            ...styles.selectedIcon,
-            borderColor:
-              colorTheme === "dark"
-                ? DarkTheme.colors.text
-                : DefaultTheme.colors.text,
-          }}
-        />
-        <Image
-          source={version2}
-          style={{ width: 80, height: 80, borderRadius: 16 }}
-        />
-        <Image
-          source={version3}
-          style={{ width: 80, height: 80, borderRadius: 16 }}
-        />
+        <Pressable onPress={() => setAppIcon("v1")}>
+          <Image
+            source={version1}
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: 16,
+              ...styles.selectedIcon,
+              borderColor:
+                colorTheme === "dark"
+                  ? DarkTheme.colors.text
+                  : DefaultTheme.colors.text,
+            }}
+          />
+        </Pressable>
+        <Pressable onPress={() => setAppIcon("v2")}>
+          <Image
+            source={version2}
+            style={{ width: 80, height: 80, borderRadius: 16 }}
+          />
+        </Pressable>
+        <Pressable onPress={() => setAppIcon("v3")}>
+          <Image
+            source={version3}
+            style={{ width: 80, height: 80, borderRadius: 16 }}
+          />
+        </Pressable>
       </View>
     </SafeAreaView>
   );

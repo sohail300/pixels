@@ -1,7 +1,6 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import Liked from "../foryou/Liked";
 import Suggested from "../foryou/Suggested";
-import Library from "../foryou/Library";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   View,

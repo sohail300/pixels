@@ -37,6 +37,23 @@
           "savePhotosPermission": "Allow Pixels to save photos.",
           "isAccessMediaLocationEnabled": true
         }
+      ],
+      [
+        "expo-dynamic-app-icon",
+        {
+          "v1": {
+            "image": "./assets/images/v1.png",
+            "prerendered": true
+          },
+          "v2": {
+            "image": "./assets/images/v2.png",
+            "prerendered": true
+          },
+          "v3": {
+            "image": "./assets/images/v3.png",
+            "prerendered": true
+          }
+        }
       ]
     ],
     "experiments": {
