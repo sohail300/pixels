@@ -15,7 +15,7 @@ import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 import { changeTheme } from "@/redux/ThemeSlice";
 import { useDispatch } from "react-redux";
-import { setAppIcon } from "expo-dynamic-app-icon";
+import { Colors } from "@/constants/Colors";
 
 const Preferences = () => {
   const dispatch = useDispatch();
@@ -32,10 +32,7 @@ const Preferences = () => {
       <Text
         style={{
           fontSize: 24,
-          color:
-            colorTheme === "dark"
-              ? DarkTheme.colors.text
-              : DefaultTheme.colors.text,
+          color: colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
           fontWeight: "bold",
         }}
       >
@@ -44,10 +41,7 @@ const Preferences = () => {
       <Text
         style={{
           fontSize: 16,
-          color:
-            colorTheme === "dark"
-              ? DarkTheme.colors.text
-              : DefaultTheme.colors.text,
+          color: colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
           marginVertical: 4,
         }}
       >
@@ -59,9 +53,7 @@ const Preferences = () => {
             styles.button,
             themeState.data === "system" && {
               backgroundColor:
-                colorTheme === "dark"
-                  ? DarkTheme.colors.text
-                  : DefaultTheme.colors.text,
+                colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
             },
           ]}
           onPress={() => dispatch(changeTheme("system"))}
@@ -71,15 +63,11 @@ const Preferences = () => {
               styles.buttonText,
               {
                 color:
-                  colorTheme === "dark"
-                    ? DarkTheme.colors.text
-                    : DefaultTheme.colors.text,
+                  colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
               },
               themeState.data === "system" && {
                 color:
-                  colorTheme === "dark"
-                    ? DefaultTheme.colors.text
-                    : DarkTheme.colors.text,
+                  colorTheme === "dark" ? Colors.light.text : Colors.dark.text,
               },
             ]}
           >
@@ -91,7 +79,7 @@ const Preferences = () => {
           style={[
             styles.button,
             themeState.data === "light" && {
-              backgroundColor: DefaultTheme.colors.text,
+              backgroundColor: Colors.light.text,
             },
           ]}
           onPress={() => dispatch(changeTheme("light"))}
@@ -101,12 +89,10 @@ const Preferences = () => {
               styles.buttonText,
               {
                 color:
-                  colorTheme === "dark"
-                    ? DarkTheme.colors.text
-                    : DefaultTheme.colors.text,
+                  colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
               },
               themeState.data === "light" && {
-                color: DefaultTheme.colors.background,
+                color: Colors.light.background,
               },
             ]}
           >
@@ -118,7 +104,7 @@ const Preferences = () => {
           style={[
             styles.button,
             themeState.data === "dark" && {
-              backgroundColor: DarkTheme.colors.text,
+              backgroundColor: Colors.dark.text,
             },
           ]}
           onPress={() => dispatch(changeTheme("dark"))}
@@ -128,12 +114,10 @@ const Preferences = () => {
               styles.buttonText,
               {
                 color:
-                  colorTheme === "dark"
-                    ? DarkTheme.colors.text
-                    : DefaultTheme.colors.text,
+                  colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
               },
               themeState.data === "dark" && {
-                color: DarkTheme.colors.background,
+                color: Colors.dark.background,
               },
             ]}
           >
@@ -144,13 +128,13 @@ const Preferences = () => {
 
       <View style={{ marginTop: 24 }} />
 
-      <Text
+      {/* <Text
         style={{
           fontSize: 16,
           color:
             colorTheme === "dark"
-              ? DarkTheme.colors.text
-              : DefaultTheme.colors.text,
+              ? Colors.dark.text
+              : Colors.light.text,
           marginVertical: 4,
         }}
       >
@@ -167,8 +151,8 @@ const Preferences = () => {
               ...styles.selectedIcon,
               borderColor:
                 colorTheme === "dark"
-                  ? DarkTheme.colors.text
-                  : DefaultTheme.colors.text,
+                  ? Colors.dark.text
+                  : Colors.light.text,
             }}
           />
         </Pressable>
@@ -184,7 +168,7 @@ const Preferences = () => {
             style={{ width: 80, height: 80, borderRadius: 16 }}
           />
         </Pressable>
-      </View>
+      </View> */}
     </SafeAreaView>
   );
 };

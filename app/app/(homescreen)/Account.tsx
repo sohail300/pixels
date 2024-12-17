@@ -1,6 +1,7 @@
 import About from "@/components/About";
 import Preferences from "@/components/Preferences";
 import Signin from "@/components/Signin";
+import { Colors } from "@/constants/Colors";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useMemo } from "react";
 import { useColorScheme } from "react-native";
@@ -23,8 +24,8 @@ export default function AccountPage() {
         paddingHorizontal: 16,
         backgroundColor:
           colorTheme === "dark"
-            ? DarkTheme.colors.background
-            : DefaultTheme.colors.background,
+            ? Colors.dark.background
+            : Colors.light.background,
       }}
     >
       <ScrollView

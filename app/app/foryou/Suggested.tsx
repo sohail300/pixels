@@ -5,6 +5,7 @@ import Animated, { useAnimatedRef } from "react-native-reanimated";
 import { ThemedView } from "@/components/ThemedView";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";
+import { Colors } from "@/constants/Colors";
 
 const Suggested = () => {
   const themeState = useSelector((state) => state.theme);
@@ -24,8 +25,8 @@ const Suggested = () => {
             ...styles.content,
             backgroundColor:
               colorTheme === "dark"
-                ? DarkTheme.colors.background
-                : DefaultTheme.colors.background,
+                ? Colors.dark.background
+                : Colors.light.background,
           }}
         >
           <SpiltView />

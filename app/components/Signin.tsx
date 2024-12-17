@@ -18,6 +18,7 @@ import { Session } from "@supabase/supabase-js";
 import "react-native-url-polyfill/auto";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";
+import { Colors } from "@/constants/Colors";
 
 const Signin = () => {
   const [session, setSession] = useState<Session | null>(null);
@@ -49,8 +50,7 @@ const Signin = () => {
       <Text
         style={{
           fontSize: 24,
-          color:
-            theme === "dark" ? DarkTheme.colors.text : DefaultTheme.colors.text,
+          color: theme === "dark" ? Colors.dark.text : Colors.light.text,
           fontWeight: "bold",
         }}
       >
@@ -59,8 +59,7 @@ const Signin = () => {
       <Text
         style={{
           fontSize: 16,
-          color:
-            theme === "dark" ? DarkTheme.colors.text : DefaultTheme.colors.text,
+          color: theme === "dark" ? Colors.dark.text : Colors.light.text,
           marginVertical: 2,
         }}
       >
@@ -69,7 +68,7 @@ const Signin = () => {
       <View
         style={{
           backgroundColor:
-            theme === "dark" ? DarkTheme.colors.card : DefaultTheme.colors.card,
+            theme === "dark" ? Colors.dark.card : Colors.light.card,
           borderRadius: 12,
           padding: 24,
           marginVertical: 8,
@@ -84,9 +83,7 @@ const Signin = () => {
             justifyContent: "center",
             borderWidth: 2,
             borderColor:
-              theme === "dark"
-                ? DarkTheme.colors.text
-                : DefaultTheme.colors.text,
+              theme === "dark" ? Colors.dark.text : Colors.light.text,
           }}
         >
           {/* <GoogleSigninButton

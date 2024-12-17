@@ -1,5 +1,6 @@
 import BottomSheetComponent from "@/components/BottomSheet";
 import HomePage from "@/components/HomePage";
+import { Colors } from "@/constants/Colors";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 import { initializeTheme } from "@/redux/ThemeSlice";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
@@ -30,8 +31,8 @@ export default function ExplorePage() {
         flex: 1,
         backgroundColor:
           colorTheme === "dark"
-            ? DarkTheme.colors.background
-            : DefaultTheme.colors.background,
+            ? Colors.dark.background
+            : Colors.light.background,
       }}
     >
       <View style={{ flex: 1 }}>

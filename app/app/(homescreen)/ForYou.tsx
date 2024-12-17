@@ -40,18 +40,14 @@ export default function MyTabs() {
       style={{
         flex: 1,
         backgroundColor:
-          colorTheme === "dark"
-            ? DarkTheme.colors.background
-            : DefaultTheme.colors.background,
+          colorTheme === "dark" ? Colors.dark.card : Colors.light.card,
       }}
     >
       <View
         style={{
           ...styles.header,
           backgroundColor:
-            colorTheme === "dark"
-              ? DarkTheme.colors.background
-              : DefaultTheme.colors.background,
+            colorTheme === "dark" ? Colors.dark.card : Colors.light.card,
         }}
       >
         <Image source={logo} style={styles.logoImage} />
@@ -62,9 +58,7 @@ export default function MyTabs() {
               style={{
                 fontSize: 16,
                 color:
-                  colorTheme === "dark"
-                    ? DarkTheme.colors.text
-                    : DefaultTheme.colors.text,
+                  colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
               }}
             >
               Hello User!
@@ -73,9 +67,7 @@ export default function MyTabs() {
               style={{
                 fontSize: 14,
                 color:
-                  colorTheme === "dark"
-                    ? DarkTheme.colors.text
-                    : DefaultTheme.colors.text,
+                  colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
               }}
             >
               Welcome to Pixels
@@ -91,9 +83,7 @@ export default function MyTabs() {
             tabBarStyle: {
               width: "100%",
               backgroundColor:
-                colorTheme === "dark"
-                  ? DarkTheme.colors.background
-                  : DefaultTheme.colors.background,
+                colorTheme === "dark" ? Colors.dark.card : Colors.light.card,
             },
             tabBarItemStyle: {
               width: tabWidth,
@@ -104,13 +94,11 @@ export default function MyTabs() {
               textTransform: "capitalize",
               width: "100%",
               color:
-                colorTheme === "dark"
-                  ? DarkTheme.colors.text
-                  : DefaultTheme.colors.text,
+                colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
             },
             tabBarIndicatorStyle: {
               height: 4,
-              backgroundColor: Colors.brand.accentColor,
+              backgroundColor: Colors.light.accent,
             },
           }}
         >

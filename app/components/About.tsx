@@ -12,6 +12,7 @@ import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import * as WebBrowser from "expo-web-browser";
 import { Link } from "expo-router";
 import { useSelector } from "react-redux";
+import { Colors } from "@/constants/Colors";
 
 const About = () => {
   const themeState = useSelector((state) => state.theme);
@@ -31,8 +32,7 @@ const About = () => {
       <Text
         style={{
           fontSize: 24,
-          color:
-            theme === "dark" ? DarkTheme.colors.text : DefaultTheme.colors.text,
+          color: theme === "dark" ? Colors.dark.text : Colors.light.text,
           fontWeight: "bold",
         }}
       >
@@ -47,8 +47,8 @@ const About = () => {
             ...styles.text,
             color:
               theme === "dark"
-                ? DarkTheme.colors.text
-                : DefaultTheme.colors.text,
+                ? Colors.dark.text
+                : Colors.light.text,
           }}
         >
           Downloads
@@ -57,8 +57,7 @@ const About = () => {
       <Text
         style={{
           ...styles.text,
-          color:
-            theme === "dark" ? DarkTheme.colors.text : DefaultTheme.colors.text,
+          color: theme === "dark" ? Colors.dark.text : Colors.light.text,
         }}
         onPress={() =>
           handleRedirect("https://pixels.heysohail.me/privacy-policy")
@@ -69,8 +68,7 @@ const About = () => {
       <Text
         style={{
           ...styles.text,
-          color:
-            theme === "dark" ? DarkTheme.colors.text : DefaultTheme.colors.text,
+          color: theme === "dark" ? Colors.dark.text : Colors.light.text,
         }}
         onPress={() =>
           handleRedirect("https://pixels.heysohail.me/terms-of-services")
@@ -82,10 +80,7 @@ const About = () => {
         <Text
           style={{
             ...styles.text,
-            color:
-              theme === "dark"
-                ? DarkTheme.colors.text
-                : DefaultTheme.colors.text,
+            color: theme === "dark" ? Colors.dark.text : Colors.light.text,
           }}
         >
           Version
@@ -93,10 +88,7 @@ const About = () => {
         <Text
           style={{
             ...styles.subtext,
-            color:
-              theme === "dark"
-                ? DarkTheme.colors.text
-                : DefaultTheme.colors.text,
+            color: theme === "dark" ? Colors.dark.text : Colors.light.text,
           }}
         >
           1.0.0

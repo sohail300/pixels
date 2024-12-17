@@ -116,17 +116,13 @@ export default function BottomSheetComponent({
             ...styles.contentContainer,
             backgroundColor:
               theme === "dark"
-                ? DarkTheme.colors.background
-                : DefaultTheme.colors.background,
+                ? Colors.dark.background
+                : Colors.light.background,
           }}
         >
           <View style={styles.icon}>
             <TouchableOpacity>
-              <AntDesign
-                name="hearto"
-                size={28}
-                color={Colors.brand.accentColor}
-              />
+              <AntDesign name="hearto" size={28} color={Colors.light.accent} />
             </TouchableOpacity>
           </View>
           <Image
@@ -136,10 +132,7 @@ export default function BottomSheetComponent({
           <Text
             style={{
               ...styles.text,
-              color:
-                theme === "dark"
-                  ? DarkTheme.colors.text
-                  : DefaultTheme.colors.text,
+              color: theme === "dark" ? Colors.dark.text : Colors.light.text,
             }}
           >
             {name}
@@ -149,7 +142,7 @@ export default function BottomSheetComponent({
               style={{
                 ...styles.button,
                 backgroundColor:
-                  theme === "dark" ? DarkTheme.colors.primary : "#2c2c2c",
+                  theme === "dark" ? Colors.dark.accent : "#2c2c2c",
               }}
             >
               <Ionicons
@@ -157,8 +150,8 @@ export default function BottomSheetComponent({
                 size={32}
                 color={`${
                   theme === "dark"
-                    ? DarkTheme.colors.background
-                    : DefaultTheme.colors.primary
+                    ? Colors.dark.background
+                    : Colors.light.accent
                 }`}
               />
               <Text
@@ -166,8 +159,8 @@ export default function BottomSheetComponent({
                   ...styles.buttonText,
                   color:
                     theme === "dark"
-                      ? DarkTheme.colors.background
-                      : DefaultTheme.colors.primary,
+                      ? Colors.dark.background
+                      : Colors.light.accent,
                 }}
               >
                 Get Wallpaper
@@ -192,19 +185,13 @@ export default function BottomSheetComponent({
               <MaterialCommunityIcons
                 name="cards-outline"
                 size={24}
-                color={
-                  theme === "dark"
-                    ? DarkTheme.colors.text
-                    : DefaultTheme.colors.text
-                }
+                color={theme === "dark" ? Colors.dark.text : Colors.light.text}
                 style={{ marginRight: 8 }}
               />
               <Text
                 style={{
                   color:
-                    theme === "dark"
-                      ? DarkTheme.colors.text
-                      : DefaultTheme.colors.text,
+                    theme === "dark" ? Colors.dark.text : Colors.light.text,
                 }}
               >
                 Category: Nature
@@ -220,9 +207,7 @@ export default function BottomSheetComponent({
               <Text
                 style={{
                   color:
-                    theme === "dark"
-                      ? DarkTheme.colors.text
-                      : DefaultTheme.colors.text,
+                    theme === "dark" ? Colors.dark.text : Colors.light.text,
                 }}
               >
                 50+ Downloads
@@ -230,11 +215,7 @@ export default function BottomSheetComponent({
               <Feather
                 name="download"
                 size={20}
-                color={
-                  theme === "dark"
-                    ? DarkTheme.colors.text
-                    : DefaultTheme.colors.text
-                }
+                color={theme === "dark" ? Colors.dark.text : Colors.light.text}
                 style={{ marginLeft: 8 }}
               />
             </View>

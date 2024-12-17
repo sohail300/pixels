@@ -33,8 +33,8 @@ const Liked = () => {
         height: "100%",
         backgroundColor:
           colorTheme === "dark"
-            ? DarkTheme.colors.background
-            : DefaultTheme.colors.background,
+            ? Colors.dark.background
+            : Colors.light.background,
       }}
     >
       <ScrollView>
@@ -54,9 +54,7 @@ const Liked = () => {
               style={{
                 ...styles.emptyStateText,
                 color:
-                  colorTheme === "dark"
-                    ? DarkTheme.colors.text
-                    : DefaultTheme.colors.text,
+                  colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
               }}
             >
               No favourites found!
@@ -64,7 +62,7 @@ const Liked = () => {
             <FontAwesome
               name="heart"
               size={80}
-              color={Colors.brand.accentColor}
+              color={Colors.light.accent}
               style={styles.icon}
             />
           </View>

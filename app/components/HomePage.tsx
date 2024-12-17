@@ -34,18 +34,14 @@ const HomePage = () => {
         style={{
           ...styles.content,
           backgroundColor:
-            theme === "dark"
-              ? DarkTheme.colors.background
-              : DefaultTheme.colors.background,
+            theme === "dark" ? Colors.dark.background : Colors.light.background,
         }}
       >
         <View
           style={{
             backgroundColor: theme === "dark" ? "#333" : "#fff",
             borderColor:
-              theme === "dark"
-                ? DarkTheme.colors.text
-                : DefaultTheme.colors.text,
+              theme === "dark" ? Colors.dark.text : Colors.light.text,
             borderWidth: 1,
             marginHorizontal: 48,
             marginVertical: 24,
@@ -60,15 +56,12 @@ const HomePage = () => {
           <AntDesign
             name="search1"
             size={24}
-            color={`${theme === "dark" ? DarkTheme.colors.primary : "#333"}`}
+            color={`${theme === "dark" ? Colors.dark.accent : "#333"}`}
           />
           <TextInput
             placeholder="Search"
             style={{
-              color:
-                theme === "dark"
-                  ? DarkTheme.colors.text
-                  : DefaultTheme.colors.text,
+              color: theme === "dark" ? Colors.dark.text : Colors.light.text,
               width: "100%",
             }}
             placeholderTextColor={"#aaa"}

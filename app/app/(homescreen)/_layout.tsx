@@ -2,8 +2,8 @@ import { Tabs } from "expo-router";
 import React, { useMemo } from "react";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";
+import { Colors } from "@/constants/Colors";
 
 export default function TabLayout() {
   const themeState = useSelector((state) => state.theme);
@@ -18,20 +18,18 @@ export default function TabLayout() {
       screenOptions={{
         tabBarHideOnKeyboard: true,
         tabBarActiveTintColor:
-          colorTheme === "dark"
-            ? DarkTheme.colors.primary
-            : DefaultTheme.colors.text,
+          colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
         tabBarItemStyle: {
           backgroundColor:
             colorTheme === "dark"
-              ? DarkTheme.colors.background
-              : DefaultTheme.colors.background,
+              ? Colors.dark.background
+              : Colors.light.background,
         },
         tabBarStyle: {
           backgroundColor:
             colorTheme === "dark"
-              ? DarkTheme.colors.background
-              : DefaultTheme.colors.background,
+              ? Colors.dark.background
+              : Colors.light.background,
           height: 60,
           paddingTop: 10,
           paddingBottom: 10,
@@ -47,7 +45,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "globe" : "globe-outline"}
-              color={color}
+              color={
+                focused && colorTheme === "dark" ? Colors.light.accent : color
+              }
             />
           ),
         }}
@@ -59,7 +59,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "star" : "star-outline"}
-              color={color}
+              color={
+                focused && colorTheme === "dark" ? Colors.light.accent : color
+              }
             />
           ),
         }}
@@ -71,7 +73,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "person" : "person-outline"}
-              color={color}
+              color={
+                focused && colorTheme === "dark" ? Colors.light.accent : color
+              }
             />
           ),
         }}

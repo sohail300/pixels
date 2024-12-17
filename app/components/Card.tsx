@@ -42,7 +42,7 @@ const Card = ({ uri, name }) => {
       <View style={styles.overlay}>
         <Text style={styles.text}>{name}</Text>
         <TouchableOpacity onPress={handleLike}>
-          <AntDesign name="hearto" size={28} color={Colors.brand.accentColor} />
+          <AntDesign name="hearto" size={28} color={Colors.light.accent} />
         </TouchableOpacity>
       </View>
     </View>
