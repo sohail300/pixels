@@ -16,7 +16,9 @@ import { supabase } from "@/lib/supabase";
 import { SessionContext } from "@/providers/SessionProvider";
 
 const Navbar: React.FC = () => {
-  const { session } = useContext(SessionContext);
+  const sessionContext = useContext(SessionContext);
+
+  const session = sessionContext?.session;
   const router = useRouter();
 
   const signin = async () => {

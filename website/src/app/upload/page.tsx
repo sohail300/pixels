@@ -5,10 +5,10 @@ import axios from "axios";
 import { Info } from "lucide-react";
 
 const FormUI = () => {
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [newCategory, setNewCategory] = useState("");
   const [name, setName] = useState("");
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -19,21 +19,25 @@ const FormUI = () => {
     }
   };
 
-  const handleKeyPress = (e) => {
+  interface KeyPressEvent extends React.KeyboardEvent<HTMLInputElement> {}
+
+  const handleKeyPress = (e: KeyPressEvent) => {
     if (e.key === "Enter" && newCategory.trim()) {
       e.preventDefault();
       handleAddCategory();
     }
   };
 
-  const handleRemoveCategory = (index) => {
+  const handleRemoveCategory = (index: number) => {
     const updatedCategories = [...categories];
     updatedCategories.splice(index, 1);
     setCategories(updatedCategories);
   };
 
-  const handleFileChange = (e) => {
-    setImage(e.target.files[0]);
+  interface FileChangeEvent extends React.ChangeEvent<HTMLInputElement> {}
+
+  const handleFileChange = (e: FileChangeEvent) => {
+    setImage(e.target.files?.[0] || null);
   };
 
   const handleUploadPhoto = async () => {
@@ -72,7 +76,11 @@ const FormUI = () => {
       setImage(null);
     } catch (err) {
       console.error("Upload failed:", err);
-      setError(err.response?.data?.detail || "Upload failed");
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.detail || "Upload failed");
+      } else {
+        setError("Upload failed");
+      }
     } finally {
       setLoading(false);
     }
