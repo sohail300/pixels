@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Info } from "lucide-react";
+import { api } from "@/utils/config";
 
 const FormUI = () => {
   const [categories, setCategories] = useState<string[]>([]);
@@ -59,16 +60,12 @@ const FormUI = () => {
         formData.append("categories", category);
       });
 
-      const response = await axios.post(
-        "http://localhost:8000/api/upload",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await api.post("/api/upload", formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       console.log(response);
       setName("");
