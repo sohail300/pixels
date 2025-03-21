@@ -2,7 +2,6 @@ import datetime
 from typing import Annotated, List, Dict
 from fastapi import Form, UploadFile, HTTPException, Request
 from fastapi import APIRouter
-from sqlalchemy import func
 from starlette import status
 from dotenv import load_dotenv
 from supabase import create_client
@@ -41,6 +40,7 @@ async def upload(request: Request,name: Annotated[str, Form()],
             raise HTTPException(status_code=401, detail="Invalid authorization header")
         access_token = auth_header.split(" ")[1]
 
+
         # Get file contents
         contents = await file.read()
 
@@ -58,24 +58,23 @@ async def upload(request: Request,name: Annotated[str, Form()],
         print(response)
 
         # DB Operations
-        wallpaper = Wallpaper(name=name, image=response.get('Key'), uploaded_by=user.get('user_id'))
+        wallpaper = Wallpaper(name=name, image=response.Key, uploaded_by=user.get('user_id'))
 
         db.add(wallpaper)
-        db.flush()
+        await db.flush()
 
         for category_item in categories:
-            category = db.query(Category).filter(func.lower(Category.name) == category_item.lower()).first()
+            category = db.query(Category).filter(Category.name==category_item).first()
 
             if not category:
-                print()
-                category = Category(name=category_item.lower())
+                category = Category(name=category_item)
                 db.add(category)
-                db.flush()
+                await db.flush()
 
-            wallpaper_category = WallpaperCategory(wallpaper_id=wallpaper.id, category_id=category.id)
+            wallpaper_category = WallpaperCategory(id=wallpaper.id, category_id=category.id)
             db.add(wallpaper_category)
 
-        db.commit()
+        await db.commit()
         return {"message": "File Uploaded!", "success": True}
 
     except Exception as e:

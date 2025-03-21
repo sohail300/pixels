@@ -13,6 +13,7 @@ ALGORITHM = os.getenv("ALGORITHM")
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         auth_header = request.headers.get("Authorization")
+        print(auth_header)
         if auth_header and auth_header.startswith("Bearer "):
             token = auth_header.split(" ")[1]
             request.state.token = token
@@ -22,18 +23,28 @@ class AuthMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         return response
 
+
 async def get_current_user(request: Request):
     try:
         token = getattr(request.state, "token", None)
 
-        payload = jwt.decode(token, SUPABASE_JWT_SECRET, algorithms='HS256')
-        user_id = payload.get("sub")
-
-        if token and payload and user_id:
-            return {"user_id": user_id}
-        else:
+        if not token:
             return {"user_id": None}
-    except:
+
+        try:
+            payload = jwt.decode(token, SUPABASE_JWT_SECRET, algorithms=[ALGORITHM], options={"verify_aud": False})
+            user_id = payload.get("sub")
+
+            if user_id:
+                return {"user_id": user_id}
+            else:
+                return {"user_id": None}
+        except Exception as e:
+            print(f"JWT decode error: {str(e)}")
+            return {"user_id": None}
+    except Exception as e:
+        print(f"Unexpected error: {str(e)}")
         return {"user_id": None}
+
 
 get_current_user_dependency = Annotated[Dict, Depends(get_current_user)]

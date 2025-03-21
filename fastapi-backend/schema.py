@@ -17,7 +17,7 @@ class User(Base):
 
     liked_wallpapers = relationship('Liked', back_populates='user', cascade="all, delete-orphan")
     downloaded_wallpapers = relationship('Downloaded', back_populates='user', cascade="all, delete-orphan")
-    uploaded_wallpapers = relationship('Wallpaper', back_populates='uploaded_by', cascade="all, delete-orphan")
+    uploaded_wallpapers = relationship('Wallpaper', back_populates='uploader', cascade="all, delete-orphan")
 
 
 class Wallpaper(Base):
@@ -49,8 +49,9 @@ class Category(Base):
 class WallpaperCategory(Base):
     __tablename__ = 'wallpaper_categories'
 
-    id = Column(String, ForeignKey('wallpapers.id', ondelete="CASCADE"), primary_key=True)
-    category_id = Column(String, ForeignKey('categories.id', ondelete="CASCADE"), primary_key=True)
+    id = Column(String, primary_key=True, server_default=text('uuid_generate_v4()'))
+    wallpaper_id = Column(String, ForeignKey('wallpapers.id', ondelete="CASCADE"))
+    category_id = Column(String, ForeignKey('categories.id', ondelete="CASCADE"))
 
     wallpaper = relationship('Wallpaper', back_populates='categories')
     category = relationship('Category', back_populates='wallpapers')

@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 
 class ResponseModel(BaseModel):
     id: str
@@ -7,9 +8,7 @@ class ResponseModel(BaseModel):
     downloaded: int
     liked: int
     uploaded_by: str
-    categories: list
+    categories: List[str]
 
-class UploadModal(BaseModel):
-    name: str
-    image: str
-    categories: list
+    class Config:
+        from_attributes = True  # Use this for Pydantic v2
