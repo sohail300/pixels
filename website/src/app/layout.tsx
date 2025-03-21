@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
-import { Providers } from "./providers";
 import Navbar from "@/components/Navbar";
+import "./globals.css";
+import { SessionProvider } from "@/providers/SessionProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "PayPocket",
-  description: "PayPocket",
+  title: "Pixels",
+  description: "Wallpapers Tailored for you",
 };
 
 export default function RootLayout({
@@ -18,12 +18,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Providers>
-        <body className={inter.className}>
+      <body className={inter.className}>
+        <SessionProvider>
           <Navbar />
           {children}
-        </body>
-      </Providers>
+        </SessionProvider>
+      </body>
     </html>
   );
 }

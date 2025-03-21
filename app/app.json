@@ -20,7 +20,12 @@
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#FFD700"
       },
-      "package": "com.sohail300.pixel"
+      "package": "com.sohail300.pixels",
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_MEDIA_LOCATION"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -44,7 +49,10 @@
     },
     "extra": {
       "eas": {
-        "projectId": "910b875a-704c-42e2-9563-f9f6b134e00f"
+        "projectId": "352bd89c-923b-4ab2-a8c9-96615d6278e5"
+      },
+      "router": {
+        "origin": false
       }
     },
     "owner": "sohail300"

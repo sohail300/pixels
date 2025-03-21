@@ -4,15 +4,20 @@ import { Colors } from "@/constants/Colors";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 import { initializeTheme } from "@/redux/ThemeSlice";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
-import { useContext } from "react";
+import { Session } from "@supabase/supabase-js";
+import { useContext, useEffect, useState } from "react";
 import { useColorScheme, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
+import { supabase } from "../../lib/supabase";
+import { SessionContext } from "@/context/SessionContext";
 
 export default function ExplorePage() {
   const { showBottomSheet, setShowBottomSheet, name, url } =
     useContext(BottomSheetContext);
+
+  const { session, setSession } = useContext(SessionContext);
 
   const dispatch = useDispatch();
   initializeTheme(dispatch);
@@ -24,6 +29,16 @@ export default function ExplorePage() {
   const colorTheme =
     themeState.data !== "system" ? themeState.data : systemColorScheme;
   console.log(colorTheme);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+  }, []);
 
   return (
     <SafeAreaView

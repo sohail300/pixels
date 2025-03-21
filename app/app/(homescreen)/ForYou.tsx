@@ -13,15 +13,19 @@ import {
 import logo from "../../assets/images/logo.png";
 import user from "../../assets/images/user.jpg";
 import { Colors } from "@/constants/Colors";
-import { useContext, useMemo } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 import BottomSheetComponent from "@/components/BottomSheet";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";
+import { supabase } from "../../lib/supabase";
+import { Session } from "@supabase/supabase-js";
 
 const Tab = createMaterialTopTabNavigator();
 
 export default function MyTabs() {
+  const [session, setSession] = useState<Session | null>(null);
+
   const screenWidth = Dimensions.get("window").width;
   const tabWidth = screenWidth / 2;
 
@@ -34,6 +38,16 @@ export default function MyTabs() {
 
   const { showBottomSheet, setShowBottomSheet, name, url } =
     useContext(BottomSheetContext);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+  }, []);
 
   return (
     <SafeAreaView
@@ -61,7 +75,11 @@ export default function MyTabs() {
                   colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
               }}
             >
-              Hello User!
+              {session?.user?.user_metadata?.full_name
+                ? `Hello ${
+                    session?.user?.user_metadata?.full_name.split(" ")[0]
+                  }!`
+                : "Hello User!"}
             </Text>
             <Text
               style={{
@@ -73,8 +91,16 @@ export default function MyTabs() {
               Welcome to Pixels
             </Text>
           </View>
-
-          <Image source={user} style={styles.userImage} />
+          {session?.user?.user_metadata?.avatar_url ? (
+            <View>
+              <Image
+                source={{ uri: session?.user?.user_metadata?.avatar_url }}
+                style={styles.userImage}
+              />
+            </View>
+          ) : (
+            <Image source={user} style={styles.userImage} />
+          )}
         </View>
       </View>
       <View style={styles.tabContainer}>

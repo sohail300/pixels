@@ -144,12 +144,13 @@ const AhlanPromo = () => {
           </div>
         </div>
         <div className="flex-1 flex justify-end items-center ">
-          <Image
-            src="/about.png"
-            alt=""
-            width={500}
-            height={500}
-            className=" h-[100%]"
+          <video
+            src="/video.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-auto"
           />
         </div>
       </div>

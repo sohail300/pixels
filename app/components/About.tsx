@@ -6,17 +6,19 @@ import {
   Image,
   useColorScheme,
 } from "react-native";
-import React, { useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import * as WebBrowser from "expo-web-browser";
-import { Link } from "expo-router";
 import { useSelector } from "react-redux";
 import { Colors } from "@/constants/Colors";
+import { supabase } from "../lib/supabase";
+import { SessionContext } from "@/context/SessionContext";
 
 const About = () => {
   const themeState = useSelector((state) => state.theme);
   const systemColorScheme = useColorScheme();
+
+  const { session } = useContext(SessionContext);
 
   const theme = useMemo(() => {
     return themeState.data === "system" ? systemColorScheme : themeState.data;
@@ -38,22 +40,6 @@ const About = () => {
       >
         About
       </Text>
-      {/* <Link
-        href="/downloadOptions"
-        style={{ paddingVertical: 4, marginVertical: 4 }}
-      >
-        <Text
-          style={{
-            ...styles.text,
-            color:
-              theme === "dark"
-                ? Colors.dark.text
-                : Colors.light.text,
-          }}
-        >
-          Downloads
-        </Text>
-      </Link> */}
       <Text
         style={{
           ...styles.text,
@@ -94,6 +80,22 @@ const About = () => {
           1.0.0
         </Text>
       </View>
+      {session && (
+        <View>
+          <Text
+            style={{
+              ...styles.text,
+              color: theme === "dark" ? Colors.dark.text : Colors.light.text,
+            }}
+            onPress={() => {
+              console.log("logout");
+              supabase.auth.signOut();
+            }}
+          >
+            Logout
+          </Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 };

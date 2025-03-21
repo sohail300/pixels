@@ -11,20 +11,11 @@ const AppDownload = () => {
         <div className=" bg-[#232323] mx-8 px-20 py-16 flex flex-row rounded-3xl relative w-4/5">
           <div className=" flex flex-col gap-4">
             <h2 className="text-5xl font-semibold mb-4 bg-gradient-to-r from-[#FCFCFC] to-[#959595] bg-clip-text text-transparent">
-              Get Pixels to your
-              <br />
-              mobile!
+              Get Pixels to your mobile!
             </h2>
             <div className=" flex flex-row gap-8">
               <Image
-                src="/google_play.webp"
-                alt=""
-                width={400}
-                height={60}
-                className=" w-[15%] cursor-pointer"
-              />
-              <Image
-                src="/google_play.webp"
+                src="/qr_code.png"
                 alt=""
                 width={400}
                 height={60}
@@ -34,7 +25,7 @@ const AppDownload = () => {
           </div>
           <div className=" absolute bottom-0 right-0">
             <Image
-              src="/download.png"
+              src="/apk_store.png"
               alt=""
               width={400}
               height={40}
