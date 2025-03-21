@@ -12,3 +12,11 @@ class ResponseModel(BaseModel):
 
     class Config:
         from_attributes = True  # Use this for Pydantic v2
+
+
+class SuccessResponseModel(BaseModel):
+    success: bool
+    message: str
+
+    class Config:
+        from_attributes = True

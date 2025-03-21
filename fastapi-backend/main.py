@@ -4,7 +4,7 @@ from typing import Dict
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine
 import schema
-from routes import explore, search, liked, suggested, upload
+from routes import explore, search, liked, suggested, upload, like, download
 from auth import AuthMiddleware
 
 schema.Base.metadata.create_all(bind=engine)
@@ -34,6 +34,8 @@ app.include_router(search.router)
 app.include_router(liked.router)
 app.include_router(suggested.router)
 app.include_router(upload.router)
+app.include_router(like.router)
+app.include_router(download.router)
 
 if __name__ == "__main__":
     import uvicorn

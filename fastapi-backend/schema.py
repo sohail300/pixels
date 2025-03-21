@@ -26,8 +26,6 @@ class Wallpaper(Base):
     id = Column(String, primary_key=True, server_default=text('uuid_generate_v4()'))
     name = Column(String, nullable=False)
     image = Column(String, nullable=False)
-    downloaded = Column(Integer, default=0, nullable=False)
-    liked = Column(Integer, default=0, nullable=False)
     created_at = Column(DateTime, default=func.now())
     uploaded_by = Column(String, ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
 
