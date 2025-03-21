@@ -4,10 +4,14 @@ from typing import Dict
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine
 import schema
+from dotenv import load_dotenv
+import os
 from routes import explore, search, liked, suggested, upload, like, download
 from auth import AuthMiddleware
 
 schema.Base.metadata.create_all(bind=engine)
+
+load_dotenv()
 
 app = FastAPI(
     title="Pixels",
@@ -37,7 +41,9 @@ app.include_router(upload.router)
 app.include_router(like.router)
 app.include_router(download.router)
 
+PORT = int(os.getenv('PORT', '8000'))
+
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(app, host="0.0.0.0", port=PORT, reload=True)
