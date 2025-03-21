@@ -20,14 +20,15 @@ app = FastAPI(
 
 )
 
-app.add_middleware(AuthMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000/", "https://pixels.heysohail.me/"],
+    allow_origins=["http://localhost:3000", "https://pixels.heysohail.me/upload"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(AuthMiddleware)
 
 @app.get('/', status_code=status.HTTP_200_OK, response_model=Dict)
 async def root():
