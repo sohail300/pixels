@@ -5,15 +5,17 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from dotenv import load_dotenv
 import os
 
+from util.logger import logger
+
 load_dotenv()
 
 SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET")
 ALGORITHM = os.getenv("ALGORITHM")
 
+
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         auth_header = request.headers.get("Authorization")
-        print(auth_header)
         if auth_header and auth_header.startswith("Bearer "):
             token = auth_header.split(" ")[1]
             request.state.token = token
@@ -40,10 +42,10 @@ async def get_current_user(request: Request):
             else:
                 return {"user_id": None}
         except Exception as e:
-            print(f"JWT decode error: {str(e)}")
+            logger.error(f"JWT decode error: {str(e)}")
             return {"user_id": None}
     except Exception as e:
-        print(f"Unexpected error: {str(e)}")
+        logger.error(f"Unexpected error: {str(e)}")
         return {"user_id": None}
 
 

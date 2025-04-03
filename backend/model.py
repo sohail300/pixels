@@ -1,13 +1,15 @@
 from pydantic import BaseModel
 from typing import List
 
-class ResponseModel(BaseModel):
+
+class ImageResponseModel(BaseModel):
     id: str
     name: str
     image: str
-    downloaded: int
-    liked: int
-    uploaded_by: str
+    downloads: int
+    likes: int
+    uploader_name: str
+    has_liked: bool
     categories: List[str]
 
     class Config:

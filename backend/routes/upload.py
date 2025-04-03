@@ -1,4 +1,3 @@
-import datetime
 from typing import Annotated, List, Dict
 from fastapi import Form, UploadFile, HTTPException, Request
 from fastapi import APIRouter
@@ -10,20 +9,21 @@ from schema import User, Wallpaper, Category, WallpaperCategory
 from auth import get_current_user_dependency
 from database import db_dependency
 import os
-
 from util.current_time import get_time_hh_mm_ss
 from util.file_upload import upload_file
+from util.logger import logger
 
 load_dotenv()
 router = APIRouter(prefix='/api', tags=['Upload'])
 
-SUPABASE_URL=os.getenv('SUPABASE_URL')
-SUPABASE_SECRET=os.getenv('SUPABASE_SECRET')
+SUPABASE_URL = os.getenv('SUPABASE_URL')
+SUPABASE_SECRET = os.getenv('SUPABASE_SECRET')
 
 supabase = create_client(SUPABASE_URL, SUPABASE_SECRET)
 
+
 @router.post('/upload', status_code=status.HTTP_200_OK, response_model=Dict)
-async def upload(request: Request,name: Annotated[str, Form()],
+async def upload(request: Request, name: Annotated[str, Form()],
                  categories: Annotated[List[str], Form()], file: UploadFile, db: db_dependency,
                  user: get_current_user_dependency):
     try:
@@ -55,8 +55,6 @@ async def upload(request: Request,name: Annotated[str, Form()],
             access_token=access_token,
         )
 
-        print(response)
-
         # DB Operations
         wallpaper = Wallpaper(name=name, image=response.get('Key'), uploaded_by=user.get('user_id'))
 
@@ -67,7 +65,6 @@ async def upload(request: Request,name: Annotated[str, Form()],
             category = db.query(Category).filter(func.lower(Category.name) == category_item.lower()).first()
 
             if not category:
-                print()
                 category = Category(name=category_item.lower())
                 db.add(category)
                 db.flush()
@@ -79,5 +76,5 @@ async def upload(request: Request,name: Annotated[str, Form()],
         return {"message": "File Uploaded!", "success": True}
 
     except Exception as e:
-        print(e)
+        logger.error(f"Upload error: {str(e)}")
         raise HTTPException(status_code=500, detail="Error")

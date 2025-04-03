@@ -17,7 +17,7 @@ class User(Base):
 
     liked_wallpapers = relationship('Liked', back_populates='user', cascade="all, delete-orphan")
     downloaded_wallpapers = relationship('Downloaded', back_populates='user', cascade="all, delete-orphan")
-    uploaded_wallpapers = relationship('Wallpaper', back_populates='uploader', cascade="all, delete-orphan")
+    uploaded_wallpapers = relationship('Wallpaper', back_populates='uploader')
 
 
 class Wallpaper(Base):
@@ -27,7 +27,7 @@ class Wallpaper(Base):
     name = Column(String, nullable=False)
     image = Column(String, nullable=False)
     created_at = Column(DateTime, default=func.now())
-    uploaded_by = Column(String, ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
+    uploaded_by = Column(String, ForeignKey('users.id', ondelete="SET NULL"), nullable=True)
 
     uploader = relationship('User', back_populates='uploaded_wallpapers')
     categories = relationship('WallpaperCategory', back_populates='wallpaper', cascade="all, delete-orphan")

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from starlette import status
-
 from auth import get_current_user_dependency
 from database import db_dependency
-from modal import SuccessResponseModel
+from model import SuccessResponseModel
 from schema import Liked, Wallpaper
+from util.logger import logger
 
 router = APIRouter(prefix='/api', tags=['APIs'])
 
@@ -13,12 +13,15 @@ router = APIRouter(prefix='/api', tags=['APIs'])
 async def like(wallpaper_id: str, db: db_dependency, user: get_current_user_dependency):
     try:
 
+        if user is None:
+            raise HTTPException(status_code=401, detail="Not Authorized")
+
+        user_id = user.get('user_id')
+
         wallpaper = db.query(Wallpaper).filter(Wallpaper.id == wallpaper_id).first()
 
         if wallpaper is None:
             raise HTTPException(status_code=404, detail="Wallpaper not found")
-
-        user_id = user.get('user_id')
 
         already_liked = db.query(Liked).filter(Liked.wallpaper_id == wallpaper_id, Liked.user_id == user_id).first()
 
@@ -41,5 +44,5 @@ async def like(wallpaper_id: str, db: db_dependency, user: get_current_user_depe
             }
 
     except Exception as e:
-        print(e)
+        logger.error(f"Upload error: {str(e)}")
         raise HTTPException(status_code=500, detail="Error")
