@@ -9,6 +9,7 @@ import {
   Dimensions,
   StyleSheet,
   useColorScheme,
+  TouchableOpacity,
 } from "react-native";
 import logo from "../../assets/images/logo.png";
 import user from "../../assets/images/user.jpg";
@@ -63,7 +64,22 @@ export default function MyTabs() {
             colorTheme === "dark" ? Colors.dark.card : Colors.light.card,
         }}
       >
-        <Image source={logo} style={styles.logoImage} />
+        <View style={styles.logoContainer}>
+          <Image source={logo} style={styles.logoImage} />
+          <Text
+            style={[
+              styles.appName,
+              {
+                color:
+                  colorTheme === "dark" ? Colors.light.card : Colors.dark.card,
+              },
+            ]}
+          >
+            Pixels
+          </Text>
+        </View>
+
+        {/* <Image source={logo} style={styles.logoImage} /> */}
 
         <View style={styles.userContainer}>
           <View style={styles.userInfo}>
@@ -90,16 +106,17 @@ export default function MyTabs() {
               Welcome to Pixels
             </Text>
           </View>
-          {session?.user?.user_metadata?.avatar_url ? (
-            <View>
+
+          <TouchableOpacity style={styles.userButton}>
+            {session?.user?.user_metadata?.avatar_url ? (
               <Image
                 source={{ uri: session?.user?.user_metadata?.avatar_url }}
                 style={styles.userImage}
               />
-            </View>
-          ) : (
-            <Image source={user} style={styles.userImage} />
-          )}
+            ) : (
+              <Image source={user} style={styles.userImage} />
+            )}
+          </TouchableOpacity>
         </View>
       </View>
       <View style={styles.tabContainer}>
@@ -149,11 +166,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 16,
   },
-  logoImage: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-  },
   userContainer: {
     flexDirection: "row",
     alignItems: "flex-end",
@@ -163,10 +175,31 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     paddingHorizontal: 8,
   },
+  logoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  logoImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+  },
+  appName: {
+    fontSize: 22,
+    fontWeight: "700",
+    marginLeft: 10,
+  },
+  userButton: {
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
   userImage: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
   tabContainer: {
     flex: 1,

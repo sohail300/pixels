@@ -20,6 +20,8 @@ type BottomSheetContextType = {
   setHasLiked: (hasLiked: boolean) => void;
   uploaderName: string;
   setUploaderName: (uploaderName: string) => void;
+  uploaderImage: string;
+  setUploaderImage: (uploaderImage: string) => void;
 };
 
 // Provide a default value matching the type
@@ -42,4 +44,6 @@ export const BottomSheetContext = createContext<BottomSheetContextType>({
   setHasLiked: () => {},
   uploaderName: "",
   setUploaderName: () => {},
+  uploaderImage: "",
+  setUploaderImage: () => {},
 });

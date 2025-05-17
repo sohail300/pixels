@@ -2,7 +2,6 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import React, { useContext, useState } from "react";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Colors } from "@/constants/Colors";
-import BottomSheetComponent from "./BottomSheet";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 
 const LikedCard = ({ uri, name }) => {

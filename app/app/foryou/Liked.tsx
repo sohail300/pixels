@@ -1,19 +1,12 @@
-import {
-  SafeAreaView,
-  Text,
-  View,
-  StyleSheet,
-  useColorScheme,
-} from "react-native";
+import { View, Text, StyleSheet, useColorScheme, Image } from "react-native";
 import React, { useMemo, useState } from "react";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Colors } from "@/constants/Colors";
 import Animated, { useAnimatedRef } from "react-native-reanimated";
 import useWallpaper from "@/hooks/useWallpaper";
-import { FlatList, ScrollView } from "react-native-gesture-handler";
+import { FlatList } from "react-native-gesture-handler";
 import LikedCard from "@/components/LikedCard";
-import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";
+import { Ionicons } from "@expo/vector-icons";
 
 const Liked = () => {
   const themeState = useSelector((state) => state.theme);
@@ -27,48 +20,47 @@ const Liked = () => {
   const [liked, setLiked] = useState(false);
   const [wallpaper1] = useWallpaper();
 
+  const bgColor =
+    colorTheme === "dark" ? Colors.dark.background : Colors.light.background;
+  const textColor =
+    colorTheme === "dark" ? Colors.dark.text : Colors.light.text;
+
   return (
-    <SafeAreaView
-      style={{
-        height: "100%",
-        backgroundColor:
-          colorTheme === "dark"
-            ? Colors.dark.background
-            : Colors.light.background,
-      }}
-    >
-      <ScrollView>
-        {liked ? (
-          <FlatList
-            style={{ marginTop: 16 }}
-            scrollEnabled={false}
-            data={wallpaper1}
-            renderItem={({ item }) => (
-              <LikedCard uri={item.link} name={item.name} />
-            )}
-            keyExtractor={(item) => String(item.id)}
-          />
-        ) : (
-          <View style={styles.emptyStateContainer}>
-            <Text
-              style={{
-                ...styles.emptyStateText,
-                color:
-                  colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
-              }}
+    <View style={[styles.container, { backgroundColor: bgColor }]}>
+      {liked ? (
+        <FlatList
+          data={wallpaper1}
+          contentContainerStyle={styles.likedList}
+          renderItem={({ item }) => (
+            <LikedCard uri={item.link} name={item.name} />
+          )}
+          keyExtractor={(item) => String(item.id)}
+          showsVerticalScrollIndicator={false}
+        />
+      ) : (
+        <View style={styles.emptyStateContainer}>
+          <View style={styles.emptyStateContent}>
+            <View
+              style={[
+                styles.iconContainer,
+                {
+                  backgroundColor:
+                    colorTheme === "dark" ? "#2A2A2A" : "#F5F5F5",
+                },
+              ]}
             >
-              No favourites found!
+              <Ionicons name="heart" size={40} color={Colors.light.accent} />
+            </View>
+            <Text style={[styles.emptyStateTitle, { color: textColor }]}>
+              No favorites yet
             </Text>
-            <FontAwesome
-              name="heart"
-              size={80}
-              color={Colors.light.accent}
-              style={styles.icon}
-            />
+            <Text style={[styles.emptyStateSubtitle, { color: textColor }]}>
+              Tap the heart icon on any wallpaper to add it to your favorites
+            </Text>
           </View>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+        </View>
+      )}
+    </View>
   );
 };
 
@@ -78,33 +70,38 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    height: 250,
-    overflow: "hidden",
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-    gap: 16,
-    overflow: "hidden",
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginTop: 16,
+  likedList: {
+    paddingHorizontal: 20,
+    paddingTop: 15,
+    paddingBottom: 30,
   },
   emptyStateContainer: {
-    width: "100%",
-    marginVertical: 16,
-    gap: 8,
-    alignSelf: "center",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 40,
   },
-  emptyStateText: {
-    textAlign: "center",
-    marginVertical: 16,
+  emptyStateContent: {
+    alignItems: "center",
   },
-  icon: {
+  iconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  emptyStateTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
     textAlign: "center",
+  },
+  emptyStateSubtitle: {
+    fontSize: 16,
+    textAlign: "center",
+    opacity: 0.7,
+    lineHeight: 22,
   },
 });

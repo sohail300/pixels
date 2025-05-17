@@ -3,7 +3,7 @@ import HomePage from "@/components/HomePage";
 import { Colors } from "@/constants/Colors";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 import { initializeTheme } from "@/redux/ThemeSlice";
-import { DarkTheme, DefaultTheme } from "@react-navigation/native";
+
 import { Session } from "@supabase/supabase-js";
 import { useContext, useEffect, useState } from "react";
 import { useColorScheme, View } from "react-native";
@@ -23,9 +23,12 @@ export default function ExplorePage() {
     downloads,
     likes,
     uploaderName,
+    uploaderImage,
     hasLiked,
     categories,
   } = useContext(BottomSheetContext);
+
+  console.log(uploaderImage);
 
   const { session, setSession } = useContext(SessionContext);
 
@@ -71,6 +74,7 @@ export default function ExplorePage() {
           downloads={downloads}
           likes={likes}
           uploaderName={uploaderName}
+          uploaderImage={uploaderImage}
           hasLiked={hasLiked}
           categories={categories}
         />

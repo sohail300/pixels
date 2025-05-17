@@ -1,117 +1,199 @@
 import {
   View,
   Text,
-  Pressable,
   StyleSheet,
-  Image,
   useColorScheme,
+  TouchableOpacity,
+  Linking,
 } from "react-native";
 import React, { useContext, useMemo } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import * as WebBrowser from "expo-web-browser";
-import { useSelector } from "react-redux";
 import { Colors } from "@/constants/Colors";
 import { supabase } from "../lib/supabase";
 import { SessionContext } from "@/context/SessionContext";
+import { useSelector } from "react-redux";
+import { Ionicons } from "@expo/vector-icons";
 
 const About = () => {
   const themeState = useSelector((state) => state.theme);
   const systemColorScheme = useColorScheme();
-
   const { session } = useContext(SessionContext);
 
   const theme = useMemo(() => {
     return themeState.data === "system" ? systemColorScheme : themeState.data;
   }, [themeState.data, systemColorScheme]);
 
-  const handleRedirect = async (url) => {
-    let result = await WebBrowser.openBrowserAsync(url);
-    console.log(result);
+  const isDark = theme === "dark";
+
+  const handleRedirect = (url) => {
+    Linking.openURL(url);
   };
 
   return (
-    <SafeAreaView>
+    <View>
       <Text
         style={{
           fontSize: 24,
-          color: theme === "dark" ? Colors.dark.text : Colors.light.text,
-          fontWeight: "bold",
+          color: isDark ? Colors.dark.text : Colors.light.text,
+          fontWeight: "700",
+          marginBottom: 16,
         }}
       >
         About
       </Text>
-      <Text
+
+      <View
         style={{
-          ...styles.text,
-          color: theme === "dark" ? Colors.dark.text : Colors.light.text,
+          backgroundColor: isDark ? Colors.dark.card : Colors.light.card,
+          borderRadius: 16,
+          padding: 4,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: isDark ? 0.3 : 0.1,
+          shadowRadius: 8,
+          elevation: 3,
         }}
-        onPress={() =>
-          handleRedirect("https://pixels.heysohail.me/privacy-policy")
-        }
       >
-        Privay Policy
-      </Text>
-      <Text
-        style={{
-          ...styles.text,
-          color: theme === "dark" ? Colors.dark.text : Colors.light.text,
-        }}
-        onPress={() =>
-          handleRedirect("https://pixels.heysohail.me/terms-of-services")
-        }
-      >
-        Terms of Service
-      </Text>
-      <View>
-        <Text
-          style={{
-            ...styles.text,
-            color: theme === "dark" ? Colors.dark.text : Colors.light.text,
-          }}
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() =>
+            handleRedirect("https://pixels.heysohail.me/privacy-policy")
+          }
         >
-          Version
-        </Text>
-        <Text
-          style={{
-            ...styles.subtext,
-            color: theme === "dark" ? Colors.dark.text : Colors.light.text,
-          }}
+          <View style={styles.menuItemContent}>
+            <Ionicons
+              name="shield-checkmark-outline"
+              size={22}
+              color={isDark ? Colors.dark.text : Colors.light.text}
+            />
+            <Text
+              style={[
+                styles.menuText,
+                { color: isDark ? Colors.dark.text : Colors.light.text },
+              ]}
+            >
+              Privacy Policy
+            </Text>
+          </View>
+          <Ionicons
+            name="chevron-forward"
+            size={20}
+            color={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.3)"}
+          />
+        </TouchableOpacity>
+
+        <View style={styles.divider} />
+
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() =>
+            handleRedirect("https://pixels.heysohail.me/terms-of-services")
+          }
         >
-          1.0.0
-        </Text>
-      </View>
-      {session && (
-        <View>
+          <View style={styles.menuItemContent}>
+            <Ionicons
+              name="document-text-outline"
+              size={22}
+              color={isDark ? Colors.dark.text : Colors.light.text}
+            />
+            <Text
+              style={[
+                styles.menuText,
+                { color: isDark ? Colors.dark.text : Colors.light.text },
+              ]}
+            >
+              Terms of Service
+            </Text>
+          </View>
+          <Ionicons
+            name="chevron-forward"
+            size={20}
+            color={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.3)"}
+          />
+        </TouchableOpacity>
+
+        <View style={styles.divider} />
+
+        <View style={styles.menuItem}>
+          <View style={styles.menuItemContent}>
+            <Ionicons
+              name="information-circle-outline"
+              size={22}
+              color={isDark ? Colors.dark.text : Colors.light.text}
+            />
+            <Text
+              style={[
+                styles.menuText,
+                { color: isDark ? Colors.dark.text : Colors.light.text },
+              ]}
+            >
+              Version
+            </Text>
+          </View>
           <Text
             style={{
-              ...styles.text,
-              color: theme === "dark" ? Colors.dark.text : Colors.light.text,
-            }}
-            onPress={() => {
-              console.log("logout");
-              supabase.auth.signOut();
+              fontSize: 14,
+              fontWeight: "500",
+              color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)",
             }}
           >
-            Logout
+            1.0.0
           </Text>
         </View>
-      )}
-    </SafeAreaView>
+
+        {session && (
+          <>
+            <View style={styles.divider} />
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                supabase.auth.signOut();
+              }}
+            >
+              <View style={styles.menuItemContent}>
+                <Ionicons
+                  name="log-out-outline"
+                  size={22}
+                  color={isDark ? "#ff6b6b" : "#e53935"}
+                />
+                <Text
+                  style={[
+                    styles.menuText,
+                    { color: isDark ? "#ff6b6b" : "#e53935" },
+                  ]}
+                >
+                  Logout
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
+    </View>
   );
 };
 
 export default About;
 
 const styles = StyleSheet.create({
-  text: {
-    fontSize: 16,
-    paddingVertical: 4,
-    marginVertical: 4,
-    fontWeight: "medium",
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
   },
-  subtext: {
-    fontSize: 14,
-    fontWeight: "light",
-    marginTop: -8,
+  menuItemContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  menuText: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginLeft: 12,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "rgba(150,150,150,0.15)",
+    marginHorizontal: 16,
   },
 });

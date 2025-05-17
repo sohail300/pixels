@@ -3,23 +3,17 @@ import {
   Text,
   Pressable,
   StyleSheet,
-  Image,
   useColorScheme,
 } from "react-native";
 import React, { useMemo } from "react";
-import version1 from "../assets/images/v1.png";
-import version2 from "../assets/images/v2.png";
-import version3 from "../assets/images/v3.png";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { DarkTheme, DefaultTheme } from "@react-navigation/native";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { changeTheme } from "@/redux/ThemeSlice";
-import { useDispatch } from "react-redux";
 import { Colors } from "@/constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
 
 const Preferences = () => {
   const dispatch = useDispatch();
-
   const themeState = useSelector((state) => state.theme);
   const systemColorScheme = useColorScheme();
 
@@ -27,179 +21,190 @@ const Preferences = () => {
     return themeState.data === "system" ? systemColorScheme : themeState.data;
   }, [themeState.data, systemColorScheme]);
 
+  const isDark = colorTheme === "dark";
+
   return (
-    <SafeAreaView>
+    <View>
       <Text
         style={{
           fontSize: 24,
-          color: colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
-          fontWeight: "bold",
+          color: isDark ? Colors.dark.text : Colors.light.text,
+          fontWeight: "700",
+          marginBottom: 16,
         }}
       >
         Preferences
       </Text>
-      <Text
+
+      <View
         style={{
-          fontSize: 16,
-          color: colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
-          marginVertical: 4,
+          backgroundColor: isDark ? Colors.dark.card : Colors.light.card,
+          borderRadius: 16,
+          padding: 4,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: isDark ? 0.3 : 0.1,
+          shadowRadius: 8,
+          elevation: 3,
         }}
       >
-        Theme
-      </Text>
-      <View style={styles.buttonContainer}>
-        <Pressable
-          style={[
-            styles.button,
-            themeState.data === "system" && {
-              backgroundColor:
-                colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
-            },
-          ]}
-          onPress={() => dispatch(changeTheme("system"))}
+        <Text
+          style={{
+            fontSize: 16,
+            color: isDark ? Colors.dark.text : Colors.light.text,
+            fontWeight: "600",
+            marginVertical: 12,
+            marginLeft: 16,
+          }}
         >
-          <Text
-            style={[
-              styles.buttonText,
-              {
-                color:
-                  colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
-              },
-              themeState.data === "system" && {
-                color:
-                  colorTheme === "dark" ? Colors.light.text : Colors.dark.text,
-              },
-            ]}
-          >
-            System
-          </Text>
-        </Pressable>
+          Theme
+        </Text>
 
-        <Pressable
-          style={[
-            styles.button,
-            themeState.data === "light" && {
-              backgroundColor: Colors.light.text,
-            },
-          ]}
-          onPress={() => dispatch(changeTheme("light"))}
-        >
-          <Text
+        <View style={styles.themeSelector}>
+          <Pressable
             style={[
-              styles.buttonText,
+              styles.themeOption,
               {
-                color:
-                  colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
-              },
-              themeState.data === "light" && {
-                color: Colors.light.background,
+                backgroundColor:
+                  themeState.data === "system"
+                    ? isDark
+                      ? "rgba(255,255,255,0.2)"
+                      : "rgba(0,0,0,0.08)"
+                    : "transparent",
               },
             ]}
+            onPress={() => dispatch(changeTheme("system"))}
           >
-            Light
-          </Text>
-        </Pressable>
+            <Ionicons
+              name="phone-portrait-outline"
+              size={22}
+              color={isDark ? Colors.dark.text : Colors.light.text}
+            />
+            <Text
+              style={[
+                styles.themeText,
+                {
+                  color: isDark ? Colors.dark.text : Colors.light.text,
+                  opacity: themeState.data === "system" ? 1 : 0.7,
+                },
+              ]}
+            >
+              System
+            </Text>
+            {themeState.data === "system" && (
+              <Ionicons
+                name="checkmark-circle"
+                size={20}
+                color={isDark ? "#5fd4f4" : "#2196f3"}
+                style={styles.checkIcon}
+              />
+            )}
+          </Pressable>
 
-        <Pressable
-          style={[
-            styles.button,
-            themeState.data === "dark" && {
-              backgroundColor: Colors.dark.text,
-            },
-          ]}
-          onPress={() => dispatch(changeTheme("dark"))}
-        >
-          <Text
+          <Pressable
             style={[
-              styles.buttonText,
+              styles.themeOption,
               {
-                color:
-                  colorTheme === "dark" ? Colors.dark.text : Colors.light.text,
-              },
-              themeState.data === "dark" && {
-                color: Colors.dark.background,
+                backgroundColor:
+                  themeState.data === "light"
+                    ? isDark
+                      ? "rgba(255,255,255,0.2)"
+                      : "rgba(0,0,0,0.08)"
+                    : "transparent",
               },
             ]}
+            onPress={() => dispatch(changeTheme("light"))}
           >
-            Dark
-          </Text>
-        </Pressable>
+            <Ionicons
+              name="sunny-outline"
+              size={22}
+              color={isDark ? Colors.dark.text : Colors.light.text}
+            />
+            <Text
+              style={[
+                styles.themeText,
+                {
+                  color: isDark ? Colors.dark.text : Colors.light.text,
+                  opacity: themeState.data === "light" ? 1 : 0.7,
+                },
+              ]}
+            >
+              Light
+            </Text>
+            {themeState.data === "light" && (
+              <Ionicons
+                name="checkmark-circle"
+                size={20}
+                color={isDark ? "#5fd4f4" : "#2196f3"}
+                style={styles.checkIcon}
+              />
+            )}
+          </Pressable>
+
+          <Pressable
+            style={[
+              styles.themeOption,
+              {
+                backgroundColor:
+                  themeState.data === "dark"
+                    ? isDark
+                      ? "rgba(255,255,255,0.2)"
+                      : "rgba(0,0,0,0.08)"
+                    : "transparent",
+              },
+            ]}
+            onPress={() => dispatch(changeTheme("dark"))}
+          >
+            <Ionicons
+              name="moon-outline"
+              size={22}
+              color={isDark ? Colors.dark.text : Colors.light.text}
+            />
+            <Text
+              style={[
+                styles.themeText,
+                {
+                  color: isDark ? Colors.dark.text : Colors.light.text,
+                  opacity: themeState.data === "dark" ? 1 : 0.7,
+                },
+              ]}
+            >
+              Dark
+            </Text>
+            {themeState.data === "dark" && (
+              <Ionicons
+                name="checkmark-circle"
+                size={20}
+                color={isDark ? "#5fd4f4" : "#2196f3"}
+                style={styles.checkIcon}
+              />
+            )}
+          </Pressable>
+        </View>
       </View>
-
-      <View style={{ marginTop: 24 }} />
-
-      {/* <Text
-        style={{
-          fontSize: 16,
-          color:
-            colorTheme === "dark"
-              ? Colors.dark.text
-              : Colors.light.text,
-          marginVertical: 4,
-        }}
-      >
-        App Icon
-      </Text>
-      <View style={styles.iconContainer}>
-        <Pressable onPress={() => setAppIcon("v1")}>
-          <Image
-            source={version1}
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: 16,
-              ...styles.selectedIcon,
-              borderColor:
-                colorTheme === "dark"
-                  ? Colors.dark.text
-                  : Colors.light.text,
-            }}
-          />
-        </Pressable>
-        <Pressable onPress={() => setAppIcon("v2")}>
-          <Image
-            source={version2}
-            style={{ width: 80, height: 80, borderRadius: 16 }}
-          />
-        </Pressable>
-        <Pressable onPress={() => setAppIcon("v3")}>
-          <Image
-            source={version3}
-            style={{ width: 80, height: 80, borderRadius: 16 }}
-          />
-        </Pressable>
-      </View> */}
-    </SafeAreaView>
+    </View>
   );
 };
 
 export default Preferences;
 
 const styles = StyleSheet.create({
-  buttonContainer: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  button: {
+  themeSelector: {
     borderRadius: 12,
-    borderColor: "#aaa",
-    borderWidth: 1,
-    padding: 16,
-    width: "30%",
-    justifyContent: "center",
+    overflow: "hidden",
   },
-  buttonText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  iconContainer: {
-    display: "flex",
+  themeOption: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
   },
-  selectedIcon: {
-    borderWidth: 4,
+  themeText: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginLeft: 12,
+  },
+  checkIcon: {
+    marginLeft: "auto",
   },
 });

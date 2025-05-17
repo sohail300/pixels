@@ -1,33 +1,20 @@
-import { AppState } from "react-native";
-import { View, Text, useColorScheme } from "react-native";
+import { View, Text, useColorScheme, TouchableOpacity } from "react-native";
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  statusCodes,
-} from "@react-native-google-signin/google-signin";
+// import {
+//   GoogleSignin,
+//   GoogleSigninButton,
+//   statusCodes,
+// } from "@react-native-google-signin/google-signin";
 import { supabase } from "../lib/supabase";
 import { Session } from "@supabase/supabase-js";
 import "react-native-url-polyfill/auto";
 import { useSelector } from "react-redux";
 import { Colors } from "@/constants/Colors";
-import { TouchableOpacity } from "react-native-gesture-handler";
-
-// Tells Supabase Auth to continuously refresh the session automatically
-// if the app is in the foreground. When this is added, you will continue
-// to receive `onAuthStateChange` events with the `TOKEN_REFRESHED` or
-// `SIGNED_OUT` event if the user's session is terminated. This should
-// only be registered once.
-AppState.addEventListener("change", (state) => {
-  if (state === "active") {
-    supabase.auth.startAutoRefresh();
-  } else {
-    supabase.auth.stopAutoRefresh();
-  }
-});
+import { Ionicons } from "@expo/vector-icons";
 
 const Signin = () => {
   const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(false);
   const themeState = useSelector((state) => state.theme);
   const systemColorScheme = useColorScheme();
 
@@ -35,9 +22,10 @@ const Signin = () => {
     return themeState.data === "system" ? systemColorScheme : themeState.data;
   }, [themeState.data, systemColorScheme]);
 
+  const isDark = theme === "dark";
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log(session);
       setSession(session);
     });
 
@@ -46,83 +34,117 @@ const Signin = () => {
     });
   }, []);
 
-  GoogleSignin.configure({
-    scopes: ["https://www.googleapis.com/auth/drive.readonly"],
-    webClientId:
-      "1026701954227-r8npbs4m7vte67o1m1u3h2c9clgj3qoe.apps.googleusercontent.com",
-  });
+  // GoogleSignin.configure({
+  //   scopes: ["https://www.googleapis.com/auth/drive.readonly"],
+  //   webClientId:
+  //     "1026701954227-r8npbs4m7vte67o1m1u3h2c9clgj3qoe.apps.googleusercontent.com",
+  // });
+
+  // const handleGoogleSignIn = async () => {
+  //   setLoading(true);
+  //   try {
+  //     await GoogleSignin.hasPlayServices();
+  //     const userInfo = await GoogleSignin.signIn();
+  //     if (userInfo?.data?.idToken) {
+  //       const { data, error } = await supabase.auth.signInWithIdToken({
+  //         provider: "google",
+  //         token: userInfo?.data.idToken,
+  //       });
+  //       if (error) {
+  //         console.error("Error signing in with Google:", error);
+  //       }
+  //     } else {
+  //       throw new Error("No ID token present!");
+  //     }
+  //   } catch (error: any) {
+  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+  //       console.log("User cancelled the login flow");
+  //     } else if (error.code === statusCodes.IN_PROGRESS) {
+  //       console.log("Operation is in progress already");
+  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+  //       console.log("Play services not available or outdated");
+  //     } else {
+  //       console.error("Google sign-in error:", error);
+  //     }
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <View>
       <Text
         style={{
           fontSize: 24,
-          color: theme === "dark" ? Colors.dark.text : Colors.light.text,
-          fontWeight: "bold",
+          color: isDark ? Colors.dark.text : Colors.light.text,
+          fontWeight: "700",
+          marginBottom: 8,
         }}
       >
-        Signin
+        Sign in
       </Text>
-      <Text
-        style={{
-          fontSize: 16,
-          color: theme === "dark" ? Colors.dark.text : Colors.light.text,
-          marginVertical: 2,
-        }}
-      >
-        Signin to save your data
-      </Text>
+
       <View
         style={{
-          backgroundColor:
-            theme === "dark" ? Colors.dark.card : Colors.light.card,
-          borderRadius: 12,
+          backgroundColor: isDark ? Colors.dark.card : Colors.light.card,
+          borderRadius: 16,
           padding: 24,
-          marginVertical: 8,
-          marginTop: 16,
+          marginTop: 8,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: isDark ? 0.3 : 0.1,
+          shadowRadius: 8,
+          elevation: 3,
+          alignItems: "center",
         }}
       >
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "600",
+            color: isDark ? Colors.dark.text : Colors.light.text,
+            marginBottom: 24,
+            textAlign: "center",
+          }}
+        >
+          Sign in to save your data across devices
+        </Text>
+
         <TouchableOpacity
           style={{
-            height: 48,
+            backgroundColor: isDark ? "#4285F4" : "#4285F4",
+            flexDirection: "row",
+            alignItems: "center",
+            paddingVertical: 12,
+            paddingHorizontal: 24,
+            borderRadius: 8,
             width: "100%",
             justifyContent: "center",
           }}
-          onPress={async () => {
-            try {
-              await GoogleSignin.hasPlayServices();
-              const userInfo = await GoogleSignin.signIn();
-              console.log(userInfo);
-              if (userInfo?.data?.idToken) {
-                const { data, error } = await supabase.auth.signInWithIdToken({
-                  provider: "google",
-                  token: userInfo?.data.idToken,
-                });
-                console.log("logging");
-                console.log(error, data);
-              } else {
-                throw new Error("no ID token present!");
-              }
-            } catch (error: any) {
-              if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-                console.log("user cancelled the login flow");
-              } else if (error.code === statusCodes.IN_PROGRESS) {
-                console.log("operation (e.g. sign in) is in progress already");
-              } else if (
-                error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE
-              ) {
-                console.log("play services not available or outdated");
-              } else {
-                console.log(error);
-              }
-            }
+          // onPress={handleGoogleSignIn}
+          // disabled={loading}
+        >
+          <Text
+            style={{
+              color: "#FFFFFF",
+              fontSize: 16,
+              fontWeight: "600",
+            }}
+          >
+            {loading ? "Signing in..." : "Sign in with Google"}
+          </Text>
+        </TouchableOpacity>
+
+        <Text
+          style={{
+            fontSize: 12,
+            color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)",
+            marginTop: 24,
+            textAlign: "center",
           }}
         >
-          <GoogleSigninButton
-            size={GoogleSigninButton.Size.Wide}
-            color={GoogleSigninButton.Color.Dark}
-          />
-        </TouchableOpacity>
+          By signing in, you agree to our Terms of Service and Privacy Policy.
+        </Text>
       </View>
     </View>
   );

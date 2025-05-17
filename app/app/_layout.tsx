@@ -11,7 +11,6 @@ import { store } from "@/redux/store";
 import ThemeProvider from "@/components/ThemeProvider";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { SessionContext } from "@/context/SessionContext";
-import { NavigationContainer } from "@react-navigation/native";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -24,6 +23,7 @@ export default function RootLayout() {
   const [likes, setLikes] = useState(0);
   const [hasLiked, setHasLiked] = useState(false);
   const [uploaderName, setUploaderName] = useState("");
+  const [uploaderImage, setUploaderImage] = useState("");
   const [categories, setCategories] = useState([]);
   const [id, setId] = useState("");
 
@@ -45,52 +45,57 @@ export default function RootLayout() {
   }
 
   return (
-    <NavigationContainer>
-      <GestureHandlerRootView style={styles.container}>
-        <SessionContext.Provider
+    <GestureHandlerRootView style={styles.container}>
+      <SessionContext.Provider
+        value={{
+          session,
+          setSession,
+          token,
+          setToken,
+        }}
+      >
+        <BottomSheetContext.Provider
           value={{
-            session,
-            setSession,
-            token,
-            setToken,
+            showBottomSheet,
+            setShowBottomSheet,
+            url,
+            setUrl,
+            name,
+            setName,
+            downloads,
+            setDownloads,
+            likes,
+            setLikes,
+            uploaderName,
+            setUploaderName,
+            uploaderImage,
+            setUploaderImage,
+            hasLiked,
+            setHasLiked,
+            categories,
+            setCategories,
+            id,
+            setId,
           }}
         >
-          <BottomSheetContext.Provider
-            value={{
-              showBottomSheet,
-              setShowBottomSheet,
-              url,
-              setUrl,
-              name,
-              setName,
-              downloads,
-              setDownloads,
-              likes,
-              setLikes,
-              uploaderName,
-              setUploaderName,
-              hasLiked,
-              setHasLiked,
-              categories,
-              setCategories,
-              id,
-              setId,
-            }}
-          >
-            <Provider store={store}>
-              <ThemeProvider>
-                <Animated.View
-                  style={{ flex: 1 }}
-                  entering={FadeIn.duration(300)}
-                >
-                  <Stack screenOptions={{ headerShown: false }}></Stack>
-                </Animated.View>
-              </ThemeProvider>
-            </Provider>
-          </BottomSheetContext.Provider>
-        </SessionContext.Provider>
-      </GestureHandlerRootView>
-    </NavigationContainer>
+          <Provider store={store}>
+            <ThemeProvider>
+              <Animated.View
+                style={{ flex: 1 }}
+                entering={FadeIn.duration(300)}
+              >
+                <Stack screenOptions={{ headerShown: false }}>
+                  <Stack.Screen
+                    name="(tabs)"
+                    options={{ headerShown: false }}
+                  />
+                </Stack>
+              </Animated.View>
+            </ThemeProvider>
+          </Provider>
+        </BottomSheetContext.Provider>
+      </SessionContext.Provider>
+    </GestureHandlerRootView>
   );
 }
 

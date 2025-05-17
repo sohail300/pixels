@@ -23,6 +23,7 @@ const SpiltView = ({ wallpaper1, wallpaper2, loading }) => {
               likes={item.likes}
               categories={item.categories}
               uploaderName={item.uploader_name}
+              uploaderImage={item.uploader_image}
             />
           )}
           keyExtractor={(item) => String(item.id)}
@@ -43,6 +44,7 @@ const SpiltView = ({ wallpaper1, wallpaper2, loading }) => {
               likes={item.likes}
               categories={item.categories}
               uploaderName={item.uploader_name}
+              uploaderImage={item.uploader_image}
             />
           )}
           keyExtractor={(item) => String(item.id)}
