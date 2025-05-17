@@ -12,8 +12,18 @@ import { Colors } from "@/constants/Colors";
 import BottomSheetComponent from "./BottomSheet";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 import { useSelector } from "react-redux";
+import { BACKEND_URL } from "@/lib/config";
 
-const Card = ({ uri, name }) => {
+const Card = ({
+  id,
+  uri,
+  name,
+  hasLiked,
+  downloads,
+  likes,
+  categories,
+  uploaderName,
+}) => {
   const themeState = useSelector((state) => state.theme);
   const systemColorScheme = useColorScheme();
 
@@ -21,17 +31,53 @@ const Card = ({ uri, name }) => {
     return themeState.data === "system" ? systemColorScheme : themeState.data;
   }, [themeState.data, systemColorScheme]);
 
-  const { setShowBottomSheet, setUrl, setName } =
-    useContext(BottomSheetContext);
+  const {
+    setShowBottomSheet,
+    setUrl,
+    setName,
+    setDownloads,
+    setLikes,
+    setCategories,
+    setUploaderName,
+    setHasLiked,
+    setId,
+  } = useContext(BottomSheetContext);
 
   const handlePress = () => {
     setShowBottomSheet(true);
     setUrl(uri);
     setName(name);
+    setDownloads(downloads);
+    setLikes(likes);
+    setCategories(categories);
+    setUploaderName(uploaderName); // Replace with actual uploader name if available
+    setHasLiked(hasLiked);
+    setId(id);
   };
 
-  const handleLike = () => {
-    console.log("Image liked!");
+  const handleLike = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/like/${id}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+
+      if (data) {
+        setHasLiked((prev) => !prev);
+        console.log(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -42,7 +88,11 @@ const Card = ({ uri, name }) => {
       <View style={styles.overlay}>
         <Text style={styles.text}>{name}</Text>
         <TouchableOpacity onPress={handleLike}>
-          <AntDesign name="hearto" size={28} color={Colors.light.accent} />
+          {hasLiked ? (
+            <AntDesign name="hearto" size={28} color={Colors.light.accent} />
+          ) : (
+            <AntDesign name="heart" size={24} color="#FD1D1D" />
+          )}
         </TouchableOpacity>
       </View>
     </View>

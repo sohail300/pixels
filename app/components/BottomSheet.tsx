@@ -22,15 +22,28 @@ import { formatDate } from "@/lib/date";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useSelector } from "react-redux";
+import { BACKEND_URL } from "@/lib/config";
 
 export default function BottomSheetComponent({
   close,
-  url,
+  id,
   name,
+  url,
+  downloads,
+  likes,
+  uploaderName,
+  hasLiked,
+  categories,
 }: {
   close: () => void;
-  url: string;
+  id: string;
   name: string;
+  url: string;
+  downloads: number;
+  likes: number;
+  uploaderName: string;
+  hasLiked: boolean;
+  categories: string[];
 }) {
   // ref
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -64,6 +77,18 @@ export default function BottomSheetComponent({
 
       const result = await downloadResumable.downloadAsync();
       getAlbums(filePath);
+
+      const response = await fetch(`${BACKEND_URL}/download/${id}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
 
       console.log("Finished downloading to ", result);
     } catch (error) {
@@ -122,7 +147,15 @@ export default function BottomSheetComponent({
         >
           <View style={styles.icon}>
             <TouchableOpacity>
-              <AntDesign name="hearto" size={28} color={Colors.light.accent} />
+              {hasLiked ? (
+                <AntDesign
+                  name="hearto"
+                  size={28}
+                  color={Colors.light.accent}
+                />
+              ) : (
+                <AntDesign name="heart" size={24} color="#FD1D1D" />
+              )}
             </TouchableOpacity>
           </View>
           <Image
@@ -172,6 +205,7 @@ export default function BottomSheetComponent({
               display: "flex",
               flexDirection: "row",
               justifyContent: "space-between",
+              alignItems: "flex-start",
               width: "80%",
             }}
           >
@@ -180,6 +214,7 @@ export default function BottomSheetComponent({
                 display: "flex",
                 flexDirection: "row",
                 alignItems: "center",
+                width: "40%",
               }}
             >
               <MaterialCommunityIcons
@@ -194,30 +229,64 @@ export default function BottomSheetComponent({
                     theme === "dark" ? Colors.dark.text : Colors.light.text,
                 }}
               >
-                Category: Nature
+                Category: {categories.join(", ")}
               </Text>
             </View>
             <View
               style={{
                 display: "flex",
-                flexDirection: "row",
+                flexDirection: "column",
                 alignItems: "center",
               }}
             >
-              <Text
+              <View
                 style={{
-                  color:
-                    theme === "dark" ? Colors.dark.text : Colors.light.text,
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
                 }}
               >
-                50+ Downloads
-              </Text>
-              <Feather
-                name="download"
-                size={20}
-                color={theme === "dark" ? Colors.dark.text : Colors.light.text}
-                style={{ marginLeft: 8 }}
-              />
+                <Text
+                  style={{
+                    color:
+                      theme === "dark" ? Colors.dark.text : Colors.light.text,
+                  }}
+                >
+                  {downloads} Downloads
+                </Text>
+                <Feather
+                  name="download"
+                  size={16}
+                  color={
+                    theme === "dark" ? Colors.dark.text : Colors.light.text
+                  }
+                  style={{ marginLeft: 8 }}
+                />
+              </View>
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    color:
+                      theme === "dark" ? Colors.dark.text : Colors.light.text,
+                  }}
+                >
+                  {downloads} Downloads
+                </Text>
+                <AntDesign
+                  name="hearto"
+                  size={16}
+                  color={
+                    theme === "dark" ? Colors.dark.text : Colors.light.text
+                  }
+                  style={{ marginLeft: 8 }}
+                />
+              </View>
             </View>
           </View>
         </BottomSheetView>

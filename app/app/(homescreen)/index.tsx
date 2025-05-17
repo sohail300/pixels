@@ -14,8 +14,18 @@ import { supabase } from "../../lib/supabase";
 import { SessionContext } from "@/context/SessionContext";
 
 export default function ExplorePage() {
-  const { showBottomSheet, setShowBottomSheet, name, url } =
-    useContext(BottomSheetContext);
+  const {
+    showBottomSheet,
+    setShowBottomSheet,
+    id,
+    name,
+    url,
+    downloads,
+    likes,
+    uploaderName,
+    hasLiked,
+    categories,
+  } = useContext(BottomSheetContext);
 
   const { session, setSession } = useContext(SessionContext);
 
@@ -23,12 +33,10 @@ export default function ExplorePage() {
   initializeTheme(dispatch);
 
   const themeState = useSelector((state) => state.theme);
-  console.log(themeState);
   const systemColorScheme = useColorScheme();
 
   const colorTheme =
     themeState.data !== "system" ? themeState.data : systemColorScheme;
-  console.log(colorTheme);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -57,8 +65,14 @@ export default function ExplorePage() {
       {showBottomSheet && (
         <BottomSheetComponent
           close={() => setShowBottomSheet(false)}
+          id={id}
           name={name}
           url={url}
+          downloads={downloads}
+          likes={likes}
+          uploaderName={uploaderName}
+          hasLiked={hasLiked}
+          categories={categories}
         />
       )}
     </SafeAreaView>

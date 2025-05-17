@@ -35,7 +35,7 @@ export default function AccountPage() {
         persistentScrollbar={false}
         showsVerticalScrollIndicator={false}
       >
-        {!session && <Signin />}
+        {/* {!session && <Signin />} */}
         <Preferences />
         <About />
       </ScrollView>

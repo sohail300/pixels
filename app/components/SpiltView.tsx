@@ -1,17 +1,30 @@
 import { View, Text, FlatList, StyleSheet } from "react-native";
 import React from "react";
-import useWallpaper from "@/hooks/useWallpaper";
 import Card from "./Card";
+import { BUCKET_URL } from "@/lib/config";
 
-const SpiltView = () => {
-  const [wallpaper1, wallpaper2] = useWallpaper();
+const SpiltView = ({ wallpaper1, wallpaper2, loading }) => {
+  if (loading) {
+    <Text>Loading</Text>;
+  }
 
   return (
     <View style={[styles.container, styles.cardContainer]}>
       <View style={styles.columnContainer}>
         <FlatList
           data={wallpaper1}
-          renderItem={({ item }) => <Card uri={item.link} name={item.name} />}
+          renderItem={({ item }) => (
+            <Card
+              id={item.id}
+              uri={`${BUCKET_URL}${item.image}`}
+              name={item.name}
+              hasLiked={item.has_liked}
+              downloads={item.downloads}
+              likes={item.likes}
+              categories={item.categories}
+              uploaderName={item.uploader_name}
+            />
+          )}
           keyExtractor={(item) => String(item.id)}
           scrollEnabled={false}
         />
@@ -20,7 +33,18 @@ const SpiltView = () => {
         <View style={{ marginTop: 48 }}></View>
         <FlatList
           data={wallpaper2}
-          renderItem={({ item }) => <Card uri={item.link} name={item.name} />}
+          renderItem={({ item }) => (
+            <Card
+              id={item.id}
+              uri={`${BUCKET_URL}${item.image}`}
+              name={item.name}
+              hasLiked={item.has_liked}
+              downloads={item.downloads}
+              likes={item.likes}
+              categories={item.categories}
+              uploaderName={item.uploader_name}
+            />
+          )}
           keyExtractor={(item) => String(item.id)}
           scrollEnabled={false}
         />

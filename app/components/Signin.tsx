@@ -1,5 +1,5 @@
 import { AppState } from "react-native";
-import { View, Text, Pressable, useColorScheme } from "react-native";
+import { View, Text, useColorScheme } from "react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   GoogleSignin,
@@ -37,6 +37,7 @@ const Signin = () => {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log(session);
       setSession(session);
     });
 
@@ -46,7 +47,7 @@ const Signin = () => {
   }, []);
 
   GoogleSignin.configure({
-    scopes: ["https://www.googleapis.com/auth/userinfo.profile"],
+    scopes: ["https://www.googleapis.com/auth/drive.readonly"],
     webClientId:
       "1026701954227-r8npbs4m7vte67o1m1u3h2c9clgj3qoe.apps.googleusercontent.com",
   });

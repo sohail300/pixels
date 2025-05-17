@@ -42,7 +42,9 @@
           "savePhotosPermission": "Allow Pixels to save photos.",
           "isAccessMediaLocationEnabled": true
         }
-      ]
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

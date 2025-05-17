@@ -16,7 +16,6 @@ import { Colors } from "@/constants/Colors";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 import BottomSheetComponent from "@/components/BottomSheet";
-import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 import { supabase } from "../../lib/supabase";
 import { Session } from "@supabase/supabase-js";
