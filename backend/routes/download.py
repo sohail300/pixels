@@ -4,7 +4,7 @@ from starlette import status
 from auth import get_current_user_dependency
 from database import db_dependency
 from model import SuccessResponseModel
-from schema import Liked, Wallpaper, Downloaded
+from schema import Liked, Wallpaper, Downloaded, User
 from util.logger import logger
 
 router = APIRouter(prefix='/api', tags=['APIs'])
@@ -18,6 +18,11 @@ async def download(wallpaper_id: str, db: db_dependency, user: get_current_user_
             raise HTTPException(status_code=401, detail="Not Authorized")
 
         user_id = user.get('user_id')
+
+        user = db.query(User).filter(User.id == user_id).first()
+
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
 
         wallpaper = db.query(Wallpaper).filter(Wallpaper.id == wallpaper_id).first()
 

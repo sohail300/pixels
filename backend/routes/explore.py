@@ -7,7 +7,7 @@ from typing import List
 from auth import get_current_user_dependency
 from database import db_dependency
 from model import ImageResponseModel
-from schema import Wallpaper, WallpaperCategory, User, Category, Liked
+from schema import Wallpaper, WallpaperCategory, User, Category, Liked, Downloaded
 from util.logger import logger
 
 router = APIRouter(prefix='/api', tags=['APIs'])
@@ -40,14 +40,14 @@ def explore(skip: int, limit: int, db: db_dependency, user: get_current_user_dep
                 Wallpaper.name,
                 Wallpaper.image,
                 User.name.label("uploader_name"),
-                func.count(Wallpaper.liked_by_users).label("likes"),
-                func.count(Wallpaper.downloaded_by_users).label("downloads"),
+                func.count(Liked.id).label("likes"),
+                func.count(Downloaded.id).label("downloads"),
                 func.array_agg(Category.name).label("categories"),  # Aggregating category names
                 has_liked_expr
             )
             .join(User, User.id == Wallpaper.uploaded_by)
-            .outerjoin(Wallpaper.liked_by_users)  # Outer join for counting liked users
-            .outerjoin(Wallpaper.downloaded_by_users)  # Outer join for counting downloaded users
+            .outerjoin(Liked, Wallpaper.id == Liked.wallpaper_id)  # Outer join for counting liked users
+            .outerjoin(Downloaded, Wallpaper.id == Downloaded.wallpaper_id)  # Outer join for counting downloaded users
             .outerjoin(WallpaperCategory, WallpaperCategory.wallpaper_id == Wallpaper.id)  # Join WallpaperCategory
             .outerjoin(Category, Category.id == WallpaperCategory.category_id)  # Join Category
             .group_by(Wallpaper.id, User.name)
@@ -56,8 +56,6 @@ def explore(skip: int, limit: int, db: db_dependency, user: get_current_user_dep
             .limit(limit)
             .all()
         )
-
-        print(wallpapers)
 
         wallpapers_list = [
             ImageResponseModel.model_validate(w)

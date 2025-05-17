@@ -12,8 +12,8 @@ class User(Base):
     name = Column(String, nullable=True)
     email = Column(String, unique=True, nullable=False)
     image = Column(String, nullable=True)
-    created_at = Column(DateTime)  # Added timestamp
     upload_permission = Column(Boolean, default=False)
+    created_at = Column(DateTime)  # Added timestamp
 
     liked_wallpapers = relationship('Liked', back_populates='user', cascade="all, delete-orphan")
     downloaded_wallpapers = relationship('Downloaded', back_populates='user', cascade="all, delete-orphan")
@@ -26,8 +26,8 @@ class Wallpaper(Base):
     id = Column(String, primary_key=True, server_default=text('uuid_generate_v4()'))
     name = Column(String, nullable=False)
     image = Column(String, nullable=False)
-    created_at = Column(DateTime, default=func.now())
     uploaded_by = Column(String, ForeignKey('users.id', ondelete="SET NULL"), nullable=True)
+    created_at = Column(DateTime, default=func.now())
 
     uploader = relationship('User', back_populates='uploaded_wallpapers')
     categories = relationship('WallpaperCategory', back_populates='wallpaper', cascade="all, delete-orphan")

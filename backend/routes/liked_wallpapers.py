@@ -5,7 +5,7 @@ from starlette import status
 from auth import get_current_user_dependency
 from database import db_dependency
 from model import ImageResponseModel
-from schema import Liked, Wallpaper, WallpaperCategory, User, Category
+from schema import Liked, Wallpaper, WallpaperCategory, User, Category, Downloaded
 from util.logger import logger
 
 router = APIRouter(prefix='/api', tags=['APIs'])
@@ -41,14 +41,14 @@ async def liked_wallpapers(skip: int, limit: int, db: db_dependency, user: get_c
                 Wallpaper.name,
                 Wallpaper.image,
                 User.name.label("uploader_name"),
-                func.count(Wallpaper.liked_by_users).label("likes"),
-                func.count(Wallpaper.downloaded_by_users).label("downloads"),
+                func.count(Liked.id).label("likes"),
+                func.count(Downloaded.id).label("downloads"),
                 func.array_agg(Category.name).label("categories"),
                 has_liked_expr
             )
             .join(User, User.id == Wallpaper.uploaded_by)
-            .outerjoin(Wallpaper.liked_by_users)  # Outer join for counting liked users
-            .outerjoin(Wallpaper.downloaded_by_users)  # Outer join for counting downloaded users
+            .outerjoin(Liked, Wallpaper.id == Liked.wallpaper_id)  # Outer join for counting liked users
+            .outerjoin(Downloaded, Wallpaper.id == Downloaded.wallpaper_id)  # Outer join for counting downloaded users
             .outerjoin(WallpaperCategory, WallpaperCategory.wallpaper_id == Wallpaper.id)
             .outerjoin(Category, Category.id == WallpaperCategory.category_id)
             .filter(Liked.user_id == user_id)  # Get only the wallpapers liked by the user
