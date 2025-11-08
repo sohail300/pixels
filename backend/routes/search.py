@@ -4,15 +4,14 @@ from sqlalchemy import func, select, literal, or_
 from sqlalchemy.exc import SQLAlchemyError
 from starlette import status
 from auth import get_current_user_dependency
-from schema import Liked, Wallpaper, WallpaperCategory, User, Category, Downloaded
+from db import Liked, Wallpaper, WallpaperCategory, User, Category, Downloaded, db_dependency
 from util.logger import logger
-from database import db_dependency
-from model import ImageResponseModel
+from schema import ImageSchema
 
 router = APIRouter(prefix='/api', tags=['APIs'])
 
 
-@router.get('/search', response_model=list[ImageResponseModel], status_code=status.HTTP_200_OK)
+@router.get('/search', response_model=list[ImageSchema], status_code=status.HTTP_200_OK)
 async def search(skip: int, limit: int, query: str, db: db_dependency, user: get_current_user_dependency):
     try:
         user_id = user.get("user_id") if user else None  # Get user_id if logged in
@@ -68,7 +67,7 @@ async def search(skip: int, limit: int, query: str, db: db_dependency, user: get
         )
 
         wallpapers_list = [
-            ImageResponseModel.model_validate(w)
+            ImageSchema.model_validate(w)
             for w in wallpapers
         ]
 

@@ -5,15 +5,14 @@ from sqlalchemy.exc import SQLAlchemyError
 from starlette import status
 from typing import List
 from auth import get_current_user_dependency
-from database import db_dependency
-from model import ImageResponseModel
-from schema import Wallpaper, WallpaperCategory, User, Category, Liked, Downloaded
+from db import db_dependency, Wallpaper, WallpaperCategory, User, Category, Liked, Downloaded
+from schema import ImageSchema
 from util.logger import logger
 
 router = APIRouter(prefix='/api', tags=['APIs'])
 
 
-@router.get('/explore', status_code=status.HTTP_200_OK, response_model=List[ImageResponseModel])
+@router.get('/explore', status_code=status.HTTP_200_OK, response_model=List[ImageSchema])
 def explore(skip: int, limit: int, db: db_dependency, user: get_current_user_dependency):
     try:
         user_id = user.get("user_id") if user else None  # Get user_id if logged in
@@ -58,7 +57,7 @@ def explore(skip: int, limit: int, db: db_dependency, user: get_current_user_dep
         )
 
         wallpapers_list = [
-            ImageResponseModel.model_validate(w)
+            ImageSchema.model_validate(w)
             for w in wallpapers
         ]
 

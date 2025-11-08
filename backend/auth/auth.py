@@ -50,3 +50,4 @@ async def get_current_user(request: Request):
 
 
 get_current_user_dependency = Annotated[Dict, Depends(get_current_user)]
+

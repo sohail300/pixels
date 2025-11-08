@@ -1,15 +1,14 @@
 from fastapi import APIRouter, HTTPException
 from starlette import status
 from auth import get_current_user_dependency
-from database import db_dependency
-from model import SuccessResponseModel
-from schema import Liked, Wallpaper, User
+from db import db_dependency, Liked, Wallpaper, User
+from schema import SuccessSchema
 from util.logger import logger
 
 router = APIRouter(prefix='/api', tags=['APIs'])
 
 
-@router.get('/like/{wallpaper_id}', response_model=SuccessResponseModel, status_code=status.HTTP_200_OK)
+@router.get('/like/{wallpaper_id}', response_model=SuccessSchema, status_code=status.HTTP_200_OK)
 async def like(wallpaper_id: str, db: db_dependency, user: get_current_user_dependency):
     try:
 

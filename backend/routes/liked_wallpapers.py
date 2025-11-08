@@ -3,15 +3,14 @@ from sqlalchemy import func, exists, select, literal
 from sqlalchemy.exc import SQLAlchemyError
 from starlette import status
 from auth import get_current_user_dependency
-from database import db_dependency
-from model import ImageResponseModel
-from schema import Liked, Wallpaper, WallpaperCategory, User, Category, Downloaded
+from db import db_dependency, Liked, Wallpaper, WallpaperCategory, User, Category, Downloaded
+from schema import ImageSchema
 from util.logger import logger
 
 router = APIRouter(prefix='/api', tags=['APIs'])
 
 
-@router.get('/liked-wallpapers', response_model=list[ImageResponseModel], status_code=status.HTTP_200_OK)
+@router.get('/liked-wallpapers', response_model=list[ImageSchema], status_code=status.HTTP_200_OK)
 async def liked_wallpapers(skip: int, limit: int, db: db_dependency, user: get_current_user_dependency):
     try:
         if not user or not user.get("user_id"):
@@ -60,7 +59,7 @@ async def liked_wallpapers(skip: int, limit: int, db: db_dependency, user: get_c
         )
 
         wallpapers_list = [
-            ImageResponseModel.model_validate(w)
+            ImageSchema.model_validate(w)
             for w in wallpapers
         ]
 

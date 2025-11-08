@@ -1,8 +1,7 @@
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, func, text, Boolean
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 
-Base = declarative_base()
+from .database import Base
 
 
 class User(Base):
@@ -75,3 +74,4 @@ class Downloaded(Base):
 
     user = relationship('User', back_populates='downloaded_wallpapers')
     wallpaper = relationship('Wallpaper', back_populates='downloaded_by_users')
+

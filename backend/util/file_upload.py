@@ -2,13 +2,16 @@ from io import BufferedReader, BytesIO
 import httpx
 from fastapi import HTTPException
 import traceback
+from urllib.parse import quote
 
 
 async def upload_file(
-        supabase_url: str, bucket_name: str, file_name: str, file, access_token: str
+        supabase_url: str, bucket_name: str, file_name: str, file, access_token: str, content_type: str = None
 ):
     try:
-        upload_url = f"{supabase_url}/storage/v1/object/{bucket_name}/{file_name}"
+        # URL-encode the filename to handle special characters like colons and spaces
+        encoded_file_name = quote(file_name, safe='')
+        upload_url = f"{supabase_url}/storage/v1/object/{bucket_name}/{encoded_file_name}"
 
         # Prepare file content
         if isinstance(file, bytes):
@@ -28,9 +31,12 @@ async def upload_file(
 
         headers = {
             "Authorization": f"Bearer {access_token}",
-            "Content-Type": 'image/*',
             "x-upsert": "true"
         }
+        
+        # Set Content-Type if provided, otherwise let Supabase infer it
+        if content_type:
+            headers["Content-Type"] = content_type
 
         try:
             async with httpx.AsyncClient(timeout=timeout_settings) as client:
@@ -41,7 +47,13 @@ async def upload_file(
                 )
 
                 if response.status_code not in [200, 201, 202, 204]:
-                    return {"error": f"Upload failed with status {response.status_code}", "details": response.text}
+                    error_details = response.text
+                    try:
+                        error_json = response.json()
+                        error_details = str(error_json)
+                    except:
+                        pass
+                    return {"error": f"Upload failed with status {response.status_code}", "details": error_details}
 
                 # If we get here, the upload was successful
                 try:

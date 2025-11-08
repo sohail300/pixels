@@ -2,18 +2,16 @@ from fastapi import APIRouter, HTTPException
 from starlette import status
 
 from auth import get_current_user_dependency
-from database import db_dependency
-from model import SuccessResponseModel
-from schema import Liked, Wallpaper, Downloaded, User
+from db import db_dependency, Liked, Wallpaper, Downloaded, User
+from schema import SuccessSchema
 from util.logger import logger
 
 router = APIRouter(prefix='/api', tags=['APIs'])
 
 
-@router.get('/download/{wallpaper_id}', response_model=SuccessResponseModel, status_code=status.HTTP_200_OK)
+@router.get('/download/{wallpaper_id}', response_model=SuccessSchema, status_code=status.HTTP_200_OK)
 async def download(wallpaper_id: str, db: db_dependency, user: get_current_user_dependency):
     try:
-
         if user is None:
             raise HTTPException(status_code=401, detail="Not Authorized")
 

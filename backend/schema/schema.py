@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List
 
 
-class ImageResponseModel(BaseModel):
+class ImageSchema(BaseModel):
     id: str
     name: str
     image: str
@@ -16,9 +16,10 @@ class ImageResponseModel(BaseModel):
         from_attributes = True  # Use this for Pydantic v2
 
 
-class SuccessResponseModel(BaseModel):
+class SuccessSchema(BaseModel):
     success: bool
     message: str
 
     class Config:
         from_attributes = True
+

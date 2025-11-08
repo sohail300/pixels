@@ -1,6 +1,7 @@
-from datetime import datetime, time
+from datetime import datetime
 
-def get_time_hh_mm_ss() -> time:
+def get_time_hh_mm_ss() -> str:
     now = datetime.now().time()  # Get current time
-    formatted_time = time(now.hour, now.minute, now.second)  # Keep as datetime.time
+    # Format as HH_MM_SS with underscores instead of colons
+    formatted_time = f"{now.hour:02d}_{now.minute:02d}_{now.second:02d}"
     return formatted_time
