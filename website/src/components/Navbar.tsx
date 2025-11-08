@@ -68,7 +68,7 @@ const Navbar: React.FC = () => {
               className="hove hover:text-black hover:bg-brand-accentColor/90 bg-brand-accentColor text-black"
               onClick={signin}
             >
-              Login
+             Admin Login
             </Button>
           </div>
         )}
@@ -95,7 +95,7 @@ const Navbar: React.FC = () => {
             </DropdownMenuContent>
           ) : (
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Login</DropdownMenuItem>
+              <DropdownMenuItem>Admin Login</DropdownMenuItem>
             </DropdownMenuContent>
           )}
         </DropdownMenu>

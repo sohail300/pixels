@@ -132,11 +132,11 @@ const page = () => {
                   <p>
                     <strong>Website</strong> refers to Pixels, accessible from{" "}
                     <a
-                      href="https://pixels.heysohail.me/"
+                      href="https://pixels.heysohail.xyz/"
                       rel="external nofollow noopener"
                       target="_blank"
                     >
-                      https://pixels.heysohail.me/
+                      https://pixels.heysohail.xyz/
                     </a>
                   </p>
                 </li>
@@ -596,7 +596,7 @@ const page = () => {
                 contact us:
               </p>
               <ul>
-                <li>By email: contact@heysohail.me</li>
+                <li>By email: sohailatwork10@gmail.com</li>
               </ul>
             </div>
           </div>

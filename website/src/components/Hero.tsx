@@ -24,7 +24,7 @@ const Hero = () => {
           <div className=" flex gap-8 mt-16">
             <Link href="#download-section">
               <Button className=" bg-brand-accentColor text-black hover:bg-[#]">
-                Get Started
+                Download for FREE
               </Button>
             </Link>
             <CustomAvatarGroup />

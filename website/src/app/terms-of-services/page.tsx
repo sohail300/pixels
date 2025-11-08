@@ -127,7 +127,7 @@ export default function page() {
             For any questions about these Terms of Service, please contact us
             at:
             <br />
-            Email: contact@heysohail.me
+            Email: sohailatwork10@gmail.com
           </p>
         </section>
       </div>

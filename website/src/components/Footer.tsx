@@ -21,9 +21,6 @@ const Footer = () => {
           <div />
           <div className="p-4 flex flex-col">
             <p className=" my-2 font-semibold">Contact</p>
-            <Link href="mailto:contact@heysohail.me">
-              <p className=" my-2 text-gray-400">contact@heysohail.me</p>
-            </Link>
             <Link href="mailto:sohailatwork10@gmail.com">
               <p className=" my-2 text-gray-400">sohailatwork10@gmail.com</p>
             </Link>
