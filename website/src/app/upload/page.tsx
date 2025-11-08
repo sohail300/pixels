@@ -43,8 +43,6 @@ const FormUI = () => {
     setImage(e.target.files?.[0] || null);
   };
 
-  console.log(localStorage.getItem("token"));
-
   const handleUploadPhoto = async () => {
     if (!name || categories.length === 0 || !image) {
       setError("Please fill in all required fields");
