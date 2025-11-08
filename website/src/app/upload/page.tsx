@@ -86,35 +86,35 @@ const FormUI = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden py-12 px-4">
+    <div className="min-h-screen w-full flex items-center justify-center bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden py-8 sm:py-12 px-4 sm:px-6">
       <Spotlight
         className="-top-40 left-0 md:left-60 md:-top-20"
         fill="white"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-accentColor/5 to-transparent pointer-events-none" />
-      <div className="max-w-2xl mx-auto w-full relative z-10 mt-12">
-        <div className="text-center flex flex-row items-center justify-center gap-8">  
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-brand-accentColor/30 to-brand-accentColor/10 mb-4 backdrop-blur-sm border border-brand-accentColor/20 shadow-lg shadow-brand-accentColor/20">
-            <Sparkles className="w-7 h-7 text-brand-accentColor" />
+      <div className="max-w-2xl mx-auto w-full relative z-10 mt-8 sm:mt-12">
+        <div className="text-center flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">  
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-brand-accentColor/30 to-brand-accentColor/10 mb-2 sm:mb-4 backdrop-blur-sm border border-brand-accentColor/20 shadow-lg shadow-brand-accentColor/20">
+            <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-brand-accentColor" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-gray-400">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-gray-400">
             Upload Photo
           </h1>
         </div>
         
         <Card className="border border-white/10 shadow-2xl bg-gradient-to-br from-white/95 via-white/98 to-yellow-50/40 backdrop-blur-xl">
-          <CardHeader className="pb-4 pt-6 px-6">
-            <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <CardHeader className="pb-4 pt-4 sm:pt-6 px-4 sm:px-6">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
               <div className="p-1.5 rounded-lg bg-brand-accentColor/20">
-                <Upload className="w-5 h-5 text-brand-accentColor" />
+                <Upload className="w-4 h-4 sm:w-5 sm:h-5 text-brand-accentColor" />
               </div>
               Photo Details
             </CardTitle>
-            <CardDescription className="text-gray-600 text-sm mt-1">
+            <CardDescription className="text-gray-600 text-xs sm:text-sm mt-1">
               Fill in the information below to upload photo
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-5 px-6 pb-6">
+          <CardContent className="space-y-4 sm:space-y-5 px-4 sm:px-6 pb-4 sm:pb-6">
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-gray-900 font-semibold text-sm">
                 <div className="p-1 rounded-lg bg-brand-accentColor/10">
@@ -295,8 +295,8 @@ const FormUI = () => {
                 <div className="p-1.5 rounded-lg bg-yellow-200/50 flex-shrink-0">
                   <Info className="w-4 h-4 text-yellow-700" />
                 </div>
-                <p className="text-xs text-gray-800 leading-relaxed font-medium">
-                  <span className="font-semibold text-gray-900">Note:</span> You can upload an image only if you are allowed by the admin. Contact the email <a href="mailto:sohailatwork10@gmail.com" className="text-brand-accentColor hover:underline">sohailatwork10@gmail.com</a> for permission.
+                <p className="text-xs sm:text-sm text-gray-800 leading-relaxed font-medium">
+                  <span className="font-semibold text-gray-900">Note:</span> You can upload an image only if you are allowed by the admin. Contact the email <a href="mailto:sohailatwork10@gmail.com" className="text-brand-accentColor hover:underline break-all">sohailatwork10@gmail.com</a> for permission.
                 </p>
               </div>
             </div>

@@ -619,59 +619,151 @@ const page = () => {
         <style jsx>
           {`
             h1 {
-              font-size: 40px;
-              line-height: 60px;
+              font-size: 24px;
+              line-height: 32px;
               margin: 16px 0;
+            }
+            @media (min-width: 640px) {
+              h1 {
+                font-size: 32px;
+                line-height: 48px;
+              }
+            }
+            @media (min-width: 1024px) {
+              h1 {
+                font-size: 40px;
+                line-height: 60px;
+              }
             }
             h1,
             h2 {
               font-weight: 700;
             }
             h2 {
-              font-size: 32px;
-              line-height: 48px;
+              font-size: 20px;
+              line-height: 28px;
               margin: 16px 0;
             }
+            @media (min-width: 640px) {
+              h2 {
+                font-size: 24px;
+                line-height: 36px;
+              }
+            }
+            @media (min-width: 1024px) {
+              h2 {
+                font-size: 32px;
+                line-height: 48px;
+              }
+            }
             h3 {
-              font-size: 24px;
-              line-height: 36px;
+              font-size: 18px;
+              line-height: 26px;
               margin: 16px 0;
+            }
+            @media (min-width: 640px) {
+              h3 {
+                font-size: 20px;
+                line-height: 30px;
+              }
+            }
+            @media (min-width: 1024px) {
+              h3 {
+                font-size: 24px;
+                line-height: 36px;
+              }
             }
             h3,
             h4 {
               font-weight: 700;
             }
             h4 {
-              font-size: 20px;
-              line-height: 30px;
+              font-size: 16px;
+              line-height: 24px;
               margin: 12px 0;
             }
+            @media (min-width: 640px) {
+              h4 {
+                font-size: 18px;
+                line-height: 26px;
+              }
+            }
+            @media (min-width: 1024px) {
+              h4 {
+                font-size: 20px;
+                line-height: 30px;
+              }
+            }
             h5 {
-              font-size: 16px;
+              font-size: 14px;
               margin: 12px 0;
+            }
+            @media (min-width: 640px) {
+              h5 {
+                font-size: 16px;
+              }
             }
             h5,
             h6 {
-              line-height: 24px;
+              line-height: 20px;
               font-weight: 700;
               margin: 12px 0;
             }
+            @media (min-width: 640px) {
+              h5,
+              h6 {
+                line-height: 24px;
+              }
+            }
             h6 {
-              font-size: cacl(16px);
+              font-size: 14px;
+            }
+            @media (min-width: 640px) {
+              h6 {
+                font-size: 16px;
+              }
             }
             li {
-              margin: 24px 0;
-              margin-left: 40px;
+              margin: 16px 0;
+              margin-left: 20px;
               list-style-type: disc;
             }
+            @media (min-width: 640px) {
+              li {
+                margin: 20px 0;
+                margin-left: 30px;
+              }
+            }
+            @media (min-width: 1024px) {
+              li {
+                margin: 24px 0;
+                margin-left: 40px;
+              }
+            }
             p {
-              line-height: 24px;
-              margin: 16px 0;
+              line-height: 20px;
+              margin: 12px 0;
+              font-size: 14px;
+            }
+            @media (min-width: 640px) {
+              p {
+                line-height: 22px;
+                margin: 14px 0;
+                font-size: 15px;
+              }
+            }
+            @media (min-width: 1024px) {
+              p {
+                line-height: 24px;
+                margin: 16px 0;
+                font-size: 16px;
+              }
             }
             a {
               text-decoration: none;
               cursor: pointer;
               color: #000;
+              word-break: break-word;
             }
             a:hover,
             a[rel~="nofollow"] {
@@ -691,13 +783,25 @@ const page = () => {
             }
             .page {
               width: 100%;
-              margin-top: 64px;
+              margin-top: 56px;
+            }
+            @media (min-width: 640px) {
+              .page {
+                margin-top: 64px;
+              }
             }
             .container {
               position: relative;
-              width: 90%;
+              width: 95%;
               max-width: 1024px;
               margin: 0 auto;
+              padding: 0 16px;
+            }
+            @media (min-width: 640px) {
+              .container {
+                width: 90%;
+                padding: 0 24px;
+              }
             }
             .translations-list-container {
               color: #000;
@@ -737,8 +841,14 @@ const page = () => {
             }
             .footer {
               border-top: 1px solid #eee;
-              margin: 32px 0 0;
-              padding: 16px 0;
+              margin: 24px 0 0;
+              padding: 12px 0;
+            }
+            @media (min-width: 640px) {
+              .footer {
+                margin: 32px 0 0;
+                padding: 16px 0;
+              }
             }
           `}
         </style>

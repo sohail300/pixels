@@ -3,7 +3,6 @@
 import React, { useContext, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MenuIcon, LogOut, User } from "lucide-react";
-import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -40,10 +39,10 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-[#3D3D3D] to-[#1F1F1F] text-white p-4 fixed w-full top-0 z-20">
-      <div className="container mx-auto flex justify-between items-center">
+    <nav className="bg-gradient-to-r from-[#3D3D3D] to-[#1F1F1F] text-white p-3 sm:p-4 fixed w-full top-0 z-20">
+      <div className="container mx-auto flex justify-between items-center px-4 sm:px-6">
         <Link href={"/"}>
-          <div className="text-2xl font-bold">Pixels</div>
+          <div className="text-xl sm:text-2xl font-bold">Pixels</div>
         </Link>
 
         {/* Desktop menu */}
@@ -76,7 +75,9 @@ const Navbar: React.FC = () => {
         {/* Mobile menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild className="md:hidden">
-            <MenuIcon className="h-[1.2rem] w-[1.2rem]" />
+            <button className="p-2">
+              <MenuIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+            </button>
           </DropdownMenuTrigger>
           {session ? (
             <DropdownMenuContent align="end">
@@ -85,17 +86,14 @@ const Navbar: React.FC = () => {
               </Link>
               <DropdownMenuItem
                 className="text-red-500"
-                onClick={async () => {
-                  await signOut();
-                  router.replace("/");
-                }}
+                onClick={signout}
               >
                 Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
           ) : (
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Admin Login</DropdownMenuItem>
+              <DropdownMenuItem onClick={signin}>Admin Login</DropdownMenuItem>
             </DropdownMenuContent>
           )}
         </DropdownMenu>
