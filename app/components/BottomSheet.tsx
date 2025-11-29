@@ -10,6 +10,7 @@ import {
   Platform,
   Appearance,
   useColorScheme,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
@@ -19,6 +20,7 @@ import React, {
   useRef,
   useState,
   useEffect,
+  useContext,
 } from "react";
 import { Colors } from "@/constants/Colors";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -28,9 +30,26 @@ import * as FileSystem from "expo-file-system";
 import * as MediaLibrary from "expo-media-library";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { BACKEND_URL } from "@/lib/config";
 import { LinearGradient } from "expo-linear-gradient";
+import { SessionContext } from "@/context/SessionContext";
+import { RootState } from "@/redux/store";
+import { toggleLike as toggleLikeAction } from "@/redux/LikedWallpapersSlice";
+
+interface BottomSheetComponentProps {
+  readonly close: () => void;
+  readonly id?: string;
+  readonly name: string;
+  readonly url: string;
+  readonly downloads?: number;
+  readonly likes?: number;
+  readonly uploaderName?: string;
+  readonly uploaderImage?: string;
+  readonly hasLiked?: boolean;
+  readonly categories?: string[];
+  readonly visible?: boolean;
+}
 
 export default function BottomSheetComponent({
   close,
@@ -43,10 +62,12 @@ export default function BottomSheetComponent({
   uploaderImage,
   hasLiked,
   categories,
-}) {
+  visible = true,
+}: BottomSheetComponentProps) {
   // refs
-  const bottomSheetRef = useRef(null);
-  const themeState = useSelector((state) => state.theme);
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const themeState = useSelector((state: RootState) => state.theme);
+  const dispatch = useDispatch();
   const systemColorScheme =
     Platform.OS === "ios" ? Appearance.getColorScheme() : useColorScheme();
 
@@ -57,12 +78,18 @@ export default function BottomSheetComponent({
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [likeAnimation] = useState(new Animated.Value(1));
-  const [liked, setLiked] = useState(hasLiked);
-  const [likeCount, setLikeCount] = useState(likes);
+  const [liked, setLiked] = useState(hasLiked ?? false);
+  const [likeCount, setLikeCount] = useState(likes ?? 0);
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const isClosingRef = useRef(false);
+  const isOpeningRef = useRef(false);
+  const previousVisibleRef = useRef<boolean | undefined>(undefined);
 
   const theme = useMemo(() => {
     return themeState.data === "system" ? systemColorScheme : themeState.data;
   }, [themeState.data, systemColorScheme]);
+
+  const { session } = useContext(SessionContext);
 
   const isDark = theme === "dark";
   const width = Dimensions.get("window").width;
@@ -71,21 +98,118 @@ export default function BottomSheetComponent({
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
+    // Skip if this is the initial render and visible is false
+    if (previousVisibleRef.current === undefined) {
+      previousVisibleRef.current = visible;
+      if (!visible) {
+        fadeAnim.setValue(0);
+        scaleAnim.setValue(0.95);
+      } else {
+        // If visible on mount, open immediately
+        setTimeout(() => {
+          bottomSheetRef.current?.snapToIndex(0);
+        }, 100);
+      }
+      return;
+    }
+
+    // Only handle state changes
+    if (previousVisibleRef.current === visible) return;
+
+    if (visible && !previousVisibleRef.current) {
+      // Opening: reset states and start animation
+      isClosingRef.current = false;
+      isOpeningRef.current = true;
+      fadeAnim.setValue(0);
+      scaleAnim.setValue(0.95);
+
+      // Start backdrop animation first
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      // Open the BottomSheet programmatically after a short delay
+      // This ensures the backdrop animation has started
+      const openTimeoutId = setTimeout(() => {
+        bottomSheetRef.current?.snapToIndex(0);
+        // Keep opening flag true for longer to prevent onChange from closing
+        setTimeout(() => {
+          isOpeningRef.current = false;
+        }, 500);
+      }, 100);
+
+      return () => {
+        clearTimeout(openTimeoutId);
+      };
+    } else if (!visible && previousVisibleRef.current) {
+      // Closing: close the sheet and reset animations
+      bottomSheetRef.current?.close();
+      fadeAnim.setValue(0);
+      scaleAnim.setValue(0.95);
+      isClosingRef.current = false;
+      isOpeningRef.current = false;
+    }
+
+    previousVisibleRef.current = visible;
+  }, [visible]);
+
+  const handleClose = useCallback(() => {
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
+
+    // Animate backdrop fade out, then close
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => {
+      close();
+      isClosingRef.current = false;
+    });
+  }, [fadeAnim, close]);
+
+  const handleSheetChange = useCallback(
+    (index: number) => {
+      // Ignore changes during opening or if already closing
+      if (isOpeningRef.current || isClosingRef.current) return;
+
+      // When sheet is closed (index === -1) and we were visible, close properly
+      if (index === -1) {
+        // Only close if we're actually visible (user dragged it down)
+        if (!visible) return;
+
+        // User dragged the sheet down, so close it
+        isClosingRef.current = true;
+
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: true,
+        }).start(() => {
+          close();
+          isClosingRef.current = false;
+        });
+      }
+    },
+    [fadeAnim, close, visible]
+  );
 
   const toggleLike = () => {
+    // Check if user is logged in
+    if (!session && !session?.access_token) {
+      ToastAndroid.show("You must be logged in", ToastAndroid.SHORT);
+      return;
+    }
+
     // Animate heart press
     Animated.sequence([
       Animated.timing(likeAnimation, {
@@ -101,10 +225,16 @@ export default function BottomSheetComponent({
     ]).start();
 
     // Update like status
-    setLiked(!liked);
-    setLikeCount(liked ? likeCount - 1 : likeCount + 1);
+    const newLikedState = !liked;
+    setLiked(newLikedState);
+    setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
 
-    // Update like on backend (you would implement this)
+    // Update global state
+    if (id) {
+      dispatch(toggleLikeAction(String(id)));
+    }
+
+    // Update like on backend
     updateLikeOnServer();
   };
 
@@ -121,14 +251,16 @@ export default function BottomSheetComponent({
     }
   };
 
-  const downloadCallback = (downloadProgress) => {
+  const downloadCallback = (
+    downloadProgress: FileSystem.DownloadProgressData
+  ) => {
     const progress =
       downloadProgress.totalBytesWritten /
       downloadProgress.totalBytesExpectedToWrite;
     setDownloadProgress(progress);
   };
 
-  async function download(name, url) {
+  async function download(name: string, url: string) {
     try {
       setIsDownloading(true);
 
@@ -165,8 +297,8 @@ export default function BottomSheetComponent({
     }
   }
 
-  async function saveToGallery(filePath) {
-    if (permissionResponse.status !== "granted") {
+  async function saveToGallery(filePath: string) {
+    if (permissionResponse?.status !== "granted") {
       await requestPermission();
     }
 
@@ -195,17 +327,30 @@ export default function BottomSheetComponent({
   }
 
   return (
-    <View style={StyleSheet.absoluteFillObject}>
+    <View
+      style={[
+        StyleSheet.absoluteFillObject,
+        {
+          zIndex: visible ? 9999 : -1,
+          elevation: visible ? 9999 : -1,
+          opacity: visible ? 1 : 0,
+        },
+      ]}
+      pointerEvents={visible ? "box-none" : "none"}
+    >
       <StatusBar translucent backgroundColor="transparent" />
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFillObject,
-          styles.backdrop,
-          { opacity: fadeAnim },
-        ]}
-      >
-        <BlurView intensity={80} style={StyleSheet.absoluteFillObject} />
-      </Animated.View>
+      <TouchableWithoutFeedback onPress={handleClose}>
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFillObject,
+            styles.backdrop,
+            { opacity: fadeAnim },
+          ]}
+          pointerEvents={visible ? "auto" : "none"}
+        >
+          <BlurView intensity={80} style={StyleSheet.absoluteFillObject} />
+        </Animated.View>
+      </TouchableWithoutFeedback>
 
       <BottomSheet
         ref={bottomSheetRef}
@@ -216,6 +361,8 @@ export default function BottomSheetComponent({
           backgroundColor: "transparent",
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
+          zIndex: 10,
+          elevation: 10,
           height: 0,
           padding: 0,
           margin: 0,
@@ -227,8 +374,11 @@ export default function BottomSheetComponent({
         }}
         snapPoints={snapPoints}
         enablePanDownToClose={true}
-        onClose={close}
-        animateOnMount={true}
+        enableOverDrag={false}
+        onChange={handleSheetChange}
+        onClose={handleClose}
+        index={-1}
+        animateOnMount={false}
       >
         <BottomSheetView
           style={[
@@ -283,66 +433,74 @@ export default function BottomSheetComponent({
 
           <View style={styles.contentSection}>
             <View style={styles.headerSection}>
-              <Text
-                style={[
-                  styles.title,
-                  { color: isDark ? "#ffffff" : "#000000" },
-                ]}
-              >
-                {name ? capitalize(name) : name}
-              </Text>
+              <View style={styles.titleContainer}>
+                <Text
+                  style={[
+                    styles.title,
+                    { color: isDark ? "#ffffff" : "#000000" },
+                  ]}
+                >
+                  {name ? capitalize(name) : name}
+                </Text>
 
-              <View style={styles.uploaderInfo}>
-                <View style={styles.uploaderAvatar}>
-                  <Image
-                    source={{ uri: uploaderImage }}
-                    style={styles.uploaderImage}
-                  />
+                <Text style={[{ color: isDark ? "#aaaaaa" : "#666666" }]}>
+                  Uploaded by:{" "}
+                </Text>
+
+                <View style={styles.uploaderInfo}>
+                  {uploaderImage && (
+                    <View style={styles.uploaderAvatar}>
+                      <Image
+                        source={{ uri: uploaderImage }}
+                        style={styles.uploaderImage}
+                      />
+                    </View>
+                  )}
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Text
+                      style={[
+                        styles.uploaderName,
+                        { color: isDark ? "#ffffff" : "#000000" },
+                      ]}
+                    >
+                      {uploaderName || "Unknown"}
+                    </Text>
+                  </View>
                 </View>
-                <View>
+              </View>
+
+              <View style={styles.statsSection}>
+                <View style={styles.statItem}>
+                  <Feather
+                    name="download"
+                    size={18}
+                    color={isDark ? "#aaaaaa" : "#666666"}
+                  />
                   <Text
                     style={[
-                      styles.uploaderName,
-                      { color: isDark ? "#ffffff" : "#000000" },
+                      styles.statText,
+                      { color: isDark ? "#aaaaaa" : "#666666" },
                     ]}
                   >
-                    {uploaderName || "Unknown"}
+                    {downloads ?? 0} downloads
                   </Text>
                 </View>
-              </View>
-            </View>
 
-            <View style={styles.statsSection}>
-              <View style={styles.statItem}>
-                <Feather
-                  name="download"
-                  size={18}
-                  color={isDark ? "#aaaaaa" : "#666666"}
-                />
-                <Text
-                  style={[
-                    styles.statText,
-                    { color: isDark ? "#aaaaaa" : "#666666" },
-                  ]}
-                >
-                  {downloads} downloads
-                </Text>
-              </View>
-
-              <View style={styles.statItem}>
-                <AntDesign
-                  name="heart"
-                  size={18}
-                  color={isDark ? "#aaaaaa" : "#666666"}
-                />
-                <Text
-                  style={[
-                    styles.statText,
-                    { color: isDark ? "#aaaaaa" : "#666666" },
-                  ]}
-                >
-                  {likeCount} likes
-                </Text>
+                <View style={styles.statItem}>
+                  <AntDesign
+                    name="heart"
+                    size={18}
+                    color={isDark ? "#aaaaaa" : "#666666"}
+                  />
+                  <Text
+                    style={[
+                      styles.statText,
+                      { color: isDark ? "#aaaaaa" : "#666666" },
+                    ]}
+                  >
+                    {likeCount} likes
+                  </Text>
+                </View>
               </View>
             </View>
 
@@ -354,17 +512,23 @@ export default function BottomSheetComponent({
                 style={{ marginRight: 8 }}
               />
               <View style={styles.categoryChips}>
-                {categories.slice(0, 2).map((category, index) => (
-                  <View key={index} style={styles.categoryChip}>
-                    <Text style={styles.categoryText}>{category}</Text>
-                  </View>
-                ))}
-                {categories.length > 2 && (
-                  <View style={styles.categoryChip}>
+                {categories &&
+                  (showAllCategories ? categories : categories.slice(0, 2)).map(
+                    (category, index) => (
+                      <View key={index} style={styles.categoryChip}>
+                        <Text style={styles.categoryText}>{category}</Text>
+                      </View>
+                    )
+                  )}
+                {categories && categories.length > 2 && !showAllCategories && (
+                  <TouchableOpacity
+                    onPress={() => setShowAllCategories(true)}
+                    style={styles.categoryChip}
+                  >
                     <Text style={styles.categoryText}>
                       +{categories.length - 2}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 )}
               </View>
             </View>
@@ -481,9 +645,16 @@ const styles = StyleSheet.create({
   headerSection: {
     display: "flex",
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
-    marginBottom: 16,
+    gap: 12,
+    marginBottom: 8,
+  },
+  titleContainer: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
+    gap: 4,
   },
   title: {
     fontSize: 26,
@@ -493,6 +664,7 @@ const styles = StyleSheet.create({
   uploaderInfo: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "flex-start",
   },
   uploaderAvatar: {
     width: 40,
@@ -509,7 +681,7 @@ const styles = StyleSheet.create({
   },
   uploaderName: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "400",
   },
   uploaderImage: {
     width: 40,
@@ -520,13 +692,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   statsSection: {
-    flexDirection: "row",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    justifyContent: "flex-start",
+    gap: 8,
     marginBottom: 16,
   },
   statItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 24,
   },
   statText: {
     marginLeft: 6,
@@ -535,7 +709,8 @@ const styles = StyleSheet.create({
   categoriesSection: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 12,
+    marginTop: 12,
   },
   categoryListText: {
     marginLeft: 6,

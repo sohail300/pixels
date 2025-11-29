@@ -12,9 +12,10 @@ import { supabase } from "../lib/supabase";
 import { SessionContext } from "@/context/SessionContext";
 import { useSelector } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
+import { RootState } from "@/redux/store";
 
 const About = () => {
-  const themeState = useSelector((state) => state.theme);
+  const themeState = useSelector((state: RootState) => state.theme);
   const systemColorScheme = useColorScheme();
   const { session } = useContext(SessionContext);
 
@@ -24,7 +25,7 @@ const About = () => {
 
   const isDark = theme === "dark";
 
-  const handleRedirect = (url) => {
+  const handleRedirect = (url: string) => {
     Linking.openURL(url);
   };
 
@@ -56,7 +57,7 @@ const About = () => {
         <TouchableOpacity
           style={styles.menuItem}
           onPress={() =>
-            handleRedirect("https://pixels.heysohail.me/privacy-policy")
+            handleRedirect("https://pixels.heysohail.xyz/privacy-policy")
           }
         >
           <View style={styles.menuItemContent}>
@@ -86,7 +87,7 @@ const About = () => {
         <TouchableOpacity
           style={styles.menuItem}
           onPress={() =>
-            handleRedirect("https://pixels.heysohail.me/terms-of-services")
+            handleRedirect("https://pixels.heysohail.xyz/terms-of-services")
           }
         >
           <View style={styles.menuItemContent}>

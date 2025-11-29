@@ -16,29 +16,62 @@ import CarouselComponent from "./CarouselComponent";
 import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { BlurView } from "expo-blur";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { BACKEND_URL, LIMIT, SKIP } from "@/lib/config";
+import { RootState } from "@/redux/store";
+import { store } from "@/redux/store";
+import { setLikedIds } from "@/redux/LikedWallpapersSlice";
 
 const HEADER_MAX_HEIGHT = 200;
 const HEADER_MIN_HEIGHT = 70;
 const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
 const HomePage = () => {
-  const themeState = useSelector((state) => state.theme);
+  const themeState = useSelector((state: RootState) => state.theme);
   const systemColorScheme = useColorScheme();
   const scrollY = useRef(new Animated.Value(0)).current;
+  const leftGetsExtraRef = useRef(true); // Track which side should get extra item
+  const existingIdsRef = useRef(new Set()); // Track all existing IDs to prevent duplicates
 
   const theme = useMemo(() => {
     return themeState.data === "system" ? systemColorScheme : themeState.data;
   }, [themeState.data, systemColorScheme]);
 
-  const [wallpaper1, setWallpaper1] = useState([]);
-  const [wallpaper2, setWallpaper2] = useState([]);
+  const [wallpaper1, setWallpaper1] = useState<any[]>([]);
+  const [wallpaper2, setWallpaper2] = useState<any[]>([]);
   const [limit, setLimit] = useState(LIMIT);
   const [skip, setSkip] = useState(SKIP);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isSearchMode, setIsSearchMode] = useState(false);
+  const [hasReachedEnd, setHasReachedEnd] = useState(false);
+  const [hasReachedSearchEnd, setHasReachedSearchEnd] = useState(false);
+  const searchPageRef = useRef(0);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const likedWallpapers = useSelector(
+    (state: RootState) => state.likedWallpapers
+  );
+
+  // Update has_liked for existing wallpapers when global state changes
+  useEffect(() => {
+    if (likedWallpapers.lastUpdated) {
+      const likedIds = new Set(likedWallpapers.likedIds);
+      setWallpaper1((prev) =>
+        prev.map((item: any) => ({
+          ...item,
+          has_liked: likedIds.has(String(item.id)),
+        }))
+      );
+      setWallpaper2((prev) =>
+        prev.map((item: any) => ({
+          ...item,
+          has_liked: likedIds.has(String(item.id)),
+        }))
+      );
+    }
+  }, [likedWallpapers.lastUpdated]);
 
   const headerHeight = scrollY.interpolate({
     inputRange: [0, HEADER_SCROLL_DISTANCE],
@@ -58,10 +91,11 @@ const HomePage = () => {
     extrapolate: "clamp",
   });
 
-  async function getWallpapers() {
+  async function getWallpapers(resetArrays = false, skipOverride?: number) {
     try {
+      const currentSkip = skipOverride !== undefined ? skipOverride : page * limit;
       const response = await fetch(
-        `${BACKEND_URL}/explore?skip=${skip}&limit=${limit}`,
+        `${BACKEND_URL}/explore?skip=${currentSkip}&limit=${limit}`,
         {
           method: "GET",
           headers: {
@@ -76,16 +110,166 @@ const HomePage = () => {
       }
       const data = await response.json();
 
+      // Check if we've reached the end (empty response or fewer items than limit)
+      if (data.length === 0 || data.length < limit) {
+        setHasReachedEnd(true);
+      }
+
       if (data.length !== 0) {
-        const midpoint = Math.ceil(data.length / 2);
-        setWallpaper1((prev) => [...prev, ...data.slice(0, midpoint)]);
-        setWallpaper2((prev) => [...prev, ...data.slice(midpoint)]);
+        // Filter out duplicates based on ID before adding to state
+        const newItems = data.filter(
+          (item: any) => !existingIdsRef.current.has(item.id)
+        );
+
+        if (newItems.length > 0) {
+          // Add new IDs to the ref
+          newItems.forEach((item: any) => existingIdsRef.current.add(item.id));
+
+          // Update has_liked based on global state and sync global state
+          const likedIds = new Set(store.getState().likedWallpapers.likedIds);
+          const newlyLikedIds: string[] = [];
+          newItems.forEach((item: any) => {
+            const itemId = String(item.id);
+            if (item.has_liked && !likedIds.has(itemId)) {
+              newlyLikedIds.push(itemId);
+            }
+            item.has_liked = likedIds.has(itemId) || item.has_liked;
+          });
+          // Update global state with newly liked items from API
+          if (newlyLikedIds.length > 0) {
+            dispatch(setLikedIds(newlyLikedIds));
+          }
+
+          // Alternate which side gets the extra item to maintain balance
+          const midpoint = leftGetsExtraRef.current
+            ? Math.ceil(newItems.length / 2)
+            : Math.floor(newItems.length / 2);
+
+          if (resetArrays) {
+            // Reset arrays for fresh start
+            setWallpaper1(newItems.slice(0, midpoint));
+            setWallpaper2(newItems.slice(midpoint));
+          } else {
+            // Update both arrays by appending
+            setWallpaper1((prev: any[]) => [
+              ...prev,
+              ...newItems.slice(0, midpoint),
+            ]);
+            setWallpaper2((prev: any[]) => [
+              ...prev,
+              ...newItems.slice(midpoint),
+            ]);
+          }
+
+          // Alternate for next fetch
+          leftGetsExtraRef.current = !leftGetsExtraRef.current;
+        }
+
         setPage((prev) => prev + 1);
       }
     } catch (error) {
       console.error("Error fetching wallpapers:", error);
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
+    }
+  }
+
+  async function searchWallpapers(query: string, isLoadMore = false) {
+    try {
+      const currentPage = isLoadMore ? searchPageRef.current : 0;
+      const skip = currentPage * limit;
+
+      const response = await fetch(
+        `${BACKEND_URL}/search?skip=${skip}&limit=${limit}&query=${encodeURIComponent(
+          query
+        )}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+
+      // Check if we've reached the end (empty response or fewer items than limit)
+      if (data.length === 0 || data.length < limit) {
+        setHasReachedSearchEnd(true);
+      }
+
+      if (data.length !== 0) {
+        // Filter out duplicates based on ID before adding to state
+        const newItems = data.filter(
+          (item: any) => !existingIdsRef.current.has(item.id)
+        );
+
+        if (newItems.length > 0) {
+          // Add new IDs to the ref
+          newItems.forEach((item: any) => existingIdsRef.current.add(item.id));
+
+          // Update has_liked based on global state and sync global state
+          const likedIds = new Set(store.getState().likedWallpapers.likedIds);
+          const newlyLikedIds: string[] = [];
+          newItems.forEach((item: any) => {
+            const itemId = String(item.id);
+            if (item.has_liked && !likedIds.has(itemId)) {
+              newlyLikedIds.push(itemId);
+            }
+            item.has_liked = likedIds.has(itemId) || item.has_liked;
+          });
+          // Update global state with newly liked items from API
+          if (newlyLikedIds.length > 0) {
+            dispatch(setLikedIds(newlyLikedIds));
+          }
+
+          if (isLoadMore) {
+            // Alternate which side gets the extra item to maintain balance
+            const midpoint = leftGetsExtraRef.current
+              ? Math.ceil(newItems.length / 2)
+              : Math.floor(newItems.length / 2);
+
+            // Update both arrays
+            setWallpaper1((prev: any[]) => [
+              ...prev,
+              ...newItems.slice(0, midpoint),
+            ]);
+            setWallpaper2((prev: any[]) => [
+              ...prev,
+              ...newItems.slice(midpoint),
+            ]);
+
+            // Alternate for next fetch
+            leftGetsExtraRef.current = !leftGetsExtraRef.current;
+          } else {
+            // Reset arrays for new search
+            setHasReachedSearchEnd(false);
+            const midpoint = Math.ceil(newItems.length / 2);
+            setWallpaper1(newItems.slice(0, midpoint) as any[]);
+            setWallpaper2(newItems.slice(midpoint) as any[]);
+            leftGetsExtraRef.current = true;
+            searchPageRef.current = 0;
+          }
+
+          if (isLoadMore) {
+            searchPageRef.current += 1;
+          }
+        }
+      } else if (!isLoadMore) {
+        // No results for new search
+        setWallpaper1([]);
+        setWallpaper2([]);
+      }
+    } catch (error) {
+      console.error("Error searching wallpapers:", error);
+    } finally {
+      setLoading(false);
+      setIsLoadingMore(false);
     }
   }
 
@@ -96,6 +280,50 @@ const HomePage = () => {
   useEffect(() => {
     getWallpapers();
   }, []);
+
+  // Handle search query changes with debouncing
+  useEffect(() => {
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    if (searchQuery.trim().length === 0) {
+      // Clear search - reset to explore mode
+      setIsSearchMode(false);
+      setHasReachedEnd(false);
+      setHasReachedSearchEnd(false);
+      existingIdsRef.current.clear();
+      searchPageRef.current = 0;
+      setPage(0);
+      leftGetsExtraRef.current = true; // Reset the alternating ref
+      setLoading(true);
+      // Reset arrays and fetch fresh wallpapers
+      setWallpaper1([]);
+      setWallpaper2([]);
+      // Call getWallpapers with skip=0 to ensure we start from the beginning
+      getWallpapers(true, 0); // Pass true to reset arrays and skip=0
+      return;
+    }
+
+    // Set search mode
+    setIsSearchMode(true);
+    setLoading(true);
+    existingIdsRef.current.clear();
+    searchPageRef.current = 0;
+
+    // Debounce search - wait 500ms after user stops typing
+    searchTimeoutRef.current = setTimeout(() => {
+      searchWallpapers(searchQuery.trim(), false);
+    }, 500);
+
+    // Cleanup timeout on unmount or query change
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchQuery]);
 
   const renderHeaderContent = () => (
     <Animated.View
@@ -150,7 +378,10 @@ const HomePage = () => {
               name="x"
               size={20}
               color={theme === "dark" ? "#aaa" : "#888"}
-              onPress={() => setSearchQuery("")}
+              onPress={() => {
+                setSearchQuery("");
+                setIsSearchMode(false);
+              }}
               style={styles.clearButton}
             />
           )}
@@ -233,14 +464,32 @@ const HomePage = () => {
         scrollEventThrottle={16}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: false }
-        )}
-        onScrollEndDrag={() => {
-          if (!loading) {
-            setLoading(true);
-            getWallpapers();
+          {
+            useNativeDriver: false,
+            listener: (event: any) => {
+              const { contentOffset, contentSize, layoutMeasurement } =
+                event.nativeEvent;
+              const scrollPosition = contentOffset.y + layoutMeasurement.height;
+              const threshold = contentSize.height - 500; // Load more when 500px from bottom
+
+              // Only load more if near bottom and not already loading and not reached end
+              if (
+                scrollPosition >= threshold &&
+                !isLoadingMore &&
+                !loading &&
+                wallpaper1.length > 0 &&
+                !(isSearchMode ? hasReachedSearchEnd : hasReachedEnd)
+              ) {
+                setIsLoadingMore(true);
+                if (isSearchMode && searchQuery.trim().length > 0) {
+                  searchWallpapers(searchQuery.trim(), true);
+                } else {
+                  getWallpapers();
+                }
+              }
+            },
           }
-        }}
+        )}
       >
         <View
           style={{
@@ -255,7 +504,7 @@ const HomePage = () => {
             <SpiltView
               wallpaper1={wallpaper1}
               wallpaper2={wallpaper2}
-              loading={loading}
+              loading={isLoadingMore}
             />
           </View>
         </View>

@@ -4,7 +4,13 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { Colors } from "@/constants/Colors";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 
-const LikedCard = ({ uri, name }) => {
+const LikedCard = ({
+  uri,
+  name,
+}: {
+  readonly uri: string;
+  readonly name: string;
+}) => {
   const { setShowBottomSheet, setUrl, setName } =
     useContext(BottomSheetContext);
 

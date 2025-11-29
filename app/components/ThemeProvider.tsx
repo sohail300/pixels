@@ -1,9 +1,14 @@
-import { View, useColorScheme } from "react-native";
+import { useColorScheme } from "react-native";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
-const ThemeProvider = ({ children }) => {
-  const themeState = useSelector((state) => state.theme);
+const ThemeProvider = ({
+  children,
+}: {
+  readonly children: React.ReactNode;
+}) => {
+  const themeState = useSelector((state: RootState) => state.theme);
   const systemColorScheme = useColorScheme();
 
   const colorTheme = useMemo(() => {

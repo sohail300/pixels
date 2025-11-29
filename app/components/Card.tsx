@@ -7,15 +7,19 @@ import {
   useColorScheme,
   Dimensions,
   Animated,
+  ToastAndroid,
+  GestureResponderEvent,
 } from "react-native";
 import React, { useContext, useMemo, useRef, useState } from "react";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { Colors } from "@/constants/Colors";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
-import { useSelector } from "react-redux";
+import { SessionContext } from "@/context/SessionContext";
+import { useSelector, useDispatch } from "react-redux";
 import { BACKEND_URL } from "@/lib/config";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
+import { RootState } from "@/redux/store";
+import { toggleLike } from "@/redux/LikedWallpapersSlice";
 
 const Card = ({
   id,
@@ -27,13 +31,36 @@ const Card = ({
   categories,
   uploaderName,
   uploaderImage,
+}: {
+  readonly id: string | number;
+  readonly uri: string;
+  readonly name: string;
+  readonly hasLiked: boolean;
+  readonly downloads: number;
+  readonly likes: number;
+  readonly categories: string[];
+  readonly uploaderName: string;
+  readonly uploaderImage: string;
 }) => {
-  const themeState = useSelector((state) => state.theme);
+  const themeState = useSelector((state: RootState) => state.theme);
+  const likedWallpapers = useSelector(
+    (state: RootState) => state.likedWallpapers.likedIds
+  );
+  const dispatch = useDispatch();
   const systemColorScheme = useColorScheme();
-  const [liked, setLiked] = useState(hasLiked);
+  // Use global state if available, otherwise fall back to prop
+  const isLikedInGlobalState = likedWallpapers.includes(String(id));
+  const [liked, setLiked] = useState(isLikedInGlobalState || hasLiked);
   const [pressed, setPressed] = useState(false);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const likeAnim = useRef(new Animated.Value(1)).current;
+
+  // Sync with global state when it changes
+  React.useEffect(() => {
+    if (isLikedInGlobalState !== liked) {
+      setLiked(isLikedInGlobalState);
+    }
+  }, [isLikedInGlobalState]);
 
   const theme = useMemo(() => {
     return themeState.data === "system" ? systemColorScheme : themeState.data;
@@ -51,6 +78,8 @@ const Card = ({
     setHasLiked,
     setId,
   } = useContext(BottomSheetContext);
+
+  const { session } = useContext(SessionContext);
 
   const handlePress = () => {
     // Card press animation
@@ -80,9 +109,15 @@ const Card = ({
     setId(id);
   };
 
-  const handleLike = async (event) => {
+  const handleLike = async (event: GestureResponderEvent) => {
     // Stop event propagation to prevent triggering the card press
     event.stopPropagation();
+
+    // Check if user is logged in
+    if (!session && !session?.access_token) {
+      ToastAndroid.show("You must be logged in", ToastAndroid.SHORT);
+      return;
+    }
 
     // Heart animation
     Animated.sequence([
@@ -98,8 +133,12 @@ const Card = ({
       }),
     ]).start();
 
-    // Toggle liked state
-    setLiked(!liked);
+    // Optimistically update local state
+    const newLikedState = !liked;
+    setLiked(newLikedState);
+
+    // Update global state
+    dispatch(toggleLike(String(id)));
 
     // Update on server
     try {
@@ -108,6 +147,7 @@ const Card = ({
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token}`,
         },
       });
 
@@ -118,6 +158,7 @@ const Card = ({
       console.log(error);
       // Revert state if API fails
       setLiked(liked);
+      dispatch(toggleLike(String(id))); // Revert global state too
     }
   };
 

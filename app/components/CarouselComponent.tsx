@@ -11,36 +11,45 @@ const CarouselComponent = () => {
   const imageList = [
     {
       id: 1,
-      link: "https://ideogram.ai/assets/progressive-image/balanced/response/I7cS64S2QLWrJHObfMe01g",
-      name: "Buildings",
+      link: "https://images.pexels.com/photos/50594/sea-bay-waterfront-beach-50594.jpeg?_gl=1*w533c8*_ga*ODE2MDkwNTA1LjE3NjI2OTY1OTE.*_ga_8JE65Q40S6*czE3NjI2OTY1OTAkbzEkZzEkdDE3NjI2OTY2MTUkajM1JGwwJGgw",
+      name: "Image1",
     },
     {
       id: 2,
-      link: "https://ideogram.ai/assets/progressive-image/balanced/response/VRkrf2kiSuWQRvvsU_cLJw",
-      name: "Buildings",
+      link: "https://images.pexels.com/photos/1366957/pexels-photo-1366957.jpeg?_gl=1*1kgwoab*_ga*ODE2MDkwNTA1LjE3NjI2OTY1OTE.*_ga_8JE65Q40S6*czE3NjI2OTY1OTAkbzEkZzEkdDE3NjI2OTY2MTckajMzJGwwJGgw",
+      name: "Image2",
     },
     {
       id: 3,
-      link: "https://ideogram.ai/assets/progressive-image/balanced/response/ns8meBmTTEm-J-j-xYadQA",
-      name: "Buildings",
+      link: "https://images.pexels.com/photos/414144/pexels-photo-414144.jpeg?_gl=1*tymzmw*_ga*ODE2MDkwNTA1LjE3NjI2OTY1OTE.*_ga_8JE65Q40S6*czE3NjI2OTY1OTAkbzEkZzEkdDE3NjI2OTY3MjkkajU5JGwwJGgw",
+      name: "Image3",
     },
     {
       id: 4,
-      link: "https://ideogram.ai/assets/progressive-image/balanced/response/mto4ESyTTOyvJgZK0-tp_w",
-      name: "Buildings",
+      link: "https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg?_gl=1*122redp*_ga*ODE2MDkwNTA1LjE3NjI2OTY1OTE.*_ga_8JE65Q40S6*czE3NjI2OTY1OTAkbzEkZzEkdDE3NjI2OTY3NTMkajM1JGwwJGgw",
+      name: "Image4",
     },
     {
       id: 5,
-      link: "https://ideogram.ai/assets/progressive-image/balanced/response/I81ZtZT7SWiAYCMDHC8zkg",
-      name: "Buildings",
+      link: "https://images.pexels.com/photos/956981/milky-way-starry-sky-night-sky-star-956981.jpeg?_gl=1*14woa91*_ga*ODE2MDkwNTA1LjE3NjI2OTY1OTE.*_ga_8JE65Q40S6*czE3NjI2OTY1OTAkbzEkZzEkdDE3NjI2OTY3NTYkajMyJGwwJGgw",
+      name: "Image5",
+    },
+    {
+      id: 6,
+      link: "https://images.pexels.com/photos/36487/above-adventure-aerial-air.jpg?_gl=1*1sjfb85*_ga*ODE2MDkwNTA1LjE3NjI2OTY1OTE.*_ga_8JE65Q40S6*czE3NjI2OTY1OTAkbzEkZzEkdDE3NjI2OTY3NTkkajI5JGwwJGgw",
+      name: "Image6",
+    },
+    {
+      id: 7,
+      link: "https://images.pexels.com/photos/691668/pexels-photo-691668.jpeg?_gl=1*1sjfb85*_ga*ODE2MDkwNTA1LjE3NjI2OTY1OTE.*_ga_8JE65Q40S6*czE3NjI2OTY1OTAkbzEkZzEkdDE3NjI2OTY3NTkkajI5JGwwJGgw",
+      name: "Image7",
     },
   ];
 
   const { setShowBottomSheet, setUrl, setName } =
     useContext(BottomSheetContext);
 
-  const handlePress = (name, link) => {
-    console.log("Pressed", name, link);
+  const handlePress = (name: string, link: string) => {
     setShowBottomSheet(true);
     setUrl(link);
     setName(name);

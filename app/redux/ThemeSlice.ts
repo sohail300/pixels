@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Dispatch } from "@reduxjs/toolkit";
 
 export const ThemeSlice = createSlice({
   name: "theme",
@@ -15,9 +16,9 @@ export const ThemeSlice = createSlice({
   },
 });
 
-export async function initializeTheme(dispatch) {
+export async function initializeTheme(dispatch: Dispatch<any>) {
   try {
-    const savedTheme = await AsyncStorage.getItem("theme");
+    const savedTheme = (await AsyncStorage.getItem("theme")) as string;
 
     // If no saved theme, default to system
     dispatch(changeTheme(savedTheme || "system"));

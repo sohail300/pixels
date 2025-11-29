@@ -6,15 +6,15 @@ import {
   useColorScheme,
 } from "react-native";
 import React, { useMemo } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector, useDispatch } from "react-redux";
 import { changeTheme } from "@/redux/ThemeSlice";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
+import { RootState } from "@/redux/store";
 
 const Preferences = () => {
   const dispatch = useDispatch();
-  const themeState = useSelector((state) => state.theme);
+  const themeState = useSelector((state: RootState) => state.theme);
   const systemColorScheme = useColorScheme();
 
   const colorTheme = useMemo(() => {

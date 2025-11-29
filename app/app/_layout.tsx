@@ -1,15 +1,15 @@
+import "react-native-reanimated"; // must stay first for Reanimated to initialize correctly
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
-import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StyleSheet } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
 import ThemeProvider from "@/components/ThemeProvider";
-import Animated, { FadeIn } from "react-native-reanimated";
 import { SessionContext } from "@/context/SessionContext";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -40,62 +40,67 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
+  // Add timeout to prevent infinite loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      SplashScreen.hideAsync();
+    }, 5000); // 5 second timeout
+    return () => clearTimeout(timer);
+  }, []);
+
   if (!loaded) {
     return null;
   }
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <SessionContext.Provider
-        value={{
-          session,
-          setSession,
-          token,
-          setToken,
-        }}
-      >
-        <BottomSheetContext.Provider
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={styles.container}>
+        <SessionContext.Provider
           value={{
-            showBottomSheet,
-            setShowBottomSheet,
-            url,
-            setUrl,
-            name,
-            setName,
-            downloads,
-            setDownloads,
-            likes,
-            setLikes,
-            uploaderName,
-            setUploaderName,
-            uploaderImage,
-            setUploaderImage,
-            hasLiked,
-            setHasLiked,
-            categories,
-            setCategories,
-            id,
-            setId,
+            session,
+            setSession,
+            token,
+            setToken,
           }}
         >
-          <Provider store={store}>
-            <ThemeProvider>
-              <Animated.View
-                style={{ flex: 1 }}
-                entering={FadeIn.duration(300)}
-              >
+          <BottomSheetContext.Provider
+            value={{
+              showBottomSheet,
+              setShowBottomSheet,
+              url,
+              setUrl,
+              name,
+              setName,
+              downloads,
+              setDownloads,
+              likes,
+              setLikes,
+              uploaderName,
+              setUploaderName,
+              uploaderImage,
+              setUploaderImage,
+              hasLiked,
+              setHasLiked,
+              categories,
+              setCategories,
+              id,
+              setId,
+            }}
+          >
+            <Provider store={store}>
+              <ThemeProvider>
                 <Stack screenOptions={{ headerShown: false }}>
                   <Stack.Screen
                     name="(tabs)"
                     options={{ headerShown: false }}
                   />
                 </Stack>
-              </Animated.View>
-            </ThemeProvider>
-          </Provider>
-        </BottomSheetContext.Provider>
-      </SessionContext.Provider>
-    </GestureHandlerRootView>
+              </ThemeProvider>
+            </Provider>
+          </BottomSheetContext.Provider>
+        </SessionContext.Provider>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
 

@@ -3,15 +3,14 @@ import HomePage from "@/components/HomePage";
 import { Colors } from "@/constants/Colors";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 import { initializeTheme } from "@/redux/ThemeSlice";
-
-import { Session } from "@supabase/supabase-js";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { useColorScheme, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { supabase } from "../../lib/supabase";
 import { SessionContext } from "@/context/SessionContext";
+import { RootState } from "@/redux/store";
 
 export default function ExplorePage() {
   const {
@@ -28,14 +27,12 @@ export default function ExplorePage() {
     categories,
   } = useContext(BottomSheetContext);
 
-  console.log(uploaderImage);
-
-  const { session, setSession } = useContext(SessionContext);
+  const { setSession } = useContext(SessionContext);
 
   const dispatch = useDispatch();
   initializeTheme(dispatch);
 
-  const themeState = useSelector((state) => state.theme);
+  const themeState = useSelector((state: RootState) => state.theme);
   const systemColorScheme = useColorScheme();
 
   const colorTheme =
@@ -65,20 +62,19 @@ export default function ExplorePage() {
         <HomePage />
       </View>
 
-      {showBottomSheet && (
-        <BottomSheetComponent
-          close={() => setShowBottomSheet(false)}
-          id={id}
-          name={name}
-          url={url}
-          downloads={downloads}
-          likes={likes}
-          uploaderName={uploaderName}
-          uploaderImage={uploaderImage}
-          hasLiked={hasLiked}
-          categories={categories}
-        />
-      )}
+      <BottomSheetComponent
+        close={() => setShowBottomSheet(false)}
+        id={id}
+        name={name}
+        url={url}
+        downloads={downloads}
+        likes={likes}
+        uploaderName={uploaderName}
+        uploaderImage={uploaderImage}
+        hasLiked={hasLiked}
+        categories={categories}
+        visible={showBottomSheet}
+      />
     </SafeAreaView>
   );
 }

@@ -9,7 +9,6 @@
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
       "backgroundColor": "#FFD700"
     },
     "ios": {
@@ -17,7 +16,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo.png",
+        "foregroundImage": "./assets/images/v2.png",
         "backgroundColor": "#FFD700"
       },
       "package": "com.sohail300.pixels",

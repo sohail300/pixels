@@ -1,13 +1,24 @@
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import React from "react";
 import Card from "./Card";
 import { BUCKET_URL } from "@/lib/config";
+import { Colors } from "@/constants/Colors";
 
-const SpiltView = ({ wallpaper1, wallpaper2, loading }) => {
-  if (loading) {
-    <Text>Loading</Text>;
-  }
-
+const SpiltView = ({
+  wallpaper1,
+  wallpaper2,
+  loading,
+}: {
+  readonly wallpaper1: any[];
+  readonly wallpaper2: any[];
+  readonly loading?: boolean;
+}) => {
   return (
     <View style={[styles.container, styles.cardContainer]}>
       <View style={styles.columnContainer}>
@@ -49,6 +60,13 @@ const SpiltView = ({ wallpaper1, wallpaper2, loading }) => {
           )}
           keyExtractor={(item) => String(item.id)}
           scrollEnabled={false}
+          ListFooterComponent={
+            loading && wallpaper1.length > 0 ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color={Colors.light.accent} />
+              </View>
+            ) : null
+          }
         />
       </View>
     </View>
@@ -70,5 +88,13 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     gap: 16,
+  },
+  loadingContainer: {
+    padding: 16,
+    alignItems: "center",
+  },
+  loadingText: {
+    fontSize: 14,
+    color: "#666",
   },
 });

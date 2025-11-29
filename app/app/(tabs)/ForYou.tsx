@@ -11,8 +11,8 @@ import {
   useColorScheme,
   TouchableOpacity,
 } from "react-native";
-import logo from "../../assets/images/logo.png";
-import user from "../../assets/images/user.jpg";
+import logo from "@/assets/images/logo.png";
+import user from "@/assets/images/user.jpg";
 import { Colors } from "@/constants/Colors";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
@@ -20,6 +20,7 @@ import BottomSheetComponent from "@/components/BottomSheet";
 import { useSelector } from "react-redux";
 import { supabase } from "../../lib/supabase";
 import { Session } from "@supabase/supabase-js";
+import { RootState } from "@/redux/store";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -29,7 +30,7 @@ export default function MyTabs() {
   const screenWidth = Dimensions.get("window").width;
   const tabWidth = screenWidth / 2;
 
-  const themeState = useSelector((state) => state.theme);
+  const themeState = useSelector((state: RootState) => state.theme);
   const systemColorScheme = useColorScheme();
 
   const colorTheme = useMemo(() => {
@@ -144,8 +145,8 @@ export default function MyTabs() {
             },
           }}
         >
-          <Tab.Screen name="suggested" component={Suggested} />
-          <Tab.Screen name="liked" component={Liked} />
+          <Tab.Screen name="Suggested" component={Suggested} />
+          <Tab.Screen name="Liked" component={Liked} />
         </Tab.Navigator>
       </View>
 

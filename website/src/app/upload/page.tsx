@@ -2,9 +2,23 @@
 
 import React, { useState } from "react";
 import axios from "axios";
-import { Info, Upload, Image as ImageIcon, Tag, X, FileImage, Sparkles } from "lucide-react";
+import {
+  Info,
+  Upload,
+  Image as ImageIcon,
+  Tag,
+  X,
+  FileImage,
+  Sparkles,
+} from "lucide-react";
 import { api } from "@/utils/config";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Spotlight } from "@/components/ui/Spotlight";
 
 const FormUI = () => {
@@ -69,7 +83,6 @@ const FormUI = () => {
         },
       });
 
-      console.log(response);
       setName("");
       setCategories([]);
       setImage(null);
@@ -93,7 +106,7 @@ const FormUI = () => {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-accentColor/5 to-transparent pointer-events-none" />
       <div className="max-w-2xl mx-auto w-full relative z-10 mt-8 sm:mt-12">
-        <div className="text-center flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">  
+        <div className="text-center flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
           <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-brand-accentColor/30 to-brand-accentColor/10 mb-2 sm:mb-4 backdrop-blur-sm border border-brand-accentColor/20 shadow-lg shadow-brand-accentColor/20">
             <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-brand-accentColor" />
           </div>
@@ -101,7 +114,7 @@ const FormUI = () => {
             Upload Photo
           </h1>
         </div>
-        
+
         <Card className="border border-white/10 shadow-2xl bg-gradient-to-br from-white/95 via-white/98 to-yellow-50/40 backdrop-blur-xl">
           <CardHeader className="pb-4 pt-4 sm:pt-6 px-4 sm:px-6">
             <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -177,7 +190,9 @@ const FormUI = () => {
                         key={index}
                         className="flex items-center gap-1.5 bg-gradient-to-r from-yellow-100 via-yellow-50 to-yellow-100 px-3 py-1.5 rounded-full border-2 border-yellow-200 shadow-sm hover:shadow-md transition-all group hover:border-yellow-300"
                       >
-                        <span className="text-gray-900 font-medium text-xs">{category}</span>
+                        <span className="text-gray-900 font-medium text-xs">
+                          {category}
+                        </span>
                         <button
                           type="button"
                           className="text-gray-500 hover:text-red-600 transition-colors p-0.5 rounded-full hover:bg-red-50 group-hover:bg-red-50"
@@ -202,31 +217,47 @@ const FormUI = () => {
               </label>
               <div className="relative">
                 <label className="block w-full cursor-pointer group">
-                  <div className={`w-full border-2 border-dashed rounded-xl bg-gradient-to-br from-white to-gray-50/80 p-6 transition-all shadow-sm ${
-                    image 
-                      ? "border-brand-accentColor bg-gradient-to-br from-yellow-50/50 to-yellow-100/30 shadow-md shadow-brand-accentColor/20" 
-                      : "border-gray-300 hover:border-brand-accentColor hover:bg-yellow-50/30 hover:shadow-md"
-                  }`}>
+                  <div
+                    className={`w-full border-2 border-dashed rounded-xl bg-gradient-to-br from-white to-gray-50/80 p-6 transition-all shadow-sm ${
+                      image
+                        ? "border-brand-accentColor bg-gradient-to-br from-yellow-50/50 to-yellow-100/30 shadow-md shadow-brand-accentColor/20"
+                        : "border-gray-300 hover:border-brand-accentColor hover:bg-yellow-50/30 hover:shadow-md"
+                    }`}
+                  >
                     <div className="flex flex-col items-center justify-center text-center space-y-3">
-                      <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all shadow-md ${
-                        image 
-                          ? "bg-gradient-to-br from-brand-accentColor to-yellow-400" 
-                          : "bg-gray-100 group-hover:bg-brand-accentColor/20"
-                      }`}>
-                        <FileImage className={`w-7 h-7 transition-colors ${
-                          image ? "text-black" : "text-gray-400 group-hover:text-brand-accentColor"
-                        }`} />
+                      <div
+                        className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all shadow-md ${
+                          image
+                            ? "bg-gradient-to-br from-brand-accentColor to-yellow-400"
+                            : "bg-gray-100 group-hover:bg-brand-accentColor/20"
+                        }`}
+                      >
+                        <FileImage
+                          className={`w-7 h-7 transition-colors ${
+                            image
+                              ? "text-black"
+                              : "text-gray-400 group-hover:text-brand-accentColor"
+                          }`}
+                        />
                       </div>
                       <div>
                         {image ? (
                           <div className="space-y-1">
-                            <p className="text-gray-900 font-semibold text-sm">{image.name}</p>
-                            <p className="text-xs text-gray-500 font-medium">Click to change file</p>
+                            <p className="text-gray-900 font-semibold text-sm">
+                              {image.name}
+                            </p>
+                            <p className="text-xs text-gray-500 font-medium">
+                              Click to change file
+                            </p>
                           </div>
                         ) : (
                           <div className="space-y-1">
-                            <p className="text-gray-800 font-semibold text-sm">Click to browse or drag and drop</p>
-                            <p className="text-xs text-gray-500 font-medium">PNG, JPG, WEBP up to 10MB</p>
+                            <p className="text-gray-800 font-semibold text-sm">
+                              Click to browse or drag and drop
+                            </p>
+                            <p className="text-xs text-gray-500 font-medium">
+                              PNG, JPG, WEBP up to 10MB
+                            </p>
                           </div>
                         )}
                       </div>
@@ -246,10 +277,12 @@ const FormUI = () => {
                 <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
                   <X className="w-3.5 h-3.5 text-white" />
                 </div>
-                <p className="text-red-700 font-semibold flex-1 text-sm">{error}</p>
+                <p className="text-red-700 font-semibold flex-1 text-sm">
+                  {error}
+                </p>
               </div>
             )}
-            
+
             <button
               type="button"
               className={`w-full bg-gradient-to-r from-brand-accentColor via-yellow-400 to-brand-accentColor hover:from-yellow-400 hover:via-brand-accentColor hover:to-yellow-400 text-black py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 font-bold text-base flex items-center justify-center gap-2 ${
@@ -289,14 +322,23 @@ const FormUI = () => {
                 </>
               )}
             </button>
-            
+
             <div className="mt-5 pt-5 border-t border-gray-200">
               <div className="flex items-start gap-3 p-3 bg-gradient-to-r from-yellow-50/80 to-yellow-100/50 border-2 border-yellow-200 rounded-xl shadow-sm">
                 <div className="p-1.5 rounded-lg bg-yellow-200/50 flex-shrink-0">
                   <Info className="w-4 h-4 text-yellow-700" />
                 </div>
                 <p className="text-xs sm:text-sm text-gray-800 leading-relaxed font-medium">
-                  <span className="font-semibold text-gray-900">Note:</span> You can upload an image only if you are allowed by the admin. Contact the email <a href="mailto:sohailatwork10@gmail.com" className="text-brand-accentColor hover:underline break-all">sohailatwork10@gmail.com</a> for permission.
+                  <span className="font-semibold text-gray-900">Note:</span> You
+                  can upload an image only if you are allowed by the admin.
+                  Contact the email{" "}
+                  <a
+                    href="mailto:sohailatwork10@gmail.com"
+                    className="text-brand-accentColor hover:underline break-all"
+                  >
+                    sohailatwork10@gmail.com
+                  </a>{" "}
+                  for permission.
                 </p>
               </div>
             </div>

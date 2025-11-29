@@ -8,10 +8,10 @@ import { useColorScheme, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
-import { Text } from "react-native";
+import { RootState } from "@/redux/store";
 
 export default function AccountPage() {
-  const themeState = useSelector((state) => state.theme);
+  const themeState = useSelector((state: RootState) => state.theme);
   const systemColorScheme = useColorScheme();
   const { session } = useContext(SessionContext);
 

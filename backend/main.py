@@ -23,7 +23,12 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://pixels.heysohail.xyz"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://pixels.heysohail.xyz",
+        "http://10.104.95.158:8081",
+        "exp://10.104.95.158:8081",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,21 +1,26 @@
-import { View, Text, useColorScheme, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  useColorScheme,
+  TouchableOpacity,
+  Image,
+} from "react-native";
 import React, { useEffect, useMemo, useState } from "react";
 // import {
 //   GoogleSignin,
-//   GoogleSigninButton,
 //   statusCodes,
 // } from "@react-native-google-signin/google-signin";
-import { supabase } from "../lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { Session } from "@supabase/supabase-js";
 import "react-native-url-polyfill/auto";
 import { useSelector } from "react-redux";
 import { Colors } from "@/constants/Colors";
-import { Ionicons } from "@expo/vector-icons";
+import { RootState } from "@/redux/store";
 
 const Signin = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(false);
-  const themeState = useSelector((state) => state.theme);
+  const themeState = useSelector((state: RootState) => state.theme);
   const systemColorScheme = useColorScheme();
 
   const theme = useMemo(() => {
@@ -107,12 +112,12 @@ const Signin = () => {
             textAlign: "center",
           }}
         >
-          Sign in to save your data across devices
+          Sign in to unlock all features
         </Text>
 
         <TouchableOpacity
           style={{
-            backgroundColor: isDark ? "#4285F4" : "#4285F4",
+            backgroundColor: "#FFFFFF",
             flexDirection: "row",
             alignItems: "center",
             paddingVertical: 12,
@@ -120,15 +125,33 @@ const Signin = () => {
             borderRadius: 8,
             width: "100%",
             justifyContent: "center",
+            borderWidth: 1,
+            borderColor: "#DADCE0",
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.1,
+            shadowRadius: 2,
+            elevation: 1,
           }}
           // onPress={handleGoogleSignIn}
           // disabled={loading}
         >
+          <Image
+            source={{
+              uri: "https://developers.google.com/identity/images/g-logo.png",
+            }}
+            style={{
+              width: 20,
+              height: 20,
+              marginRight: 12,
+            }}
+            resizeMode="contain"
+          />
           <Text
             style={{
-              color: "#FFFFFF",
+              color: "#3C4043",
               fontSize: 16,
-              fontWeight: "600",
+              fontWeight: "500",
             }}
           >
             {loading ? "Signing in..." : "Sign in with Google"}
