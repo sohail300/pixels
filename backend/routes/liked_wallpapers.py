@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import func, exists, select, literal
+from sqlalchemy import func, exists, select, literal, distinct
 from sqlalchemy.exc import SQLAlchemyError
 from starlette import status
 from auth import get_current_user_dependency
@@ -11,7 +11,7 @@ router = APIRouter(prefix='/api', tags=['APIs'])
 
 
 @router.get('/liked-wallpapers', response_model=list[ImageSchema], status_code=status.HTTP_200_OK)
-async def liked_wallpapers(skip: int, limit: int, db: db_dependency, user: get_current_user_dependency):
+async def liked_wallpapers(db: db_dependency, user: get_current_user_dependency, skip: int = 0, limit: int = 20):
     try:
         if not user or not user.get("user_id"):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Not Authorized')
@@ -40,9 +40,9 @@ async def liked_wallpapers(skip: int, limit: int, db: db_dependency, user: get_c
                 Wallpaper.name,
                 Wallpaper.image,
                 User.name.label("uploader_name"),
-                func.count(Liked.id).label("likes"),
-                func.count(Downloaded.id).label("downloads"),
-                func.array_agg(Category.name).label("categories"),
+                func.count(distinct(Liked.id)).label("likes"),
+                func.count(distinct(Downloaded.id)).label("downloads"),
+                func.array_agg(distinct(Category.name)).label("categories"),
                 has_liked_expr
             )
             .join(User, User.id == Wallpaper.uploaded_by)
@@ -63,19 +63,19 @@ async def liked_wallpapers(skip: int, limit: int, db: db_dependency, user: get_c
             for w in wallpapers
         ]
 
-        print(wallpapers_list)
-
         return wallpapers_list
 
+    except HTTPException:
+        raise
     except SQLAlchemyError as e:
-        logger.error(f"Upload error: {str(e)}")
+        logger.error(f"Database error occurred: {str(e)}")
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Database error occurred: {str(e)}"
         )
     except Exception as e:
-        logger.error(f"Upload error: {str(e)}")
+        logger.error(f"Unexpected error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Unexpected error: {str(e)}"

@@ -1,6 +1,6 @@
 import random
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import func, exists, case, select, literal, Boolean
+from sqlalchemy import func, exists, case, select, literal, Boolean, distinct
 from sqlalchemy.exc import SQLAlchemyError
 from starlette import status
 from typing import List
@@ -13,7 +13,7 @@ router = APIRouter(prefix='/api', tags=['APIs'])
 
 
 @router.get('/explore', status_code=status.HTTP_200_OK, response_model=List[ImageSchema])
-def explore(skip: int, limit: int, db: db_dependency, user: get_current_user_dependency):
+def explore(db: db_dependency, user: get_current_user_dependency, skip: int = 0, limit: int = 20):
     try:
         user_id = user.get("user_id") if user else None  # Get user_id if logged in
 
@@ -39,9 +39,9 @@ def explore(skip: int, limit: int, db: db_dependency, user: get_current_user_dep
                 Wallpaper.name,
                 Wallpaper.image,
                 User.name.label("uploader_name"),
-                func.count(Liked.id).label("likes"),
-                func.count(Downloaded.id).label("downloads"),
-                func.array_agg(Category.name).label("categories"),  # Aggregating category names
+                func.count(distinct(Liked.id)).label("likes"),
+                func.count(distinct(Downloaded.id)).label("downloads"),
+                func.array_agg(distinct(Category.name)).label("categories"),  # Aggregating category names
                 has_liked_expr
             )
             .join(User, User.id == Wallpaper.uploaded_by)
@@ -63,7 +63,6 @@ def explore(skip: int, limit: int, db: db_dependency, user: get_current_user_dep
 
         # Shuffle the list before returning
         random.shuffle(wallpapers_list)
-        print(wallpapers_list)
 
         return wallpapers_list
 

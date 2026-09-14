@@ -1,6 +1,6 @@
 import random
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import func, select, literal, or_
+from sqlalchemy import func, select, literal, or_, distinct
 from sqlalchemy.exc import SQLAlchemyError
 from starlette import status
 from auth import get_current_user_dependency
@@ -12,7 +12,7 @@ router = APIRouter(prefix='/api', tags=['APIs'])
 
 
 @router.get('/search', response_model=list[ImageSchema], status_code=status.HTTP_200_OK)
-async def search(skip: int, limit: int, query: str, db: db_dependency, user: get_current_user_dependency):
+async def search(query: str, db: db_dependency, user: get_current_user_dependency, skip: int = 0, limit: int = 20):
     try:
         user_id = user.get("user_id") if user else None  # Get user_id if logged in
 
@@ -47,9 +47,9 @@ async def search(skip: int, limit: int, query: str, db: db_dependency, user: get
                 Wallpaper.name,
                 Wallpaper.image,
                 User.name.label("uploader_name"),
-                func.count(Liked.id).label("likes"),
-                func.count(Downloaded.id).label("downloads"),
-                func.array_agg(Category.name).label("categories"),
+                func.count(distinct(Liked.id)).label("likes"),
+                func.count(distinct(Downloaded.id)).label("downloads"),
+                func.array_agg(distinct(Category.name)).label("categories"),
                 has_liked_expr
             )
             .join(User, User.id == Wallpaper.uploaded_by)
@@ -72,7 +72,6 @@ async def search(skip: int, limit: int, query: str, db: db_dependency, user: get
         ]
 
         random.shuffle(wallpapers_list)
-        print(wallpapers_list)
 
         return wallpapers_list
 

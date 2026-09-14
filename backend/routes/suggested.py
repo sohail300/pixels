@@ -14,7 +14,7 @@ router = APIRouter(prefix='/api', tags=['APIs'])
 
 
 @router.get('/suggested', response_model=list[ImageSchema], status_code=status.HTTP_200_OK)
-async def suggested(skip: int, limit: int, db: db_dependency, user: get_current_user_dependency):
+async def suggested(db: db_dependency, user: get_current_user_dependency, skip: int = 0, limit: int = 20):
     # if userid exists and he liked wallpapers -> Analyzes categories of wallpapers the user has liked
     # if userid exists and he didnt like wallpapers -> Returns a mix of popular wallpapers
     # if userid doesnt exists -> Returns a mix of popular wallpapers
@@ -42,9 +42,9 @@ async def suggested(skip: int, limit: int, db: db_dependency, user: get_current_
                     Wallpaper.name,
                     Wallpaper.image,
                     User.name.label("uploader_name"),
-                    func.count(Liked.id).label("likes"),
-                    func.count(Downloaded.id).label("downloads"),
-                    func.array_agg(Category.name).label("categories"),
+                    func.count(distinct(Liked.id)).label("likes"),
+                    func.count(distinct(Downloaded.id)).label("downloads"),
+                    func.array_agg(distinct(Category.name)).label("categories"),
                     has_liked_expr
                 )
                 .outerjoin(User, User.id == Wallpaper.uploaded_by)
@@ -54,9 +54,9 @@ async def suggested(skip: int, limit: int, db: db_dependency, user: get_current_
                 .outerjoin(WallpaperCategory, WallpaperCategory.wallpaper_id == Wallpaper.id)
                 .outerjoin(Category, Category.id == WallpaperCategory.category_id)
                 .group_by(Wallpaper.id, User.name)
-                .order_by(func.count(Liked.id).desc())
-                .offset(skip / 2)
-                .limit(limit / 2)
+                .order_by(func.count(distinct(Liked.id)).desc())
+                .offset(skip // 2)
+                .limit(limit // 2)
                 .all()
             )
 
@@ -66,9 +66,9 @@ async def suggested(skip: int, limit: int, db: db_dependency, user: get_current_
                     Wallpaper.name,
                     Wallpaper.image,
                     User.name.label("uploader_name"),
-                    func.count(Wallpaper.liked_by_users).label("likes"),
-                    func.count(Wallpaper.downloaded_by_users).label("downloads"),
-                    func.array_agg(Category.name).label("categories"),
+                    func.count(distinct(Liked.id)).label("likes"),
+                    func.count(distinct(Downloaded.id)).label("downloads"),
+                    func.array_agg(distinct(Category.name)).label("categories"),
                     has_liked_expr
                 )
                 .join(User, User.id == Wallpaper.uploaded_by)
@@ -77,9 +77,9 @@ async def suggested(skip: int, limit: int, db: db_dependency, user: get_current_
                 .outerjoin(WallpaperCategory, WallpaperCategory.wallpaper_id == Wallpaper.id)
                 .outerjoin(Category, Category.id == WallpaperCategory.category_id)
                 .group_by(Wallpaper.id, User.name)
-                .order_by(func.count(Wallpaper.downloaded_by_users).desc())
-                .offset((skip / 2) + 1)
-                .limit((limit / 2) + 1)
+                .order_by(func.count(distinct(Downloaded.id)).desc())
+                .offset((skip // 2) + 1)
+                .limit((limit // 2) + 1)
                 .all()
             )
 
@@ -146,9 +146,9 @@ async def suggested(skip: int, limit: int, db: db_dependency, user: get_current_
                         Wallpaper.name,
                         Wallpaper.image,
                         User.name.label("uploader_name"),
-                        func.count(Wallpaper.liked_by_users).label("likes"),
-                        func.count(Wallpaper.downloaded_by_users).label("downloads"),
-                        func.array_agg(Category.name).label("categories"),
+                        func.count(distinct(Liked.id)).label("likes"),
+                        func.count(distinct(Downloaded.id)).label("downloads"),
+                        func.array_agg(distinct(Category.name)).label("categories"),
                         has_liked_expr,
                         relevant_wallpapers.c.relevance_score,
                     )

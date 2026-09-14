@@ -4,11 +4,10 @@ from fastapi import APIRouter
 from sqlalchemy import func
 from starlette import status
 from dotenv import load_dotenv
-from supabase import create_client
 from db import User, Wallpaper, Category, WallpaperCategory, db_dependency
 from auth import get_current_user_dependency
 import os
-from util.current_time import get_time_hh_mm_ss
+import uuid
 from util.file_upload import upload_file
 from util.logger import logger
 
@@ -17,8 +16,6 @@ router = APIRouter(prefix='/api', tags=['Upload'])
 
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_SECRET = os.getenv('SUPABASE_SECRET')
-
-supabase = create_client(SUPABASE_URL, SUPABASE_SECRET)
 
 
 @router.post('/upload', status_code=status.HTTP_200_OK, response_model=Dict)
@@ -39,7 +36,7 @@ async def upload(request: Request, name: Annotated[str, Form()],
         contents = await file.read()
 
         # Generate unique filename
-        unique_filename = f"{get_time_hh_mm_ss()}_{file.filename}"
+        unique_filename = f"{uuid.uuid4().hex}_{file.filename}"
 
         # Use service role key for storage uploads to bypass RLS policies
         response = await upload_file(
@@ -84,6 +81,8 @@ async def upload(request: Request, name: Annotated[str, Form()],
         db.commit()
         return {"message": "File Uploaded!", "success": True}
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Upload error: {str(e)}")
         raise HTTPException(status_code=500, detail="Error")

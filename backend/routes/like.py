@@ -46,6 +46,8 @@ async def like(wallpaper_id: str, db: db_dependency, user: get_current_user_depe
                 "message": "Unliked Photo"
             }
 
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Upload error: {str(e)}")
+        logger.error(f"Like error: {str(e)}")
         raise HTTPException(status_code=500, detail="Error")

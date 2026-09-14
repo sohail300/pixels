@@ -25,9 +25,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "https://pixels.heysohail.xyz",
-        "http://10.104.95.158:8081",
-        "exp://10.104.95.158:8081",
+        "https://pixels.sohailcodes.xyz",
     ],
     allow_credentials=True,
     allow_methods=["*"],
