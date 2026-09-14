@@ -3,7 +3,6 @@ from starlette import status
 from typing import Dict
 from fastapi.middleware.cors import CORSMiddleware
 from db import engine, Base
-from dotenv import load_dotenv
 import os
 from routes import explore, search, liked_wallpapers, suggested, upload, like, download
 from auth import AuthMiddleware
@@ -12,8 +11,6 @@ from auth import AuthMiddleware
 from db.models import User, Wallpaper, Category, WallpaperCategory, Liked, Downloaded
 
 Base.metadata.create_all(bind=engine)
-
-load_dotenv()
 
 app = FastAPI(
     title="Pixels",
@@ -90,9 +87,8 @@ app.include_router(upload.router)
 app.include_router(like.router)
 app.include_router(download.router)
 
-PORT = int(os.getenv('PORT'))
-
 if __name__ == "__main__":
     import uvicorn
 
+    PORT = int(os.getenv('PORT', 8000))
     uvicorn.run(app, host="0.0.0.0", port=PORT, reload=True)

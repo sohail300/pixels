@@ -12,7 +12,7 @@ router = APIRouter(prefix='/api', tags=['APIs'])
 @router.get('/download/{wallpaper_id}', response_model=SuccessSchema, status_code=status.HTTP_200_OK)
 async def download(wallpaper_id: str, db: db_dependency, user: get_current_user_dependency):
     try:
-        if user is None:
+        if not user or not user.get('user_id'):
             raise HTTPException(status_code=401, detail="Not Authorized")
 
         user_id = user.get('user_id')
@@ -49,4 +49,5 @@ async def download(wallpaper_id: str, db: db_dependency, user: get_current_user_
         raise
     except Exception as e:
         logger.error(f"Download error: {str(e)}")
+        db.rollback()
         raise HTTPException(status_code=500, detail="Error")

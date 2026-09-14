@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class ImageSchema(BaseModel):
@@ -8,7 +8,7 @@ class ImageSchema(BaseModel):
     image: str
     downloads: int
     likes: int
-    uploader_name: str
+    uploader_name: Optional[str] = None
     has_liked: bool
     categories: List[str]
 

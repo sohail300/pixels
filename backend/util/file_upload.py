@@ -67,12 +67,12 @@ async def upload_file(
                     }
 
         except httpx.ReadTimeout:
-            # If we get a timeout after sending the request, the upload might still be successful
-            print("Request timed out, but the upload may have succeeded")
+            # Treat as a failure: we can't confirm the file was actually stored, so the
+            # caller must not create a DB row pointing at a file that may not exist
+            print("Request timed out - upload could not be confirmed")
             return {
-                "success": True,
-                "message": "Upload may have succeeded but response timed out",
-                "Key": file_name  # Include the filename as the Key for your database
+                "error": "Upload request timed out",
+                "details": "The upload could not be confirmed as successful; please retry"
             }
 
         except Exception as request_error:

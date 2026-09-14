@@ -12,7 +12,7 @@ router = APIRouter(prefix='/api', tags=['APIs'])
 async def like(wallpaper_id: str, db: db_dependency, user: get_current_user_dependency):
     try:
 
-        if user is None:
+        if not user or not user.get('user_id'):
             raise HTTPException(status_code=401, detail="Not Authorized")
 
         user_id = user.get('user_id')
@@ -50,4 +50,5 @@ async def like(wallpaper_id: str, db: db_dependency, user: get_current_user_depe
         raise
     except Exception as e:
         logger.error(f"Like error: {str(e)}")
+        db.rollback()
         raise HTTPException(status_code=500, detail="Error")

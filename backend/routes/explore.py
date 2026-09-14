@@ -44,7 +44,7 @@ def explore(db: db_dependency, user: get_current_user_dependency, skip: int = 0,
                 func.array_agg(distinct(Category.name)).label("categories"),  # Aggregating category names
                 has_liked_expr
             )
-            .join(User, User.id == Wallpaper.uploaded_by)
+            .outerjoin(User, User.id == Wallpaper.uploaded_by)  # Outer join so wallpapers with a deleted uploader still show
             .outerjoin(Liked, Wallpaper.id == Liked.wallpaper_id)  # Outer join for counting liked users
             .outerjoin(Downloaded, Wallpaper.id == Downloaded.wallpaper_id)  # Outer join for counting downloaded users
             .outerjoin(WallpaperCategory, WallpaperCategory.wallpaper_id == Wallpaper.id)  # Join WallpaperCategory
@@ -71,11 +71,11 @@ def explore(db: db_dependency, user: get_current_user_dependency, skip: int = 0,
         db.rollback()  # Rollback if a DB operation was attempted
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Database error occurred: {str(e)}"
+            detail="Database error occurred"
         )
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Unexpected error: {str(e)}"
+            detail="Unexpected error occurred"
         )

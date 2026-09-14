@@ -34,6 +34,8 @@ async def get_current_user(request: Request):
             return {"user_id": None}
 
         try:
+            # verify_aud disabled: Supabase always sets aud="authenticated" on its JWTs,
+            # so there is no per-client audience to check against here
             payload = jwt.decode(token, SUPABASE_JWT_SECRET, algorithms=[ALGORITHM], options={"verify_aud": False})
             user_id = payload.get("sub")
 

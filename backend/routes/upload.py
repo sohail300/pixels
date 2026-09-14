@@ -17,6 +17,8 @@ router = APIRouter(prefix='/api', tags=['Upload'])
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_SECRET = os.getenv('SUPABASE_SECRET')
 
+MAX_UPLOAD_SIZE = 20 * 1024 * 1024  # 20 MB
+
 
 @router.post('/upload', status_code=status.HTTP_200_OK, response_model=Dict)
 async def upload(request: Request, name: Annotated[str, Form()],
@@ -32,8 +34,10 @@ async def upload(request: Request, name: Annotated[str, Form()],
         if not file.content_type.startswith('image/'):
             raise HTTPException(status_code=400, detail="File must be an image")
 
-        # Get file contents
-        contents = await file.read()
+        # Get file contents, capped so a huge upload can't exhaust server memory
+        contents = await file.read(MAX_UPLOAD_SIZE + 1)
+        if len(contents) > MAX_UPLOAD_SIZE:
+            raise HTTPException(status_code=400, detail="File too large (max 20MB)")
 
         # Generate unique filename
         unique_filename = f"{uuid.uuid4().hex}_{file.filename}"
@@ -67,11 +71,17 @@ async def upload(request: Request, name: Annotated[str, Form()],
         db.add(wallpaper)
         db.flush()
 
+        seen_categories = set()
         for category_item in categories:
-            category = db.query(Category).filter(func.lower(Category.name) == category_item.lower()).first()
+            normalized = category_item.strip().lower()
+            if not normalized or normalized in seen_categories:
+                continue
+            seen_categories.add(normalized)
+
+            category = db.query(Category).filter(func.lower(Category.name) == normalized).first()
 
             if not category:
-                category = Category(name=category_item.lower())
+                category = Category(name=normalized)
                 db.add(category)
                 db.flush()
 
@@ -85,4 +95,5 @@ async def upload(request: Request, name: Annotated[str, Form()],
         raise
     except Exception as e:
         logger.error(f"Upload error: {str(e)}")
+        db.rollback()
         raise HTTPException(status_code=500, detail="Error")

@@ -34,6 +34,14 @@ async def liked_wallpapers(db: db_dependency, user: get_current_user_dependency,
         # Use the function in your query
         has_liked_expr = get_has_liked_expr(user_id)
 
+        # Which wallpapers this user has liked - kept as a separate subquery so it
+        # doesn't restrict the Liked outer join used below to count TOTAL likes
+        liked_wallpaper_ids = (
+            select(Liked.wallpaper_id)
+            .where(Liked.user_id == user_id)
+            .scalar_subquery()
+        )
+
         wallpapers = (
             db.query(
                 Wallpaper.id,
@@ -45,12 +53,12 @@ async def liked_wallpapers(db: db_dependency, user: get_current_user_dependency,
                 func.array_agg(distinct(Category.name)).label("categories"),
                 has_liked_expr
             )
-            .join(User, User.id == Wallpaper.uploaded_by)
+            .outerjoin(User, User.id == Wallpaper.uploaded_by)  # Outer join so wallpapers with a deleted uploader still show
             .outerjoin(Liked, Wallpaper.id == Liked.wallpaper_id)  # Outer join for counting liked users
             .outerjoin(Downloaded, Wallpaper.id == Downloaded.wallpaper_id)  # Outer join for counting downloaded users
             .outerjoin(WallpaperCategory, WallpaperCategory.wallpaper_id == Wallpaper.id)
             .outerjoin(Category, Category.id == WallpaperCategory.category_id)
-            .filter(Liked.user_id == user_id)  # Get only the wallpapers liked by the user
+            .filter(Wallpaper.id.in_(liked_wallpaper_ids))  # Get only the wallpapers liked by the user
             .group_by(Wallpaper.id, User.name)
             .order_by(Wallpaper.created_at.desc())
             .offset(skip)
@@ -72,11 +80,11 @@ async def liked_wallpapers(db: db_dependency, user: get_current_user_dependency,
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Database error occurred: {str(e)}"
+            detail="Database error occurred"
         )
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Unexpected error: {str(e)}"
+            detail="Unexpected error occurred"
         )
