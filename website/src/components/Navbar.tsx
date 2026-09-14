@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { MenuIcon, LogOut, User } from "lucide-react";
 import Link from "next/link";
@@ -21,7 +21,7 @@ const Navbar: React.FC = () => {
   const router = useRouter();
 
   const signin = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: window.location.origin,
@@ -31,10 +31,16 @@ const Navbar: React.FC = () => {
         },
       },
     });
+
+    if (error) {
+      console.error("Admin login failed:", error.message);
+      alert("Login failed. Please try again.");
+    }
   };
 
   const signout = async () => {
     await supabase.auth.signOut();
+    localStorage.removeItem("token");
     router.replace("/");
   };
 

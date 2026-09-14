@@ -26,9 +26,6 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     const fetchSession = async () => {
       const { data } = await supabase.auth.getSession();
       setSession(data.session);
-      if (data.session) {
-        localStorage.setItem("token", data.session.access_token);
-      }
       setLoading(false);
     };
 

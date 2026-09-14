@@ -27,6 +27,7 @@ const page = () => {
                 <a
                   href="https://www.termsfeed.com/privacy-policy-generator/"
                   target="_blank"
+                  rel="noopener noreferrer"
                 >
                   Privacy Policy Generator
                 </a>
@@ -260,6 +261,7 @@ const page = () => {
                 <a
                   href="https://www.termsfeed.com/blog/cookies/#What_Are_Cookies"
                   target="_blank"
+                  rel="noopener noreferrer"
                 >
                   TermsFeed website
                 </a>{" "}
@@ -609,6 +611,7 @@ const page = () => {
               <a
                 href="https://www.termsfeed.com/privacy-policy-generator/"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 TermsFeed Privacy Policy Generator
               </a>

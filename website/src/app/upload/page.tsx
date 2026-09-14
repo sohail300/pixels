@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import {
   Info,
@@ -20,14 +21,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Spotlight } from "@/components/ui/Spotlight";
+import { useSession } from "@/providers/SessionProvider";
 
 const FormUI = () => {
+  const router = useRouter();
+  const { session, loading: sessionLoading } = useSession();
   const [categories, setCategories] = useState<string[]>([]);
   const [newCategory, setNewCategory] = useState("");
   const [name, setName] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!sessionLoading && !session) {
+      router.replace("/");
+    }
+  }, [sessionLoading, session, router]);
 
   const handleAddCategory = () => {
     if (newCategory.trim()) {
@@ -78,7 +88,7 @@ const FormUI = () => {
 
       const response = await api.post("/api/upload", formData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${session.access_token}`,
           "Content-Type": "multipart/form-data",
         },
       });
@@ -97,6 +107,14 @@ const FormUI = () => {
       setLoading(false);
     }
   };
+
+  if (sessionLoading || !session) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-black/[0.96]">
+        <p className="text-white/60 text-sm">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden py-8 sm:py-12 px-4 sm:px-6">
