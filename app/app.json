@@ -7,10 +7,6 @@
     "icon": "./assets/images/logo.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "backgroundColor": "#FFD700"
-    },
     "ios": {
       "supportsTablet": true
     },
@@ -43,7 +39,16 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/logo.png",
+          "imageWidth": 320,
+          "resizeMode": "contain",
+          "backgroundColor": "#FFD700"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

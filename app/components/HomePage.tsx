@@ -1,19 +1,16 @@
 import {
   View,
-  Text,
-  Image,
   StyleSheet,
-  Dimensions,
   StatusBar,
   Animated,
-  SafeAreaView,
   useColorScheme,
 } from "react-native";
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import SpiltView from "./SpiltView";
+import WallpaperSkeleton from "./WallpaperSkeleton";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import CarouselComponent from "./CarouselComponent";
-import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
+import { AntDesign, Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { BlurView } from "expo-blur";
 import { useSelector, useDispatch } from "react-redux";
@@ -27,6 +24,7 @@ const HEADER_MIN_HEIGHT = 70;
 const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
 const HomePage = () => {
+  const dispatch = useDispatch();
   const themeState = useSelector((state: RootState) => state.theme);
   const systemColorScheme = useColorScheme();
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -390,59 +388,8 @@ const HomePage = () => {
     </Animated.View>
   );
 
-  const renderFloatingMenu = () => (
-    <View style={styles.floatingMenuContainer}>
-      <View
-        style={[
-          styles.floatingMenu,
-          {
-            backgroundColor:
-              theme === "dark"
-                ? "rgba(30, 30, 30, 0.85)"
-                : "rgba(255, 255, 255, 0.85)",
-          },
-        ]}
-      >
-        <BlurView
-          intensity={80}
-          tint={theme === "dark" ? "dark" : "light"}
-          style={styles.menuBlur}
-        >
-          <View style={styles.menuIconsContainer}>
-            <Ionicons
-              name="home"
-              size={26}
-              color={
-                theme === "dark" ? Colors.dark.accent : Colors.light.accent
-              }
-              style={styles.menuIcon}
-            />
-            <Ionicons
-              name="grid-outline"
-              size={24}
-              color={theme === "dark" ? "#aaa" : "#777"}
-              style={styles.menuIcon}
-            />
-            <Ionicons
-              name="bookmark-outline"
-              size={24}
-              color={theme === "dark" ? "#aaa" : "#777"}
-              style={styles.menuIcon}
-            />
-            <Ionicons
-              name="settings-outline"
-              size={24}
-              color={theme === "dark" ? "#aaa" : "#777"}
-              style={styles.menuIcon}
-            />
-          </View>
-        </BlurView>
-      </View>
-    </View>
-  );
-
   return (
-    <SafeAreaView
+    <View
       style={{
         flex: 1,
         backgroundColor:
@@ -501,17 +448,19 @@ const HomePage = () => {
           }}
         >
           <View style={styles.wallpapersContainer}>
-            <SpiltView
-              wallpaper1={wallpaper1}
-              wallpaper2={wallpaper2}
-              loading={isLoadingMore}
-            />
+            {loading && wallpaper1.length === 0 ? (
+              <WallpaperSkeleton count={8} />
+            ) : (
+              <SpiltView
+                wallpaper1={wallpaper1}
+                wallpaper2={wallpaper2}
+                loading={isLoadingMore}
+              />
+            )}
           </View>
         </View>
       </Animated.ScrollView>
-
-      {/* {renderFloatingMenu()} */}
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -567,66 +516,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  categoryContainer: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 12,
-    marginLeft: 4,
-  },
-  categoriesScroll: {
-    flexDirection: "row",
-    paddingVertical: 8,
-  },
-  categoryPill: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginRight: 10,
-    borderWidth: 1.5,
-  },
-  categoryText: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
   wallpapersContainer: {
     flex: 1,
-  },
-  floatingMenuContainer: {
-    position: "absolute",
-    bottom: 25,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-    zIndex: 3,
-  },
-  floatingMenu: {
-    width: "75%",
-    height: 60,
-    borderRadius: 30,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 10,
-  },
-  menuBlur: {
-    flex: 1,
-    borderRadius: 30,
-  },
-  menuIconsContainer: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-  },
-  menuIcon: {
-    paddingHorizontal: 10,
   },
 });

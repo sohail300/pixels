@@ -1,5 +1,5 @@
-import { View, Text, Image, Dimensions } from "react-native";
-import React, { useContext } from "react";
+import { View, Image, StyleSheet, Dimensions } from "react-native";
+import React, { useContext, useState } from "react";
 import Carousel from "react-native-reanimated-carousel";
 import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -7,6 +7,7 @@ import { BottomSheetContext } from "@/context/BottomSheetContext";
 
 const CarouselComponent = () => {
   const width = Dimensions.get("window").width;
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const imageList = [
     {
@@ -46,71 +47,99 @@ const CarouselComponent = () => {
     },
   ];
 
-  const { setShowBottomSheet, setUrl, setName } =
-    useContext(BottomSheetContext);
+  const {
+    setShowBottomSheet,
+    setUrl,
+    setName,
+    setId,
+    setDownloads,
+    setLikes,
+    setCategories,
+    setUploaderName,
+    setUploaderImage,
+    setHasLiked,
+  } = useContext(BottomSheetContext);
 
   const handlePress = (name: string, link: string) => {
+    // Carousel images aren't backend wallpapers, so clear any stale
+    // id/stats left over from a previously viewed card.
+    setId("");
+    setDownloads(0);
+    setLikes(0);
+    setCategories([]);
+    setUploaderName("");
+    setUploaderImage("");
+    setHasLiked(false);
     setShowBottomSheet(true);
     setUrl(link);
     setName(name);
   };
 
   return (
-    <Carousel
-      loop
-      width={width}
-      height={(width * 3) / 4}
-      autoPlay={true}
-      data={imageList}
-      scrollAnimationDuration={1000}
-      renderItem={({ item, index }) => (
-        <View
-          style={{
-            flex: 1,
-            borderWidth: 1,
-            justifyContent: "center",
-          }}
-        >
-          {/* Container with relative positioning */}
-          <View
-            style={{
-              width: width,
-              height: (width * 3) / 4,
-              position: "relative",
-            }}
+    <View>
+      <Carousel
+        loop
+        width={width}
+        height={(width * 3) / 4}
+        autoPlay={true}
+        data={imageList}
+        scrollAnimationDuration={1000}
+        onSnapToItem={setActiveIndex}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            activeOpacity={0.92}
+            onPress={() => handlePress(item.name, item.link)}
+            style={{ width, height: (width * 3) / 4 }}
           >
-            <TouchableOpacity onPress={() => handlePress(item.name, item.link)}>
-              {/* Image as background */}
-              <Image
-                source={{ uri: item.link }}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                }}
-              />
-            </TouchableOpacity>
-
-            {/* Gradient overlay */}
-            <LinearGradient
-              colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.9)"]}
-              locations={[0, 1]}
-              style={{
-                position: "absolute",
-                left: 0,
-                right: 0,
-                top: 0,
-                bottom: 0,
-                opacity: 0.8, // Adjust opacity as needed
-                pointerEvents: "none",
-              }}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 0, y: 0.85 }} // Try different values like { x: 0, y: 1 } for vertical
+            <Image
+              source={{ uri: item.link }}
+              style={{ width: "100%", height: "100%" }}
             />
-          </View>
-        </View>
-      )}
-    />
+            <LinearGradient
+              colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.85)"]}
+              locations={[0, 1]}
+              style={StyleSheet.absoluteFillObject}
+              pointerEvents="none"
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 0, y: 1 }}
+            />
+          </TouchableOpacity>
+        )}
+      />
+
+      <View style={styles.dotsRow} pointerEvents="none">
+        {imageList.map((item, index) => (
+          <View
+            key={item.id}
+            style={[styles.dot, index === activeIndex && styles.dotActive]}
+          />
+        ))}
+      </View>
+    </View>
   );
 };
 
 export default CarouselComponent;
+
+const styles = StyleSheet.create({
+  dotsRow: {
+    position: "absolute",
+    bottom: 14,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginHorizontal: 3,
+    backgroundColor: "rgba(255,255,255,0.4)",
+  },
+  dotActive: {
+    width: 18,
+    backgroundColor: "#fdd700",
+  },
+});

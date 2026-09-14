@@ -1,6 +1,7 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import React, { useContext, useState } from "react";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Colors } from "@/constants/Colors";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 
@@ -28,7 +29,7 @@ const LikedCard = ({
       <View style={styles.overlay}>
         <Text style={styles.text}>{name}</Text>
         <TouchableOpacity>
-          <AntDesign name="hearto" size={28} color={Colors.light.accent} />
+          <Ionicons name="heart-outline" size={28} color={Colors.light.accent} />
         </TouchableOpacity>
       </View>
     </View>

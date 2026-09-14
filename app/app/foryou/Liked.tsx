@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { SessionContext } from "@/context/SessionContext";
 import { RootState } from "@/redux/store";
 import SpiltView from "@/components/SpiltView";
+import WallpaperSkeleton from "@/components/WallpaperSkeleton";
 import { BACKEND_URL, LIMIT } from "@/lib/config";
 import { setLikedIds } from "@/redux/LikedWallpapersSlice";
 
@@ -195,11 +196,9 @@ const Liked = () => {
   useEffect(() => {
     if (isLoggedIn) {
       isInitialLoadRef.current = true;
-      getLikedWallpapers(0);
-      // Mark initial load as complete after a short delay
-      setTimeout(() => {
+      getLikedWallpapers(0).finally(() => {
         isInitialLoadRef.current = false;
-      }, 1000);
+      });
     } else {
       setLoading(false);
     }
@@ -243,13 +242,15 @@ const Liked = () => {
                 styles.iconContainer,
                 {
                   backgroundColor:
-                    colorTheme === "dark" ? "#2A2A2A" : "#F5F5F5",
+                    colorTheme === "dark"
+                      ? "rgba(253,215,0,0.10)"
+                      : "rgba(253,215,0,0.12)",
                 },
               ]}
             >
               <Ionicons
                 name="lock-closed"
-                size={40}
+                size={36}
                 color={Colors.light.accent}
               />
             </View>
@@ -266,10 +267,8 @@ const Liked = () => {
 
     if (loading && wallpaper1.length === 0) {
       return (
-        <View style={styles.emptyStateContainer}>
-          <Text style={[styles.emptyStateSubtitle, { color: textColor }]}>
-            Loading liked wallpapers...
-          </Text>
+        <View style={styles.scrollContent}>
+          <WallpaperSkeleton count={6} />
         </View>
       );
     }
@@ -283,11 +282,13 @@ const Liked = () => {
                 styles.iconContainer,
                 {
                   backgroundColor:
-                    colorTheme === "dark" ? "#2A2A2A" : "#F5F5F5",
+                    colorTheme === "dark"
+                      ? "rgba(253,215,0,0.10)"
+                      : "rgba(253,215,0,0.12)",
                 },
               ]}
             >
-              <Ionicons name="heart" size={40} color={Colors.light.accent} />
+              <Ionicons name="heart" size={36} color={Colors.light.accent} />
             </View>
             <Text style={[styles.emptyStateTitle, { color: textColor }]}>
               No liked wallpapers yet
@@ -333,7 +334,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 20,
+    paddingBottom: 80,
   },
   emptyStateContainer: {
     flex: 1,
@@ -347,14 +348,14 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: 80,
     height: 80,
-    borderRadius: 40,
+    borderRadius: 24,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 20,
   },
   emptyStateTitle: {
+    fontFamily: "Poppins",
     fontSize: 20,
-    fontWeight: "bold",
     marginBottom: 10,
     textAlign: "center",
   },

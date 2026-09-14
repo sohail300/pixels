@@ -1,10 +1,8 @@
-import BottomSheetComponent from "@/components/BottomSheet";
 import HomePage from "@/components/HomePage";
 import { Colors } from "@/constants/Colors";
-import { BottomSheetContext } from "@/context/BottomSheetContext";
 import { initializeTheme } from "@/redux/ThemeSlice";
 import { useContext, useEffect } from "react";
-import { useColorScheme, View } from "react-native";
+import { useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
@@ -13,20 +11,6 @@ import { SessionContext } from "@/context/SessionContext";
 import { RootState } from "@/redux/store";
 
 export default function ExplorePage() {
-  const {
-    showBottomSheet,
-    setShowBottomSheet,
-    id,
-    name,
-    url,
-    downloads,
-    likes,
-    uploaderName,
-    uploaderImage,
-    hasLiked,
-    categories,
-  } = useContext(BottomSheetContext);
-
   const { setSession } = useContext(SessionContext);
 
   const dispatch = useDispatch();
@@ -58,23 +42,7 @@ export default function ExplorePage() {
             : Colors.light.background,
       }}
     >
-      <View style={{ flex: 1 }}>
-        <HomePage />
-      </View>
-
-      <BottomSheetComponent
-        close={() => setShowBottomSheet(false)}
-        id={id}
-        name={name}
-        url={url}
-        downloads={downloads}
-        likes={likes}
-        uploaderName={uploaderName}
-        uploaderImage={uploaderImage}
-        hasLiked={hasLiked}
-        categories={categories}
-        visible={showBottomSheet}
-      />
+      <HomePage />
     </SafeAreaView>
   );
 }

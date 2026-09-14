@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import React, { useContext, useMemo, useRef, useState } from "react";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
 import { SessionContext } from "@/context/SessionContext";
 import { useSelector, useDispatch } from "react-redux";
@@ -44,23 +45,26 @@ const Card = ({
 }) => {
   const themeState = useSelector((state: RootState) => state.theme);
   const likedWallpapers = useSelector(
-    (state: RootState) => state.likedWallpapers.likedIds
+    (state: RootState) => state.likedWallpapers
   );
   const dispatch = useDispatch();
   const systemColorScheme = useColorScheme();
   // Use global state if available, otherwise fall back to prop
-  const isLikedInGlobalState = likedWallpapers.includes(String(id));
+  const isLikedInGlobalState = likedWallpapers.likedIds.includes(String(id));
   const [liked, setLiked] = useState(isLikedInGlobalState || hasLiked);
   const [pressed, setPressed] = useState(false);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const likeAnim = useRef(new Animated.Value(1)).current;
 
-  // Sync with global state when it changes
+  // Sync with global state only on an actual like/unlike event, not on every
+  // render/mount — otherwise this can overwrite the server-supplied `hasLiked`
+  // with a Redux state that hasn't caught up yet.
   React.useEffect(() => {
-    if (isLikedInGlobalState !== liked) {
+    if (likedWallpapers.lastUpdated) {
       setLiked(isLikedInGlobalState);
     }
-  }, [isLikedInGlobalState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [likedWallpapers.lastUpdated]);
 
   const theme = useMemo(() => {
     return themeState.data === "system" ? systemColorScheme : themeState.data;
@@ -106,7 +110,7 @@ const Card = ({
     setUploaderName(uploaderName);
     setUploaderImage(uploaderImage);
     setHasLiked(liked);
-    setId(id);
+    setId(String(id));
   };
 
   const handleLike = async (event: GestureResponderEvent) => {
@@ -114,7 +118,7 @@ const Card = ({
     event.stopPropagation();
 
     // Check if user is logged in
-    if (!session && !session?.access_token) {
+    if (!session?.access_token) {
       ToastAndroid.show("You must be logged in", ToastAndroid.SHORT);
       return;
     }
@@ -204,8 +208,8 @@ const Card = ({
               style={styles.likeButton}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <AntDesign
-                name={liked ? "heart" : "hearto"}
+              <Ionicons
+                name={liked ? "heart" : "heart-outline"}
                 size={22}
                 color={liked ? "#FD1D1D" : "#ffffff"}
               />

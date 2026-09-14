@@ -13,7 +13,11 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { BlurView } from "expo-blur";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import {
+  BottomSheetModal,
+  BottomSheetView,
+  BottomSheetBackdropProps,
+} from "@gorhom/bottom-sheet";
 import React, {
   useCallback,
   useMemo,
@@ -65,7 +69,7 @@ export default function BottomSheetComponent({
   visible = true,
 }: BottomSheetComponentProps) {
   // refs
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
   const themeState = useSelector((state: RootState) => state.theme);
   const dispatch = useDispatch();
   const systemColorScheme =
@@ -107,7 +111,7 @@ export default function BottomSheetComponent({
       } else {
         // If visible on mount, open immediately
         setTimeout(() => {
-          bottomSheetRef.current?.snapToIndex(0);
+          bottomSheetRef.current?.present();
         }, 100);
       }
       return;
@@ -140,7 +144,7 @@ export default function BottomSheetComponent({
       // Open the BottomSheet programmatically after a short delay
       // This ensures the backdrop animation has started
       const openTimeoutId = setTimeout(() => {
-        bottomSheetRef.current?.snapToIndex(0);
+        bottomSheetRef.current?.present();
         // Keep opening flag true for longer to prevent onChange from closing
         setTimeout(() => {
           isOpeningRef.current = false;
@@ -151,8 +155,8 @@ export default function BottomSheetComponent({
         clearTimeout(openTimeoutId);
       };
     } else if (!visible && previousVisibleRef.current) {
-      // Closing: close the sheet and reset animations
-      bottomSheetRef.current?.close();
+      // Closing: dismiss the sheet and reset animations
+      bottomSheetRef.current?.dismiss();
       fadeAnim.setValue(0);
       scaleAnim.setValue(0.95);
       isClosingRef.current = false;
@@ -205,7 +209,7 @@ export default function BottomSheetComponent({
 
   const toggleLike = () => {
     // Check if user is logged in
-    if (!session && !session?.access_token) {
+    if (!session?.access_token) {
       ToastAndroid.show("You must be logged in", ToastAndroid.SHORT);
       return;
     }
@@ -240,12 +244,18 @@ export default function BottomSheetComponent({
 
   const updateLikeOnServer = async () => {
     try {
-      await fetch(`${BACKEND_URL}/like/${id}`, {
-        method: "POST",
+      const response = await fetch(`${BACKEND_URL}/like/${id}`, {
+        method: "GET",
         headers: {
+          Accept: "application/json",
           "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token}`,
         },
       });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
     } catch (error) {
       console.log("Failed to update like:", error);
     }
@@ -281,6 +291,7 @@ export default function BottomSheetComponent({
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token}`,
         },
       });
 
@@ -326,34 +337,26 @@ export default function BottomSheetComponent({
     return name.charAt(0).toUpperCase() + name.slice(1);
   }
 
-  return (
-    <View
-      style={[
-        StyleSheet.absoluteFillObject,
-        {
-          zIndex: visible ? 9999 : -1,
-          elevation: visible ? 9999 : -1,
-          opacity: visible ? 1 : 0,
-        },
-      ]}
-      pointerEvents={visible ? "box-none" : "none"}
-    >
-      <StatusBar translucent backgroundColor="transparent" />
+  const renderBackdrop = useCallback(
+    (props: BottomSheetBackdropProps) => (
       <TouchableWithoutFeedback onPress={handleClose}>
         <Animated.View
-          style={[
-            StyleSheet.absoluteFillObject,
-            styles.backdrop,
-            { opacity: fadeAnim },
-          ]}
-          pointerEvents={visible ? "auto" : "none"}
+          style={[props.style, styles.backdrop, { opacity: fadeAnim }]}
         >
           <BlurView intensity={80} style={StyleSheet.absoluteFillObject} />
         </Animated.View>
       </TouchableWithoutFeedback>
+    ),
+    [fadeAnim, handleClose]
+  );
 
-      <BottomSheet
+  return (
+    <>
+      <StatusBar translucent backgroundColor="transparent" />
+
+      <BottomSheetModal
         ref={bottomSheetRef}
+        backdropComponent={renderBackdrop}
         handleIndicatorStyle={{
           backgroundColor: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
         }}
@@ -376,9 +379,7 @@ export default function BottomSheetComponent({
         enablePanDownToClose={true}
         enableOverDrag={false}
         onChange={handleSheetChange}
-        onClose={handleClose}
-        index={-1}
-        animateOnMount={false}
+        onDismiss={handleClose}
       >
         <BottomSheetView
           style={[
@@ -421,8 +422,8 @@ export default function BottomSheetComponent({
                   onPress={toggleLike}
                   style={styles.iconButton}
                 >
-                  <AntDesign
-                    name={liked ? "heart" : "hearto"}
+                  <Ionicons
+                    name={liked ? "heart" : "heart-outline"}
                     size={24}
                     color={liked ? "#FD1D1D" : "#ffffff"}
                   />
@@ -432,75 +433,89 @@ export default function BottomSheetComponent({
           </Animated.View>
 
           <View style={styles.contentSection}>
-            <View style={styles.headerSection}>
-              <View style={styles.titleContainer}>
+            <Text
+              numberOfLines={2}
+              ellipsizeMode="tail"
+              style={[styles.title, { color: isDark ? "#ffffff" : "#000000" }]}
+            >
+              {name ? capitalize(name) : name}
+            </Text>
+
+            <View style={styles.uploaderInfo}>
+              {uploaderImage ? (
+                <Image
+                  source={{ uri: uploaderImage }}
+                  style={styles.uploaderAvatar}
+                />
+              ) : (
+                <LinearGradient
+                  colors={["#fdd700", "#f5a623"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.uploaderAvatar}
+                >
+                  <Text style={styles.uploaderInitial}>
+                    {(uploaderName || "U").charAt(0).toUpperCase()}
+                  </Text>
+                </LinearGradient>
+              )}
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.uploaderName,
+                  { color: isDark ? "#ffffff" : "#000000" },
+                ]}
+              >
+                <Text
+                  style={{
+                    color: isDark ? "#aaaaaa" : "#666666",
+                    fontWeight: "400",
+                  }}
+                >
+                  by{" "}
+                </Text>
+                {uploaderName || "Unknown"}
+              </Text>
+            </View>
+
+            <View style={styles.statsRow}>
+              <View style={styles.statItem}>
+                <Feather
+                  name="download"
+                  size={16}
+                  color={isDark ? "#aaaaaa" : "#666666"}
+                />
                 <Text
                   style={[
-                    styles.title,
-                    { color: isDark ? "#ffffff" : "#000000" },
+                    styles.statText,
+                    { color: isDark ? "#aaaaaa" : "#666666" },
                   ]}
                 >
-                  {name ? capitalize(name) : name}
+                  {downloads ?? 0} downloads
                 </Text>
-
-                <Text style={[{ color: isDark ? "#aaaaaa" : "#666666" }]}>
-                  Uploaded by:{" "}
-                </Text>
-
-                <View style={styles.uploaderInfo}>
-                  {uploaderImage && (
-                    <View style={styles.uploaderAvatar}>
-                      <Image
-                        source={{ uri: uploaderImage }}
-                        style={styles.uploaderImage}
-                      />
-                    </View>
-                  )}
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text
-                      style={[
-                        styles.uploaderName,
-                        { color: isDark ? "#ffffff" : "#000000" },
-                      ]}
-                    >
-                      {uploaderName || "Unknown"}
-                    </Text>
-                  </View>
-                </View>
               </View>
 
-              <View style={styles.statsSection}>
-                <View style={styles.statItem}>
-                  <Feather
-                    name="download"
-                    size={18}
-                    color={isDark ? "#aaaaaa" : "#666666"}
-                  />
-                  <Text
-                    style={[
-                      styles.statText,
-                      { color: isDark ? "#aaaaaa" : "#666666" },
-                    ]}
-                  >
-                    {downloads ?? 0} downloads
-                  </Text>
-                </View>
+              <View
+                style={[
+                  styles.statDot,
+                  { backgroundColor: isDark ? "#555555" : "#cccccc" },
+                ]}
+              />
 
-                <View style={styles.statItem}>
-                  <AntDesign
-                    name="heart"
-                    size={18}
-                    color={isDark ? "#aaaaaa" : "#666666"}
-                  />
-                  <Text
-                    style={[
-                      styles.statText,
-                      { color: isDark ? "#aaaaaa" : "#666666" },
-                    ]}
-                  >
-                    {likeCount} likes
-                  </Text>
-                </View>
+              <View style={styles.statItem}>
+                <Ionicons
+                  name="heart"
+                  size={16}
+                  color={isDark ? "#aaaaaa" : "#666666"}
+                />
+                <Text
+                  style={[
+                    styles.statText,
+                    { color: isDark ? "#aaaaaa" : "#666666" },
+                  ]}
+                >
+                  {likeCount} likes
+                </Text>
               </View>
             </View>
 
@@ -515,17 +530,46 @@ export default function BottomSheetComponent({
                 {categories &&
                   (showAllCategories ? categories : categories.slice(0, 2)).map(
                     (category, index) => (
-                      <View key={index} style={styles.categoryChip}>
-                        <Text style={styles.categoryText}>{category}</Text>
+                      <View
+                        key={index}
+                        style={[
+                          styles.categoryChip,
+                          {
+                            backgroundColor: isDark
+                              ? "rgba(253,215,0,0.12)"
+                              : "rgba(253,215,0,0.14)",
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.categoryText,
+                            { color: isDark ? "#ffffff" : "#5c4a00" },
+                          ]}
+                        >
+                          {category}
+                        </Text>
                       </View>
                     )
                   )}
                 {categories && categories.length > 2 && !showAllCategories && (
                   <TouchableOpacity
                     onPress={() => setShowAllCategories(true)}
-                    style={styles.categoryChip}
+                    style={[
+                      styles.categoryChip,
+                      {
+                        backgroundColor: isDark
+                          ? "rgba(253,215,0,0.12)"
+                          : "rgba(253,215,0,0.14)",
+                      },
+                    ]}
                   >
-                    <Text style={styles.categoryText}>
+                    <Text
+                      style={[
+                        styles.categoryText,
+                        { color: isDark ? "#ffffff" : "#5c4a00" },
+                      ]}
+                    >
                       +{categories.length - 2}
                     </Text>
                   </TouchableOpacity>
@@ -572,8 +616,8 @@ export default function BottomSheetComponent({
             </TouchableOpacity>
           </View>
         </BottomSheetView>
-      </BottomSheet>
-    </View>
+      </BottomSheetModal>
+    </>
   );
 }
 
@@ -590,14 +634,19 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 400,
     position: "relative",
-    borderRadius: 16,
+    // Top corners match the sheet's own 24px radius so the image sits flush
+    // against it with no visible seam; bottom corners are tighter since
+    // they're an inner edge against the content below.
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
     marginBottom: 16,
     overflow: "hidden",
   },
   image: {
     width: "100%",
     height: "100%",
-    borderRadius: 16,
   },
   imageGradient: {
     position: "absolute",
@@ -605,10 +654,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    borderRadius: 16,
   },
   imageOverlay: {
     position: "absolute",
+    top: 0,
     right: 0,
     padding: 16,
   },
@@ -642,61 +691,38 @@ const styles = StyleSheet.create({
   contentSection: {
     paddingHorizontal: 20,
   },
-  headerSection: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: 12,
-    marginBottom: 8,
-  },
-  titleContainer: {
-    flexDirection: "column",
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
-    gap: 4,
-  },
   title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    marginBottom: 12,
+    fontFamily: "Poppins",
+    fontSize: 24,
+    marginBottom: 10,
   },
   uploaderInfo: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-start",
+    marginBottom: 16,
   },
   uploaderAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
+    marginRight: 10,
   },
   uploaderInitial: {
-    color: "#ffffff",
-    fontSize: 18,
-    fontWeight: "bold",
+    color: "#1c1c1c",
+    fontSize: 14,
+    fontWeight: "800",
   },
   uploaderName: {
-    fontSize: 16,
-    fontWeight: "400",
+    fontSize: 15,
+    fontWeight: "600",
   },
-  uploaderImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  uploadTime: {
-    fontSize: 12,
-  },
-  statsSection: {
-    flexDirection: "column",
-    alignItems: "flex-end",
-    justifyContent: "flex-start",
-    gap: 8,
-    marginBottom: 16,
+  statsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
   },
   statItem: {
     flexDirection: "row",
@@ -705,16 +731,20 @@ const styles = StyleSheet.create({
   statText: {
     marginLeft: 6,
     fontSize: 14,
+    fontVariant: ["tabular-nums"],
+  },
+  statDot: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    marginHorizontal: 10,
   },
   categoriesSection: {
     flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-    marginTop: 12,
-  },
-  categoryListText: {
-    marginLeft: 6,
-    fontSize: 14,
+    // flex-start (not center) so the icon lines up with the first row of
+    // chips instead of floating centered across the whole wrapped block.
+    alignItems: "flex-start",
+    marginBottom: 20,
   },
   downloadButton: {
     flexDirection: "row",

@@ -1,4 +1,5 @@
 import "react-native-reanimated"; // must stay first for Reanimated to initialize correctly
+import { configureReanimatedLogger } from "react-native-reanimated";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -6,7 +7,9 @@ import { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StyleSheet } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { BottomSheetContext } from "@/context/BottomSheetContext";
+import BottomSheetComponent from "@/components/BottomSheet";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
 import ThemeProvider from "@/components/ThemeProvider";
@@ -14,6 +17,11 @@ import { SessionContext } from "@/context/SessionContext";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+// Silences Reanimated's strict-mode "reading .value during render" warning,
+// which fires from inside third-party libs (e.g. the carousel's autoplay)
+// rather than our own code — all our own shared-value reads are in worklets.
+configureReanimatedLogger({ strict: false });
 
 export default function RootLayout() {
   const [showBottomSheet, setShowBottomSheet] = useState(false);
@@ -24,7 +32,7 @@ export default function RootLayout() {
   const [hasLiked, setHasLiked] = useState(false);
   const [uploaderName, setUploaderName] = useState("");
   const [uploaderImage, setUploaderImage] = useState("");
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [id, setId] = useState("");
 
   const [session, setSession] = useState<any>(null);
@@ -55,50 +63,71 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView style={styles.container}>
-        <SessionContext.Provider
-          value={{
-            session,
-            setSession,
-            token,
-            setToken,
-          }}
-        >
-          <BottomSheetContext.Provider
+        <BottomSheetModalProvider>
+          <SessionContext.Provider
             value={{
-              showBottomSheet,
-              setShowBottomSheet,
-              url,
-              setUrl,
-              name,
-              setName,
-              downloads,
-              setDownloads,
-              likes,
-              setLikes,
-              uploaderName,
-              setUploaderName,
-              uploaderImage,
-              setUploaderImage,
-              hasLiked,
-              setHasLiked,
-              categories,
-              setCategories,
-              id,
-              setId,
+              session,
+              setSession,
+              token,
+              setToken,
             }}
           >
-            <Provider store={store}>
-              <ThemeProvider>
-                <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen
-                    name="(tabs)"
-                    options={{ headerShown: false }}
+            <BottomSheetContext.Provider
+              value={{
+                showBottomSheet,
+                setShowBottomSheet,
+                url,
+                setUrl,
+                name,
+                setName,
+                downloads,
+                setDownloads,
+                likes,
+                setLikes,
+                uploaderName,
+                setUploaderName,
+                uploaderImage,
+                setUploaderImage,
+                hasLiked,
+                setHasLiked,
+                categories,
+                setCategories,
+                id,
+                setId,
+              }}
+            >
+              <Provider store={store}>
+                <ThemeProvider>
+                  <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen
+                      name="(tabs)"
+                      options={{ headerShown: false }}
+                    />
+                  </Stack>
+
+                  {/* Rendered once here (not per-tab) so only a single
+                      instance ever presents — mounting it inside each tab
+                      screen caused two overlapping sheets to show at once,
+                      since React Navigation keeps visited tabs mounted and
+                      all of them shared this same context state. */}
+                  <BottomSheetComponent
+                    close={() => setShowBottomSheet(false)}
+                    id={id}
+                    name={name}
+                    url={url}
+                    downloads={downloads}
+                    likes={likes}
+                    uploaderName={uploaderName}
+                    uploaderImage={uploaderImage}
+                    hasLiked={hasLiked}
+                    categories={categories}
+                    visible={showBottomSheet}
                   />
-                </Stack>
-              </ThemeProvider>
-            </Provider>
-          </BottomSheetContext.Provider>
-        </SessionContext.Provider>
+                </ThemeProvider>
+              </Provider>
+            </BottomSheetContext.Provider>
+          </SessionContext.Provider>
+        </BottomSheetModalProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>
   );

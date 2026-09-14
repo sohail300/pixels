@@ -1,7 +1,8 @@
 // Updated Suggested component
-import { StyleSheet, useColorScheme, View, Text, Animated } from "react-native";
+import { StyleSheet, useColorScheme, View, Animated } from "react-native";
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import SpiltView from "@/components/SpiltView";
+import WallpaperSkeleton from "@/components/WallpaperSkeleton";
 import { useSelector, useDispatch } from "react-redux";
 import { Colors } from "@/constants/Colors";
 import { BACKEND_URL, LIMIT } from "@/lib/config";
@@ -20,8 +21,6 @@ const Suggested = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
   const bgColor =
     colorTheme === "dark" ? Colors.dark.background : Colors.light.background;
-  const textColor =
-    colorTheme === "dark" ? Colors.dark.text : Colors.light.text;
 
   // State for wallpapers
   const [wallpaper1, setWallpaper1] = useState<any[]>([]);
@@ -176,11 +175,7 @@ const Suggested = () => {
         onScroll={handleScroll}
       >
         {loading && wallpaper1.length === 0 ? (
-          <View style={styles.loadingContainer}>
-            <Text style={[styles.loadingText, { color: textColor }]}>
-              Loading suggested wallpapers...
-            </Text>
-          </View>
+          <WallpaperSkeleton count={8} />
         ) : (
           <SpiltView
             wallpaper1={wallpaper1}
@@ -199,37 +194,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  searchContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-  },
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    height: 46,
-    borderRadius: 23,
-    paddingHorizontal: 15,
-  },
-  searchIcon: {
-    marginRight: 10,
-  },
-  searchPlaceholder: {
-    fontSize: 16,
-    opacity: 0.6,
-  },
   scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 56,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 40,
-  },
-  loadingText: {
-    fontSize: 16,
-    opacity: 0.6,
+    paddingBottom: 80,
   },
 });
