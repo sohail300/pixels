@@ -7,31 +7,33 @@ const Footer = () => {
 
   return (
     <>
-      <div className="bg-[#181818] flex flex-col justify-start items-center pb-8 sm:pb-10 md:pb-12 px-4 sm:px-6 md:px-8">
+      <div className="flex flex-col items-center justify-start border-t border-ink-700 bg-ink-900 px-4 pb-8 sm:px-6 sm:pb-10 md:px-8 md:pb-12">
         <div className="w-full sm:w-4/5">
           {/* Mobile: Logo centered above, then 2-column grid below */}
           {/* Desktop: Logo in first column of 4-column grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 md:gap-6 lg:gap-8 mt-8 md:mt-4">
+          <div className="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-2 sm:gap-8 md:mt-4 md:grid-cols-4 md:gap-6 lg:gap-8">
             {/* Logo - Full width on mobile, first column on desktop */}
-            <div className="col-span-2 sm:col-span-2 md:col-span-1 flex justify-center mb-4 sm:mb-6 md:mb-0 md:justify-start">
+            <div className="col-span-2 mb-4 flex justify-center sm:col-span-2 sm:mb-6 md:col-span-1 md:mb-0 md:justify-start">
               <Image
                 src="/logo.png"
                 alt="Pixels Logo"
                 width={200}
                 height={200}
-                className="w-32 sm:w-36 md:w-32 lg:w-36 max-w-[150px] rounded-3xl"
+                className="w-32 max-w-[150px] rounded-sm sm:w-36 md:w-32 lg:w-36"
               />
             </div>
-            
+
             {/* Spacer for desktop */}
             <div className="hidden md:block" />
-            
+
             {/* Contact Section */}
             <div className="flex flex-col items-start space-y-2 sm:space-y-3">
-              <p className="font-semibold text-sm sm:text-base text-gray-200 mb-1">Contact</p>
-              <Link 
+              <p className="mb-1 font-mono text-xs uppercase tracking-[0.2em] text-paper-300">
+                Contact
+              </p>
+              <Link
                 href="mailto:sohailatwork10@gmail.com"
-                className="text-xs sm:text-sm text-gray-400 hover:text-gray-300 transition-colors break-all text-center sm:text-left"
+                className="break-all text-center text-xs text-paper-500 transition-colors hover:text-paper-200 sm:text-left sm:text-sm"
               >
                 sohailatwork10@gmail.com
               </Link>
@@ -39,17 +41,19 @@ const Footer = () => {
 
             {/* About Section */}
             <div className="flex flex-col items-start space-y-2 sm:space-y-3">
-              <p className="font-semibold text-sm sm:text-base text-gray-200 mb-1">About</p>
-              <div className="flex flex-col space-y-2 items-start">
-                <Link 
+              <p className="mb-1 font-mono text-xs uppercase tracking-[0.2em] text-paper-300">
+                About
+              </p>
+              <div className="flex flex-col items-start space-y-2">
+                <Link
                   href="/privacy-policy"
-                  className="text-xs sm:text-sm text-gray-400 hover:text-gray-300 transition-colors"
+                  className="text-xs text-paper-500 transition-colors hover:text-paper-200 sm:text-sm"
                 >
                   Privacy Policy
                 </Link>
-                <Link 
+                <Link
                   href="/terms-of-services"
-                  className="text-xs sm:text-sm text-gray-400 hover:text-gray-300 transition-colors"
+                  className="text-xs text-paper-500 transition-colors hover:text-paper-200 sm:text-sm"
                 >
                   Terms of Services
                 </Link>
@@ -59,9 +63,9 @@ const Footer = () => {
         </div>
       </div>
 
-      <footer className="bg-[#1E1E1E] text-white py-4 sm:py-3 px-4">
-        <div className="container mx-auto text-center text-xs sm:text-sm text-gray-200">
-          &copy; {currentYear} Pixels. All Rights Reserved.
+      <footer className="border-t border-ink-700 bg-ink-950 px-4 py-4 text-paper-100 sm:py-3">
+        <div className="container mx-auto text-center text-xs text-paper-500 sm:text-sm">
+          &copy; {currentYear} Pixels. All rights reserved.
         </div>
       </footer>
     </>

@@ -20,7 +20,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Spotlight } from "@/components/ui/Spotlight";
 import { useSession } from "@/providers/SessionProvider";
 
 const FormUI = () => {
@@ -110,114 +109,111 @@ const FormUI = () => {
 
   if (sessionLoading || !session) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-black/[0.96]">
-        <p className="text-white/60 text-sm">Loading...</p>
+      <div className="flex min-h-screen w-full items-center justify-center bg-ink-950">
+        <p className="font-mono text-sm text-paper-500">Loading…</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden py-8 sm:py-12 px-4 sm:px-6">
-      <Spotlight
-        className="-top-40 left-0 md:left-60 md:-top-20"
-        fill="white"
+    <div className="relative min-h-screen w-full overflow-hidden bg-ink-950 px-4 py-8 sm:px-6 sm:py-12">
+      <div className="pointer-events-none absolute inset-0 bg-dot-grid opacity-30" />
+      <div className="pointer-events-none absolute -top-32 right-[-10%] h-[26rem] w-[26rem] rounded-full bg-brand-accentColor/15 blur-[120px]" />
+      <div
+        aria-hidden
+        className="bg-grain pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-accentColor/5 to-transparent pointer-events-none" />
-      <div className="max-w-2xl mx-auto w-full relative z-10 mt-8 sm:mt-12">
-        <div className="text-center flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-brand-accentColor/30 to-brand-accentColor/10 mb-2 sm:mb-4 backdrop-blur-sm border border-brand-accentColor/20 shadow-lg shadow-brand-accentColor/20">
-            <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-brand-accentColor" />
+
+      <div className="relative z-10 mx-auto mt-8 w-full max-w-2xl sm:mt-12">
+        <div className="flex flex-col items-center justify-center gap-3 text-center sm:flex-row sm:gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-sm border border-brand-accentColor/30 bg-brand-accentColor/10 sm:h-14 sm:w-14">
+            <Sparkles className="h-6 w-6 text-brand-accentColor sm:h-7 sm:w-7" />
           </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-gray-400">
-            Upload Photo
+          <h1 className="font-display text-2xl font-medium text-paper-100 sm:text-3xl md:text-4xl">
+            Upload photo
           </h1>
         </div>
 
-        <Card className="border border-white/10 shadow-2xl bg-gradient-to-br from-white/95 via-white/98 to-yellow-50/40 backdrop-blur-xl">
-          <CardHeader className="pb-4 pt-4 sm:pt-6 px-4 sm:px-6">
-            <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-brand-accentColor/20">
-                <Upload className="w-4 h-4 sm:w-5 sm:h-5 text-brand-accentColor" />
+        <Card className="mt-8 rounded-sm border border-ink-600 bg-ink-900 shadow-[8px_8px_0_0_#fdd700]">
+          <CardHeader className="border-b border-ink-700 px-4 pb-4 pt-4 sm:px-6 sm:pt-6">
+            <CardTitle className="flex items-center gap-2 text-lg font-medium text-paper-100 sm:text-xl">
+              <div className="rounded-sm bg-brand-accentColor/15 p-1.5">
+                <Upload className="h-4 w-4 text-brand-accentColor sm:h-5 sm:w-5" />
               </div>
-              Photo Details
+              Photo details
             </CardTitle>
-            <CardDescription className="text-gray-600 text-xs sm:text-sm mt-1">
-              Fill in the information below to upload photo
+            <CardDescription className="mt-1 text-xs text-paper-400 sm:text-sm">
+              Fill in the information below to publish a wallpaper
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4 sm:space-y-5 px-4 sm:px-6 pb-4 sm:pb-6">
+          <CardContent className="space-y-5 px-4 pb-6 pt-5 sm:px-6">
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-gray-900 font-semibold text-sm">
-                <div className="p-1 rounded-lg bg-brand-accentColor/10">
-                  <ImageIcon className="w-4 h-4 text-brand-accentColor" />
-                </div>
-                Photo Name
-                <span className="text-red-500">*</span>
+              <label className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.15em] text-paper-300">
+                <ImageIcon className="h-3.5 w-3.5 text-brand-accentColor" />
+                Photo name
+                <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-brand-accentColor focus:border-brand-accentColor outline-none transition-all bg-white hover:border-gray-300 text-gray-900 placeholder:text-gray-400 font-medium text-sm"
-                placeholder="e.g., Sunset Over Mountains"
+                className="w-full rounded-sm border border-ink-600 bg-ink-800 px-4 py-2.5 text-sm text-paper-100 outline-none transition-colors placeholder:text-paper-500 focus:border-brand-accentColor"
+                placeholder="e.g., Sunset over mountains"
               />
             </div>
+
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-gray-900 font-semibold text-sm">
-                <div className="p-1 rounded-lg bg-brand-accentColor/10">
-                  <Tag className="w-4 h-4 text-brand-accentColor" />
-                </div>
+              <label className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.15em] text-paper-300">
+                <Tag className="h-3.5 w-3.5 text-brand-accentColor" />
                 Categories
-                <span className="text-red-500">*</span>
+                <span className="text-red-400">*</span>
               </label>
 
               <div className="flex gap-2">
-                <div className="flex-1 relative">
-                  <input
-                    type="text"
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-brand-accentColor focus:border-brand-accentColor outline-none transition-all bg-white hover:border-gray-300 text-gray-900 placeholder:text-gray-400 font-medium text-sm"
-                    placeholder="Add a category (e.g. nature, landscape)"
-                  />
-                </div>
+                <input
+                  type="text"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  className="flex-1 rounded-sm border border-ink-600 bg-ink-800 px-4 py-2.5 text-sm text-paper-100 outline-none transition-colors placeholder:text-paper-500 focus:border-brand-accentColor"
+                  placeholder="Add a category (e.g. nature, landscape)"
+                />
                 <button
                   type="button"
-                  className="bg-gradient-to-r from-brand-accentColor to-yellow-400 hover:from-yellow-400 hover:to-brand-accentColor text-black px-5 py-2.5 rounded-xl transition-all font-bold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 flex items-center justify-center min-w-[50px] text-lg"
+                  className="min-w-[50px] rounded-sm bg-brand-accentColor px-5 text-lg font-bold text-ink-950 transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0"
                   onClick={handleAddCategory}
-                  title="Add Category"
+                  title="Add category"
                 >
                   +
                 </button>
               </div>
 
-              <p className="text-xs text-gray-500 flex items-center gap-1.5 font-medium">
-                <Info className="w-3.5 h-3.5" />
+              <p className="flex items-center gap-1.5 text-xs text-paper-500">
+                <Info className="h-3.5 w-3.5" />
                 Type a category and press Enter or click + to add it
               </p>
 
               {categories.length > 0 && (
                 <div className="mt-3 space-y-2">
-                  <p className="text-gray-800 font-semibold text-sm">
-                    Added Categories:
+                  <p className="font-mono text-xs uppercase tracking-[0.15em] text-paper-400">
+                    Added categories
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {categories.map((category, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-1.5 bg-gradient-to-r from-yellow-100 via-yellow-50 to-yellow-100 px-3 py-1.5 rounded-full border-2 border-yellow-200 shadow-sm hover:shadow-md transition-all group hover:border-yellow-300"
+                        className="group flex items-center gap-1.5 rounded-sm border border-ink-600 bg-ink-800 px-3 py-1.5"
                       >
-                        <span className="text-gray-900 font-medium text-xs">
+                        <span className="text-xs font-medium text-paper-100">
                           {category}
                         </span>
                         <button
                           type="button"
-                          className="text-gray-500 hover:text-red-600 transition-colors p-0.5 rounded-full hover:bg-red-50 group-hover:bg-red-50"
+                          className="text-paper-500 transition-colors hover:text-red-400"
                           onClick={() => handleRemoveCategory(index)}
                           title="Remove category"
                         >
-                          <X className="w-3.5 h-3.5" />
+                          <X className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     ))}
@@ -225,86 +221,74 @@ const FormUI = () => {
                 </div>
               )}
             </div>
+
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-gray-900 font-semibold text-sm">
-                <div className="p-1 rounded-lg bg-brand-accentColor/10">
-                  <FileImage className="w-4 h-4 text-brand-accentColor" />
-                </div>
-                Photo File
-                <span className="text-red-500">*</span>
+              <label className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.15em] text-paper-300">
+                <FileImage className="h-3.5 w-3.5 text-brand-accentColor" />
+                Photo file
+                <span className="text-red-400">*</span>
               </label>
-              <div className="relative">
-                <label className="block w-full cursor-pointer group">
-                  <div
-                    className={`w-full border-2 border-dashed rounded-xl bg-gradient-to-br from-white to-gray-50/80 p-6 transition-all shadow-sm ${
-                      image
-                        ? "border-brand-accentColor bg-gradient-to-br from-yellow-50/50 to-yellow-100/30 shadow-md shadow-brand-accentColor/20"
-                        : "border-gray-300 hover:border-brand-accentColor hover:bg-yellow-50/30 hover:shadow-md"
-                    }`}
-                  >
-                    <div className="flex flex-col items-center justify-center text-center space-y-3">
-                      <div
-                        className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all shadow-md ${
-                          image
-                            ? "bg-gradient-to-br from-brand-accentColor to-yellow-400"
-                            : "bg-gray-100 group-hover:bg-brand-accentColor/20"
+              <label className="block w-full cursor-pointer">
+                <div
+                  className={`w-full rounded-sm border-2 border-dashed p-6 transition-colors ${
+                    image
+                      ? "border-brand-accentColor bg-brand-accentColor/5"
+                      : "border-ink-600 bg-ink-800 hover:border-paper-500"
+                  }`}
+                >
+                  <div className="flex flex-col items-center justify-center space-y-3 text-center">
+                    <div
+                      className={`flex h-14 w-14 items-center justify-center rounded-sm ${
+                        image ? "bg-brand-accentColor" : "bg-ink-700"
+                      }`}
+                    >
+                      <FileImage
+                        className={`h-7 w-7 ${
+                          image ? "text-ink-950" : "text-paper-500"
                         }`}
-                      >
-                        <FileImage
-                          className={`w-7 h-7 transition-colors ${
-                            image
-                              ? "text-black"
-                              : "text-gray-400 group-hover:text-brand-accentColor"
-                          }`}
-                        />
-                      </div>
-                      <div>
-                        {image ? (
-                          <div className="space-y-1">
-                            <p className="text-gray-900 font-semibold text-sm">
-                              {image.name}
-                            </p>
-                            <p className="text-xs text-gray-500 font-medium">
-                              Click to change file
-                            </p>
-                          </div>
-                        ) : (
-                          <div className="space-y-1">
-                            <p className="text-gray-800 font-semibold text-sm">
-                              Click to browse or drag and drop
-                            </p>
-                            <p className="text-xs text-gray-500 font-medium">
-                              PNG, JPG, WEBP up to 10MB
-                            </p>
-                          </div>
-                        )}
-                      </div>
+                      />
                     </div>
+                    {image ? (
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-paper-100">
+                          {image.name}
+                        </p>
+                        <p className="text-xs text-paper-500">
+                          Click to change file
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-paper-200">
+                          Click to browse or drag and drop
+                        </p>
+                        <p className="text-xs text-paper-500">
+                          PNG, JPG, WEBP up to 10MB
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  <input
-                    type="file"
-                    className="hidden"
-                    onChange={handleFileChange}
-                    accept="image/*"
-                  />
-                </label>
-              </div>
-            </div>
-            {error && (
-              <div className="p-3 bg-red-50 border-2 border-red-300 rounded-xl flex items-start gap-3 shadow-md">
-                <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
-                  <X className="w-3.5 h-3.5 text-white" />
                 </div>
-                <p className="text-red-700 font-semibold flex-1 text-sm">
-                  {error}
-                </p>
+                <input
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange}
+                  accept="image/*"
+                />
+              </label>
+            </div>
+
+            {error && (
+              <div className="flex items-start gap-3 rounded-sm border border-red-500/30 bg-red-500/10 p-3">
+                <X className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-400" />
+                <p className="flex-1 text-sm text-red-300">{error}</p>
               </div>
             )}
 
             <button
               type="button"
-              className={`w-full bg-gradient-to-r from-brand-accentColor via-yellow-400 to-brand-accentColor hover:from-yellow-400 hover:via-brand-accentColor hover:to-yellow-400 text-black py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 font-bold text-base flex items-center justify-center gap-2 ${
-                loading ? "opacity-70 cursor-not-allowed" : ""
+              className={`flex w-full items-center justify-center gap-2 rounded-sm bg-brand-accentColor px-6 py-3 text-sm font-semibold text-ink-950 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000] active:translate-y-0 active:shadow-[2px_2px_0_0_#000] ${
+                loading ? "cursor-not-allowed opacity-70" : ""
               }`}
               onClick={handleUploadPhoto}
               disabled={loading}
@@ -312,7 +296,7 @@ const FormUI = () => {
               {loading ? (
                 <>
                   <svg
-                    className="animate-spin h-5 w-5 text-black"
+                    className="h-5 w-5 animate-spin"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -331,28 +315,26 @@ const FormUI = () => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  <span>Uploading...</span>
+                  <span>Uploading…</span>
                 </>
               ) : (
                 <>
-                  <Upload className="w-5 h-5" />
-                  <span>Upload Photo</span>
+                  <Upload className="h-5 w-5" />
+                  <span>Upload photo</span>
                 </>
               )}
             </button>
 
-            <div className="mt-5 pt-5 border-t border-gray-200">
-              <div className="flex items-start gap-3 p-3 bg-gradient-to-r from-yellow-50/80 to-yellow-100/50 border-2 border-yellow-200 rounded-xl shadow-sm">
-                <div className="p-1.5 rounded-lg bg-yellow-200/50 flex-shrink-0">
-                  <Info className="w-4 h-4 text-yellow-700" />
-                </div>
-                <p className="text-xs sm:text-sm text-gray-800 leading-relaxed font-medium">
-                  <span className="font-semibold text-gray-900">Note:</span> You
-                  can upload an image only if you are allowed by the admin.
-                  Contact the email{" "}
+            <div className="mt-5 border-t border-ink-700 pt-5">
+              <div className="flex items-start gap-3 rounded-sm border border-ink-600 bg-ink-800 p-3">
+                <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-accentColor" />
+                <p className="text-xs leading-relaxed text-paper-400 sm:text-sm">
+                  <span className="font-semibold text-paper-200">Note:</span>{" "}
+                  You can upload an image only if you are allowed by the
+                  admin. Contact{" "}
                   <a
                     href="mailto:sohailatwork10@gmail.com"
-                    className="text-brand-accentColor hover:underline break-all"
+                    className="break-all text-brand-accentColor hover:underline"
                   >
                     sohailatwork10@gmail.com
                   </a>{" "}

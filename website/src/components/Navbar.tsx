@@ -2,7 +2,8 @@
 
 import React, { useContext } from "react";
 import { Button } from "@/components/ui/button";
-import { MenuIcon, LogOut, User } from "lucide-react";
+import { MenuIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -45,35 +46,44 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-[#3D3D3D] to-[#1F1F1F] text-white p-3 sm:p-4 fixed w-full top-0 z-20">
-      <div className="container mx-auto flex justify-between items-center px-4 sm:px-6">
-        <Link href={"/"}>
-          <div className="text-xl sm:text-2xl font-bold">Pixels</div>
+    <nav className="fixed top-0 z-20 w-full border-b border-ink-700/60 bg-ink-950/90 p-3 text-paper-100 backdrop-blur-md sm:p-4">
+      <div className="container mx-auto flex items-center justify-between px-4 sm:px-6">
+        <Link href={"/"} className="flex items-center gap-2">
+          <Image
+            src="/logo.png"
+            alt="Pixels"
+            width={32}
+            height={32}
+            className="h-7 w-7 rounded-sm sm:h-8 sm:w-8"
+          />
+          <span className="font-mono text-sm uppercase tracking-[0.2em] text-paper-100">
+            Pixels
+          </span>
         </Link>
 
         {/* Desktop menu */}
         {session ? (
-          <div className="hidden md:flex space-x-4 text-gray-200">
+          <div className="hidden items-center space-x-3 md:flex">
             <Link href={"/upload"}>
-              <Button className="hove hover:text-black hover:bg-brand-accentColor/90 bg-brand-accentColor text-black">
+              <Button className="rounded-sm bg-brand-accentColor text-ink-950 transition-colors hover:bg-brand-accentColor/90">
                 Upload
               </Button>
             </Link>
 
             <Button
-              className="hove hover:text-black hover:bg-brand-accentColor/90 bg-red-500 text-black"
+              className="rounded-sm border border-red-500/40 bg-transparent text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300"
               onClick={signout}
             >
               Logout
             </Button>
           </div>
         ) : (
-          <div className="hidden md:flex space-x-4 text-gray-200">
+          <div className="hidden items-center space-x-3 md:flex">
             <Button
-              className="hove hover:text-black hover:bg-brand-accentColor/90 bg-brand-accentColor text-black"
+              className="rounded-sm bg-brand-accentColor text-ink-950 transition-colors hover:bg-brand-accentColor/90"
               onClick={signin}
             >
-             Admin Login
+              Admin login
             </Button>
           </div>
         )}
@@ -81,25 +91,38 @@ const Navbar: React.FC = () => {
         {/* Mobile menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild className="md:hidden">
-            <button className="p-2">
+            <button className="p-2 text-paper-100">
               <MenuIcon className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
           </DropdownMenuTrigger>
           {session ? (
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              className="border-ink-700 bg-ink-900 text-paper-100"
+            >
               <Link href={"/upload"}>
-                <DropdownMenuItem>Upload</DropdownMenuItem>
+                <DropdownMenuItem className="focus:bg-ink-800 focus:text-paper-100">
+                  Upload
+                </DropdownMenuItem>
               </Link>
               <DropdownMenuItem
-                className="text-red-500"
+                className="text-red-400 focus:bg-ink-800 focus:text-red-300"
                 onClick={signout}
               >
                 Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
           ) : (
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={signin}>Admin Login</DropdownMenuItem>
+            <DropdownMenuContent
+              align="end"
+              className="border-ink-700 bg-ink-900 text-paper-100"
+            >
+              <DropdownMenuItem
+                className="focus:bg-ink-800 focus:text-paper-100"
+                onClick={signin}
+              >
+                Admin login
+              </DropdownMenuItem>
             </DropdownMenuContent>
           )}
         </DropdownMenu>
