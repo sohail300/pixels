@@ -66,10 +66,9 @@ const Liked = () => {
       leftGetsExtraRef.current = true;
       setLoading(true);
       // Call with skip=0 explicitly to start from beginning
-      setTimeout(() => {
-        getLikedWallpapers(0);
+      getLikedWallpapers(0).finally(() => {
         isRefreshingRef.current = false;
-      }, 0);
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [likedWallpapers.lastUpdated]);
