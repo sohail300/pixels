@@ -14,6 +14,7 @@ import { Provider } from "react-redux";
 import { store } from "@/redux/store";
 import ThemeProvider from "@/components/ThemeProvider";
 import { SessionContext } from "@/context/SessionContext";
+import { checkForUpdate } from "@/lib/updateCheck";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -54,6 +55,11 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }, 5000); // 5 second timeout
     return () => clearTimeout(timer);
+  }, []);
+
+  // No Play Store, so tell people when a newer APK is on GitHub Releases.
+  useEffect(() => {
+    checkForUpdate();
   }, []);
 
   if (!loaded) {

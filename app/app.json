@@ -52,7 +52,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "./plugins/withAndroidAbis"
     ],
     "experiments": {
       "typedRoutes": true
