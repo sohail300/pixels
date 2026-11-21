@@ -9,6 +9,7 @@ import { BACKEND_URL, LIMIT } from "@/lib/config";
 import { RootState } from "@/redux/store";
 import { store } from "@/redux/store";
 import { setLikedIds } from "@/redux/LikedWallpapersSlice";
+import { applyLikedState } from "@/lib/likes";
 
 const Suggested = () => {
   const themeState = useSelector((state: RootState) => state.theme);
@@ -43,18 +44,8 @@ const Suggested = () => {
   useEffect(() => {
     if (likedWallpapers.lastUpdated) {
       const likedIds = new Set(likedWallpapers.likedIds);
-      setWallpaper1((prev) =>
-        prev.map((item: any) => ({
-          ...item,
-          has_liked: likedIds.has(String(item.id)),
-        }))
-      );
-      setWallpaper2((prev) =>
-        prev.map((item: any) => ({
-          ...item,
-          has_liked: likedIds.has(String(item.id)),
-        }))
-      );
+      setWallpaper1((prev) => applyLikedState(prev, likedIds));
+      setWallpaper2((prev) => applyLikedState(prev, likedIds));
     }
   }, [likedWallpapers.lastUpdated]);
 

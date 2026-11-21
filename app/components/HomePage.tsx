@@ -18,6 +18,7 @@ import { BACKEND_URL, LIMIT, SKIP } from "@/lib/config";
 import { RootState } from "@/redux/store";
 import { store } from "@/redux/store";
 import { setLikedIds } from "@/redux/LikedWallpapersSlice";
+import { applyLikedState } from "@/lib/likes";
 
 const HEADER_MAX_HEIGHT = 200;
 const HEADER_MIN_HEIGHT = 70;
@@ -56,18 +57,8 @@ const HomePage = () => {
   useEffect(() => {
     if (likedWallpapers.lastUpdated) {
       const likedIds = new Set(likedWallpapers.likedIds);
-      setWallpaper1((prev) =>
-        prev.map((item: any) => ({
-          ...item,
-          has_liked: likedIds.has(String(item.id)),
-        }))
-      );
-      setWallpaper2((prev) =>
-        prev.map((item: any) => ({
-          ...item,
-          has_liked: likedIds.has(String(item.id)),
-        }))
-      );
+      setWallpaper1((prev) => applyLikedState(prev, likedIds));
+      setWallpaper2((prev) => applyLikedState(prev, likedIds));
     }
   }, [likedWallpapers.lastUpdated]);
 

@@ -11,6 +11,7 @@ import {
   Appearance,
   useColorScheme,
   TouchableWithoutFeedback,
+  BackHandler,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import {
@@ -84,6 +85,13 @@ export default function BottomSheetComponent({
   const [likeAnimation] = useState(new Animated.Value(1));
   const [liked, setLiked] = useState(hasLiked ?? false);
   const [likeCount, setLikeCount] = useState(likes ?? 0);
+
+  // This sheet is mounted once in the root layout and reused for every wallpaper,
+  // so the local like state has to be re-synced whenever a different wallpaper opens.
+  useEffect(() => {
+    setLiked(hasLiked ?? false);
+    setLikeCount(likes ?? 0);
+  }, [id, hasLiked, likes]);
   const [showAllCategories, setShowAllCategories] = useState(false);
   const isClosingRef = useRef(false);
   const isOpeningRef = useRef(false);
@@ -99,7 +107,9 @@ export default function BottomSheetComponent({
   const width = Dimensions.get("window").width;
   const height = Dimensions.get("window").height;
 
-  const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
+  const [permissionResponse, requestPermission] = MediaLibrary.usePermissions({
+    granularPermissions: ["photo"],
+  });
 
   useEffect(() => {
     // Skip if this is the initial render and visible is false
@@ -119,8 +129,13 @@ export default function BottomSheetComponent({
 
     // Only handle state changes
     if (previousVisibleRef.current === visible) return;
+    const wasVisible = previousVisibleRef.current;
+    // Record the new state before any early return below; the opening branch returns
+    // a cleanup function, and skipping this left the ref stuck at false, so closing
+    // (backdrop tap / back button) never reached dismiss().
+    previousVisibleRef.current = visible;
 
-    if (visible && !previousVisibleRef.current) {
+    if (visible && !wasVisible) {
       // Opening: reset states and start animation
       isClosingRef.current = false;
       isOpeningRef.current = true;
@@ -154,7 +169,7 @@ export default function BottomSheetComponent({
       return () => {
         clearTimeout(openTimeoutId);
       };
-    } else if (!visible && previousVisibleRef.current) {
+    } else if (!visible && wasVisible) {
       // Closing: dismiss the sheet and reset animations
       bottomSheetRef.current?.dismiss();
       fadeAnim.setValue(0);
@@ -162,8 +177,6 @@ export default function BottomSheetComponent({
       isClosingRef.current = false;
       isOpeningRef.current = false;
     }
-
-    previousVisibleRef.current = visible;
   }, [visible]);
 
   const handleClose = useCallback(() => {
@@ -181,6 +194,29 @@ export default function BottomSheetComponent({
     });
   }, [fadeAnim, close]);
 
+  // Fires after the modal has fully dismissed. When we closed it ourselves, `visible`
+  // is already false and there is nothing left to do; re-running handleClose here
+  // started a second fade on the unmounting backdrop and React warned
+  // "useInsertionEffect must not schedule updates".
+  const handleDismiss = useCallback(() => {
+    if (visible && !isClosingRef.current) {
+      close();
+    }
+  }, [visible, close]);
+
+  // Android back button closes the sheet instead of leaving the app.
+  useEffect(() => {
+    if (!visible) return;
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        handleClose();
+        return true;
+      }
+    );
+    return () => subscription.remove();
+  }, [visible, handleClose]);
+
   const handleSheetChange = useCallback(
     (index: number) => {
       // Ignore changes during opening or if already closing
@@ -191,17 +227,11 @@ export default function BottomSheetComponent({
         // Only close if we're actually visible (user dragged it down)
         if (!visible) return;
 
-        // User dragged the sheet down, so close it
-        isClosingRef.current = true;
-
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 250,
-          useNativeDriver: true,
-        }).start(() => {
-          close();
-          isClosingRef.current = false;
-        });
+        // User dragged the sheet down. The modal is already gone and its backdrop is
+        // unmounting, so close right away: fading the backdrop here got interrupted by
+        // the unmount, and the interrupted callback called close() mid-commit.
+        fadeAnim.setValue(0);
+        close();
       }
     },
     [fadeAnim, close, visible]
@@ -283,50 +313,75 @@ export default function BottomSheetComponent({
       );
 
       const result = await downloadResumable.downloadAsync();
-      await saveToGallery(filePath);
-
-      // Update download count on server
-      const response = await fetch(`${BACKEND_URL}/download/${id}`, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.access_token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+      if (!result || result.status !== 200) {
+        throw new Error(`Download failed with status ${result?.status}`);
       }
 
+      const saved = await saveToGallery(filePath);
       setIsDownloading(false);
       setDownloadProgress(0);
+
+      // The download count is tracked per user, so only signed-in users are recorded.
+      // A failure here must not be reported as a failed download: the file is already saved.
+      if (saved && session?.access_token) {
+        fetch(`${BACKEND_URL}/download/${id}`, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              console.log("Failed to record download:", response.status);
+            }
+          })
+          .catch((error) => console.log("Failed to record download:", error));
+      }
     } catch (error) {
       setIsDownloading(false);
+      setDownloadProgress(0);
       console.log(error);
       ToastAndroid.show("Download failed", ToastAndroid.SHORT);
     }
   }
 
-  async function saveToGallery(filePath: string) {
+  async function saveToGallery(filePath: string): Promise<boolean> {
     if (permissionResponse?.status !== "granted") {
-      await requestPermission();
+      const { status } = await requestPermission();
+      if (status !== "granted") {
+        ToastAndroid.show(
+          "Allow photo access to save wallpapers",
+          ToastAndroid.LONG
+        );
+        return false;
+      }
     }
 
     try {
-      const asset = await MediaLibrary.createAssetAsync(filePath);
+      // Create the asset directly inside the album. Creating it elsewhere and then
+      // moving it makes Android 11+ ask "Allow Pixels to modify this photo?" every time.
       const album = await MediaLibrary.getAlbumAsync("Download/Pixels");
       if (album == null) {
-        await MediaLibrary.createAlbumAsync("Download/Pixels", asset, false);
+        await MediaLibrary.createAlbumAsync(
+          "Download/Pixels",
+          undefined,
+          undefined,
+          filePath
+        );
       } else {
-        await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+        await MediaLibrary.createAssetAsync(filePath, album);
       }
       ToastAndroid.show(
         "Wallpaper saved to Pictures/Download/Pixels",
         ToastAndroid.LONG
       );
+      return true;
     } catch (error) {
       console.log(error);
+      ToastAndroid.show("Couldn't save wallpaper", ToastAndroid.SHORT);
+      return false;
     }
   }
 
@@ -379,7 +434,7 @@ export default function BottomSheetComponent({
         enablePanDownToClose={true}
         enableOverDrag={false}
         onChange={handleSheetChange}
-        onDismiss={handleClose}
+        onDismiss={handleDismiss}
       >
         <BottomSheetView
           style={[
