@@ -1,50 +1,29 @@
-# Welcome to your Expo app 👋
+# Pixels Android app
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Expo (React Native) app for browsing, searching, liking, and downloading wallpapers. File-based routing with Expo Router lives in `app/`.
 
-## Get started
+- **Run it locally:** [docs/DEVELOPMENT.md](../docs/DEVELOPMENT.md#android-app-app)
+- **Release a new version:** [docs/RELEASING.md](../docs/RELEASING.md)
+- **Build, signing, and Google sign-in setup:** [docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md#eas-build)
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Quick start, with the phone plugged in over USB and the backend running locally:
 
 ```bash
-npm run reset-project
+npm install
+adb reverse tcp:8081 tcp:8081 && adb reverse tcp:8000 tcp:8000
+EXPO_PUBLIC_BACKEND_URL=http://localhost:8000/api npx expo run:android
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Where things are
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+| Path | What |
+|---|---|
+| `app/(tabs)/` | Explore, For You, and Account tabs |
+| `components/BottomSheet.tsx` | Wallpaper detail sheet: like, download, save to the gallery |
+| `lib/config.ts` | Backend URL and storage bucket URL |
+| `lib/api.ts` | `fetch` with timeout, plus auth headers |
+| `lib/updateCheck.ts` | Startup check for a newer release on GitHub |
+| `lib/images.ts` | Full-size and thumbnail image URLs |
+| `redux/` | Global state: theme and liked wallpapers |
+| `plugins/withAndroidAbis.js` | Limits APK native code to real-phone CPUs |
+| `app.json` / `eas.json` | App config (version, icons, splash) and EAS build profiles |
