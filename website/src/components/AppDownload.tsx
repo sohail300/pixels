@@ -1,6 +1,11 @@
 import Image from "next/image";
 import React from "react";
 
+// Always the newest release: every GitHub release uploads the APK as "pixels.apk".
+// The QR code in public/qr_code.png encodes this same URL.
+const APK_URL =
+  "https://github.com/sohail300/pixels/releases/latest/download/pixels.apk";
+
 const AppDownload = () => {
   return (
     <section
@@ -25,8 +30,17 @@ const AppDownload = () => {
                 Pixels, right in your pocket
               </h2>
               <p className="mt-4 text-sm text-paper-400 sm:text-base">
-                Scan the code to install the Android app. Free, no account
-                required.
+                Download the Android app, or scan the code with your phone.
+                Free, no account required.
+              </p>
+              <a
+                href={APK_URL}
+                className="mt-7 inline-flex h-12 items-center justify-center rounded-sm bg-brand-accentColor px-7 font-semibold text-ink-950 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000] active:translate-y-0 active:shadow-[2px_2px_0_0_#000]"
+              >
+                Download APK
+              </a>
+              <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.2em] text-paper-500">
+                Android 7.0+ · Allow installs from your browser when asked
               </p>
             </div>
 
