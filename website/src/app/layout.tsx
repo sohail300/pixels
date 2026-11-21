@@ -15,7 +15,12 @@ const mono = JetBrains_Mono({
   variable: "--font-mono",
 });
 
+// Base for absolute URLs in link previews (Open Graph / Twitter images).
+// Set NEXT_PUBLIC_SITE_URL to the deployed address of the website.
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pixels.sohailcodes.xyz";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Pixels — Wallpapers tailored for you",
   description:
     "Endless HD wallpapers picked to your taste. Search, like, and download in one tap — free, no account required.",

@@ -12,6 +12,16 @@ from db.models import User, Wallpaper, Category, WallpaperCategory, Liked, Downl
 
 Base.metadata.create_all(bind=engine)
 
+# Browser origins allowed to call the API (the website's upload page). Set
+# ALLOWED_ORIGINS to a comma-separated list, e.g. "https://pixels.example.com".
+# The mobile app is not a browser, so CORS doesn't apply to it.
+DEFAULT_ALLOWED_ORIGINS = "http://localhost:3000,https://pixels.sohailcodes.xyz"
+ALLOWED_ORIGINS = [
+    origin.strip().rstrip("/")
+    for origin in (os.getenv("ALLOWED_ORIGINS") or DEFAULT_ALLOWED_ORIGINS).split(",")
+    if origin.strip()
+]
+
 app = FastAPI(
     title="Pixels",
     description="Wallpapers tailored for you",
@@ -20,10 +30,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "https://pixels.sohailcodes.xyz",
-    ],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

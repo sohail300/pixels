@@ -18,6 +18,7 @@ import { setLikedIds } from "@/redux/LikedWallpapersSlice";
 import { applyLikedState } from "@/lib/likes";
 import { apiHeaders, fetchWithTimeout } from "@/lib/api";
 import ListMessage from "@/components/ListMessage";
+import SlowLoadingHint from "@/components/SlowLoadingHint";
 import { SessionContext } from "@/context/SessionContext";
 
 const Suggested = () => {
@@ -212,7 +213,10 @@ const Suggested = () => {
         onScroll={handleScroll}
       >
         {loading && wallpaper1.length === 0 ? (
-          <WallpaperSkeleton count={8} />
+          <>
+            <SlowLoadingHint active />
+            <WallpaperSkeleton count={8} />
+          </>
         ) : loadError && wallpaper1.length === 0 ? (
           <ListMessage
             icon="cloud-offline-outline"

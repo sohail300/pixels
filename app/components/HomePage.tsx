@@ -10,6 +10,7 @@ import React, { useEffect, useMemo, useState, useRef, useContext } from "react";
 import SpiltView from "./SpiltView";
 import WallpaperSkeleton from "./WallpaperSkeleton";
 import ListMessage from "./ListMessage";
+import SlowLoadingHint from "./SlowLoadingHint";
 import { apiHeaders, fetchWithTimeout } from "@/lib/api";
 import { SessionContext } from "@/context/SessionContext";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
@@ -350,7 +351,12 @@ const HomePage = () => {
 
   const renderList = () => {
     if (loading && wallpaper1.length === 0) {
-      return <WallpaperSkeleton count={8} />;
+      return (
+        <>
+          <SlowLoadingHint active />
+          <WallpaperSkeleton count={8} />
+        </>
+      );
     }
     if (wallpaper1.length === 0 && wallpaper2.length === 0) {
       if (loadError) {

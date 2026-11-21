@@ -1,4 +1,6 @@
-const DEFAULT_TIMEOUT_MS = 15000;
+// The backend runs on Render's free tier, which sleeps when idle and can take close
+// to a minute to wake up, so the first request after a quiet period is slow.
+const DEFAULT_TIMEOUT_MS = 60000;
 
 /**
  * JSON headers, plus the bearer token when signed in. Public list endpoints still

@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
-    "scheme": "myapp",
+    "scheme": "pixels",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true
@@ -54,11 +54,11 @@
       "typedRoutes": true
     },
     "extra": {
-      "eas": {
-        "projectId": "352bd89c-923b-4ab2-a8c9-96615d6278e5"
-      },
       "router": {
         "origin": false
+      },
+      "eas": {
+        "projectId": "0ba62d04-fabc-49ea-b98c-6cd0380fc06e"
       }
     },
     "owner": "sohail300"

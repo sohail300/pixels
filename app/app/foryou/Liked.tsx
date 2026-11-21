@@ -18,6 +18,7 @@ import { BACKEND_URL, LIMIT } from "@/lib/config";
 import { setLikedIds } from "@/redux/LikedWallpapersSlice";
 import { fetchWithTimeout } from "@/lib/api";
 import ListMessage from "@/components/ListMessage";
+import SlowLoadingHint from "@/components/SlowLoadingHint";
 
 const Liked = () => {
   const themeState = useSelector((state: RootState) => state.theme);
@@ -288,6 +289,7 @@ const Liked = () => {
     if (loading && wallpaper1.length === 0) {
       return (
         <View style={styles.scrollContent}>
+          <SlowLoadingHint active />
           <WallpaperSkeleton count={6} />
         </View>
       );
