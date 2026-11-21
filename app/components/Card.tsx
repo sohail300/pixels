@@ -25,6 +25,7 @@ import { toggleLike } from "@/redux/LikedWallpapersSlice";
 const Card = ({
   id,
   uri,
+  thumbnailUri,
   name,
   hasLiked,
   downloads,
@@ -35,6 +36,8 @@ const Card = ({
 }: {
   readonly id: string | number;
   readonly uri: string;
+  /** Small grid image; falls back to `uri` if it fails to load. */
+  readonly thumbnailUri?: string;
   readonly name: string;
   readonly hasLiked: boolean;
   readonly downloads: number;
@@ -53,6 +56,8 @@ const Card = ({
   const isLikedInGlobalState = likedWallpapers.likedIds.includes(String(id));
   const [liked, setLiked] = useState(isLikedInGlobalState || hasLiked);
   const [pressed, setPressed] = useState(false);
+  const [thumbnailFailed, setThumbnailFailed] = useState(false);
+  const gridUri = thumbnailUri && !thumbnailFailed ? thumbnailUri : uri;
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const likeAnim = useRef(new Animated.Value(1)).current;
 
@@ -190,7 +195,11 @@ const Card = ({
           theme === "dark" ? styles.darkModeCard : {},
         ]}
       >
-        <Image source={{ uri }} style={styles.image} />
+        <Image
+          source={{ uri: gridUri }}
+          style={styles.image}
+          onError={() => setThumbnailFailed(true)}
+        />
 
         <LinearGradient
           colors={["transparent", "rgba(0,0,0,0.75)"]}

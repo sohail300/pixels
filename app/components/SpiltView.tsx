@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import React from "react";
 import Card from "./Card";
-import { BUCKET_URL } from "@/lib/config";
+import { imageUrl, thumbnailUrl } from "@/lib/images";
 import { Colors } from "@/constants/Colors";
 
 const SpiltView = ({
@@ -27,7 +27,8 @@ const SpiltView = ({
           renderItem={({ item }) => (
             <Card
               id={item.id}
-              uri={`${BUCKET_URL}${item.image}`}
+              uri={imageUrl(item.image)}
+              thumbnailUri={thumbnailUrl(item.image)}
               name={item.name}
               hasLiked={item.has_liked}
               downloads={item.downloads}
@@ -48,7 +49,8 @@ const SpiltView = ({
           renderItem={({ item }) => (
             <Card
               id={item.id}
-              uri={`${BUCKET_URL}${item.image}`}
+              uri={imageUrl(item.image)}
+              thumbnailUri={thumbnailUrl(item.image)}
               name={item.name}
               hasLiked={item.has_liked}
               downloads={item.downloads}

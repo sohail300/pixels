@@ -4,10 +4,14 @@ import {
   StatusBar,
   Animated,
   useColorScheme,
+  ToastAndroid,
 } from "react-native";
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React, { useEffect, useMemo, useState, useRef, useContext } from "react";
 import SpiltView from "./SpiltView";
 import WallpaperSkeleton from "./WallpaperSkeleton";
+import ListMessage from "./ListMessage";
+import { apiHeaders, fetchWithTimeout } from "@/lib/api";
+import { SessionContext } from "@/context/SessionContext";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import CarouselComponent from "./CarouselComponent";
 import { AntDesign, Feather } from "@expo/vector-icons";
@@ -26,6 +30,7 @@ const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
 const HomePage = () => {
   const dispatch = useDispatch();
+  const { session } = useContext(SessionContext);
   const themeState = useSelector((state: RootState) => state.theme);
   const systemColorScheme = useColorScheme();
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -47,6 +52,11 @@ const HomePage = () => {
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [hasReachedEnd, setHasReachedEnd] = useState(false);
   const [hasReachedSearchEnd, setHasReachedSearchEnd] = useState(false);
+  // True when the first page failed to load, so the list shows a retry message.
+  const [loadError, setLoadError] = useState(false);
+  // When loading the next page last failed; pauses scroll-triggered retries briefly
+  // so a dead connection doesn't fire a request (and a toast) on every scroll event.
+  const loadMoreFailedAtRef = useRef(0);
   const searchPageRef = useRef(0);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const likedWallpapers = useSelector(
@@ -80,17 +90,23 @@ const HomePage = () => {
     extrapolate: "clamp",
   });
 
+  function handleLoadFailure(isFirstPage: boolean) {
+    if (isFirstPage) {
+      setLoadError(true);
+    } else {
+      loadMoreFailedAtRef.current = Date.now();
+      ToastAndroid.show("Couldn't load more wallpapers", ToastAndroid.SHORT);
+    }
+  }
+
   async function getWallpapers(resetArrays = false, skipOverride?: number) {
+    const currentSkip = skipOverride !== undefined ? skipOverride : page * limit;
     try {
-      const currentSkip = skipOverride !== undefined ? skipOverride : page * limit;
-      const response = await fetch(
+      const response = await fetchWithTimeout(
         `${BACKEND_URL}/explore?skip=${currentSkip}&limit=${limit}`,
         {
           method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
+          headers: apiHeaders(session?.access_token),
         }
       );
 
@@ -98,6 +114,7 @@ const HomePage = () => {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
+      setLoadError(false);
 
       // Check if we've reached the end (empty response or fewer items than limit)
       if (data.length === 0 || data.length < limit) {
@@ -157,7 +174,8 @@ const HomePage = () => {
         setPage((prev) => prev + 1);
       }
     } catch (error) {
-      console.error("Error fetching wallpapers:", error);
+      console.log("Error fetching wallpapers:", error);
+      handleLoadFailure(currentSkip === 0);
     } finally {
       setLoading(false);
       setIsLoadingMore(false);
@@ -169,16 +187,13 @@ const HomePage = () => {
       const currentPage = isLoadMore ? searchPageRef.current : 0;
       const skip = currentPage * limit;
 
-      const response = await fetch(
+      const response = await fetchWithTimeout(
         `${BACKEND_URL}/search?skip=${skip}&limit=${limit}&query=${encodeURIComponent(
           query
         )}`,
         {
           method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
+          headers: apiHeaders(session?.access_token),
         }
       );
 
@@ -186,6 +201,7 @@ const HomePage = () => {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
+      setLoadError(false);
 
       // Check if we've reached the end (empty response or fewer items than limit)
       if (data.length === 0 || data.length < limit) {
@@ -255,7 +271,8 @@ const HomePage = () => {
         setWallpaper2([]);
       }
     } catch (error) {
-      console.error("Error searching wallpapers:", error);
+      console.log("Error searching wallpapers:", error);
+      handleLoadFailure(!isLoadMore);
     } finally {
       setLoading(false);
       setIsLoadingMore(false);
@@ -286,6 +303,7 @@ const HomePage = () => {
       searchPageRef.current = 0;
       setPage(0);
       leftGetsExtraRef.current = true; // Reset the alternating ref
+      setLoadError(false);
       setLoading(true);
       // Reset arrays and fetch fresh wallpapers
       setWallpaper1([]);
@@ -297,6 +315,7 @@ const HomePage = () => {
 
     // Set search mode
     setIsSearchMode(true);
+    setLoadError(false);
     setLoading(true);
     existingIdsRef.current.clear();
     searchPageRef.current = 0;
@@ -313,6 +332,63 @@ const HomePage = () => {
       }
     };
   }, [searchQuery]);
+
+  const retry = () => {
+    setLoadError(false);
+    setLoading(true);
+    existingIdsRef.current.clear();
+    leftGetsExtraRef.current = true;
+    if (isSearchMode && searchQuery.trim().length > 0) {
+      searchPageRef.current = 0;
+      searchWallpapers(searchQuery.trim(), false);
+    } else {
+      setPage(0);
+      setHasReachedEnd(false);
+      getWallpapers(true, 0);
+    }
+  };
+
+  const renderList = () => {
+    if (loading && wallpaper1.length === 0) {
+      return <WallpaperSkeleton count={8} />;
+    }
+    if (wallpaper1.length === 0 && wallpaper2.length === 0) {
+      if (loadError) {
+        return (
+          <ListMessage
+            icon="cloud-offline-outline"
+            title="Couldn't load wallpapers"
+            subtitle="Check your internet connection and try again."
+            actionLabel="Try again"
+            onAction={retry}
+          />
+        );
+      }
+      if (isSearchMode) {
+        return (
+          <ListMessage
+            icon="search"
+            title="No wallpapers found"
+            subtitle={`Nothing matches "${searchQuery.trim()}". Try a different search.`}
+          />
+        );
+      }
+      return (
+        <ListMessage
+          icon="images-outline"
+          title="No wallpapers yet"
+          subtitle="New wallpapers will show up here."
+        />
+      );
+    }
+    return (
+      <SpiltView
+        wallpaper1={wallpaper1}
+        wallpaper2={wallpaper2}
+        loading={isLoadingMore}
+      />
+    );
+  };
 
   const renderHeaderContent = () => (
     <Animated.View
@@ -416,7 +492,8 @@ const HomePage = () => {
                 !isLoadingMore &&
                 !loading &&
                 wallpaper1.length > 0 &&
-                !(isSearchMode ? hasReachedSearchEnd : hasReachedEnd)
+                !(isSearchMode ? hasReachedSearchEnd : hasReachedEnd) &&
+                Date.now() - loadMoreFailedAtRef.current > 5000
               ) {
                 setIsLoadingMore(true);
                 if (isSearchMode && searchQuery.trim().length > 0) {
@@ -438,17 +515,7 @@ const HomePage = () => {
                 : Colors.light.background,
           }}
         >
-          <View style={styles.wallpapersContainer}>
-            {loading && wallpaper1.length === 0 ? (
-              <WallpaperSkeleton count={8} />
-            ) : (
-              <SpiltView
-                wallpaper1={wallpaper1}
-                wallpaper2={wallpaper2}
-                loading={isLoadingMore}
-              />
-            )}
-          </View>
+          <View style={styles.wallpapersContainer}>{renderList()}</View>
         </View>
       </Animated.ScrollView>
     </View>

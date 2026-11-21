@@ -1,6 +1,12 @@
 // Updated Suggested component
-import { StyleSheet, useColorScheme, View, Animated } from "react-native";
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import {
+  StyleSheet,
+  useColorScheme,
+  View,
+  Animated,
+  ToastAndroid,
+} from "react-native";
+import React, { useMemo, useState, useEffect, useRef, useContext } from "react";
 import SpiltView from "@/components/SpiltView";
 import WallpaperSkeleton from "@/components/WallpaperSkeleton";
 import { useSelector, useDispatch } from "react-redux";
@@ -10,6 +16,9 @@ import { RootState } from "@/redux/store";
 import { store } from "@/redux/store";
 import { setLikedIds } from "@/redux/LikedWallpapersSlice";
 import { applyLikedState } from "@/lib/likes";
+import { apiHeaders, fetchWithTimeout } from "@/lib/api";
+import ListMessage from "@/components/ListMessage";
+import { SessionContext } from "@/context/SessionContext";
 
 const Suggested = () => {
   const themeState = useSelector((state: RootState) => state.theme);
@@ -31,6 +40,13 @@ const Suggested = () => {
   const [page, setPage] = useState(0);
   const [limit] = useState(LIMIT);
   const [hasReachedEnd, setHasReachedEnd] = useState(false);
+  // True when the first page failed to load, so the list shows a retry message.
+  const [loadError, setLoadError] = useState(false);
+  const loadMoreFailedAtRef = useRef(0);
+  // Bumped on every reset so responses to requests made before it are ignored.
+  const requestGenerationRef = useRef(0);
+  const { session } = useContext(SessionContext);
+  const userId = session?.user?.id;
 
   // Refs for tracking
   const leftGetsExtraRef = useRef(true);
@@ -50,17 +66,15 @@ const Suggested = () => {
   }, [likedWallpapers.lastUpdated]);
 
   // Function to fetch suggested wallpapers
-  async function getSuggestedWallpapers() {
+  async function getSuggestedWallpapers(reset = false) {
+    const generation = requestGenerationRef.current;
+    const currentSkip = reset ? 0 : page * limit;
     try {
-      const currentSkip = page * limit;
-      const response = await fetch(
+      const response = await fetchWithTimeout(
         `${BACKEND_URL}/suggested?skip=${currentSkip}&limit=${limit}`,
         {
           method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
+          headers: apiHeaders(session?.access_token),
         }
       );
 
@@ -68,6 +82,8 @@ const Suggested = () => {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
+      if (generation !== requestGenerationRef.current) return;
+      setLoadError(false);
 
       // Check if we've reached the end (empty response or fewer items than limit)
       if (data.length === 0 || data.length < limit) {
@@ -104,32 +120,61 @@ const Suggested = () => {
             ? Math.ceil(newItems.length / 2)
             : Math.floor(newItems.length / 2);
 
-          // Update both arrays
-          setWallpaper1((prev: any[]) => [
-            ...prev,
-            ...newItems.slice(0, midpoint),
-          ]);
-          setWallpaper2((prev) => [...prev, ...newItems.slice(midpoint)]);
+          if (reset) {
+            setWallpaper1(newItems.slice(0, midpoint));
+            setWallpaper2(newItems.slice(midpoint));
+          } else {
+            setWallpaper1((prev: any[]) => [
+              ...prev,
+              ...newItems.slice(0, midpoint),
+            ]);
+            setWallpaper2((prev) => [...prev, ...newItems.slice(midpoint)]);
+          }
 
           // Alternate for next fetch
           leftGetsExtraRef.current = !leftGetsExtraRef.current;
         }
 
-        setPage((prev) => prev + 1);
+        setPage(reset ? 1 : (prev) => prev + 1);
+      } else if (reset) {
+        setWallpaper1([]);
+        setWallpaper2([]);
       }
     } catch (error) {
-      console.error("Error fetching suggested wallpapers:", error);
+      if (generation !== requestGenerationRef.current) return;
+      console.log("Error fetching suggested wallpapers:", error);
+      if (currentSkip === 0) {
+        setLoadError(true);
+      } else {
+        loadMoreFailedAtRef.current = Date.now();
+        ToastAndroid.show("Couldn't load more wallpapers", ToastAndroid.SHORT);
+      }
     } finally {
-      setLoading(false);
-      setIsLoadingMore(false);
+      if (generation === requestGenerationRef.current) {
+        setLoading(false);
+        setIsLoadingMore(false);
+      }
     }
   }
 
-  // Initial load
+  // Start over from the first page (initial load, retry, or a different user).
+  function reload() {
+    requestGenerationRef.current += 1;
+    existingIdsRef.current.clear();
+    leftGetsExtraRef.current = true;
+    setHasReachedEnd(false);
+    setLoadError(false);
+    setIsLoadingMore(false);
+    setLoading(true);
+    getSuggestedWallpapers(true);
+  }
+
+  // Initial load, and again when the signed-in user changes: suggestions are
+  // personalized from the user's likes.
   useEffect(() => {
-    getSuggestedWallpapers();
+    reload();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [userId]);
 
   // Handle scroll for pagination
   const handleScroll = Animated.event(
@@ -148,7 +193,8 @@ const Suggested = () => {
           !isLoadingMore &&
           !loading &&
           !hasReachedEnd &&
-          wallpaper1.length > 0
+          wallpaper1.length > 0 &&
+          Date.now() - loadMoreFailedAtRef.current > 5000
         ) {
           setIsLoadingMore(true);
           getSuggestedWallpapers();
@@ -167,6 +213,20 @@ const Suggested = () => {
       >
         {loading && wallpaper1.length === 0 ? (
           <WallpaperSkeleton count={8} />
+        ) : loadError && wallpaper1.length === 0 ? (
+          <ListMessage
+            icon="cloud-offline-outline"
+            title="Couldn't load suggestions"
+            subtitle="Check your internet connection and try again."
+            actionLabel="Try again"
+            onAction={reload}
+          />
+        ) : wallpaper1.length === 0 && wallpaper2.length === 0 ? (
+          <ListMessage
+            icon="sparkles-outline"
+            title="No suggestions yet"
+            subtitle="Like a few wallpapers and we'll suggest more you'll love."
+          />
         ) : (
           <SpiltView
             wallpaper1={wallpaper1}

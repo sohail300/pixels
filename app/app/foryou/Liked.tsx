@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, useColorScheme, Animated } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  useColorScheme,
+  Animated,
+  ToastAndroid,
+} from "react-native";
 import React, { useMemo, useState, useContext, useEffect, useRef } from "react";
 import { Colors } from "@/constants/Colors";
 import { useSelector, useDispatch } from "react-redux";
@@ -9,6 +16,8 @@ import SpiltView from "@/components/SpiltView";
 import WallpaperSkeleton from "@/components/WallpaperSkeleton";
 import { BACKEND_URL, LIMIT } from "@/lib/config";
 import { setLikedIds } from "@/redux/LikedWallpapersSlice";
+import { fetchWithTimeout } from "@/lib/api";
+import ListMessage from "@/components/ListMessage";
 
 const Liked = () => {
   const themeState = useSelector((state: RootState) => state.theme);
@@ -33,6 +42,10 @@ const Liked = () => {
   const [page, setPage] = useState(0);
   const [limit] = useState(LIMIT);
   const [hasReachedEnd, setHasReachedEnd] = useState(false);
+  // True when the first page failed to load, so the list shows a retry message
+  // instead of claiming there are no liked wallpapers.
+  const [loadError, setLoadError] = useState(false);
+  const loadMoreFailedAtRef = useRef(0);
 
   // Refs for tracking
   const leftGetsExtraRef = useRef(true);
@@ -80,10 +93,10 @@ const Liked = () => {
       return;
     }
 
+    const currentSkip =
+      skipOverride !== undefined ? skipOverride : page * limit;
     try {
-      const currentSkip =
-        skipOverride !== undefined ? skipOverride : page * limit;
-      const response = await fetch(
+      const response = await fetchWithTimeout(
         `${BACKEND_URL}/liked-wallpapers?skip=${currentSkip}&limit=${limit}`,
         {
           method: "GET",
@@ -108,6 +121,7 @@ const Liked = () => {
         }
         throw new Error("Network response was not ok");
       }
+      setLoadError(false);
       const data = await response.json();
 
       // Check if we've reached the end (empty response or fewer items than limit)
@@ -184,7 +198,13 @@ const Liked = () => {
         setWallpaper2([]);
       }
     } catch (error) {
-      console.error("Error fetching liked wallpapers:", error);
+      console.log("Error fetching liked wallpapers:", error);
+      if (currentSkip === 0) {
+        setLoadError(true);
+      } else {
+        loadMoreFailedAtRef.current = Date.now();
+        ToastAndroid.show("Couldn't load more wallpapers", ToastAndroid.SHORT);
+      }
     } finally {
       setLoading(false);
       setIsLoadingMore(false);
@@ -222,7 +242,8 @@ const Liked = () => {
           !loading &&
           !hasReachedEnd &&
           wallpaper1.length > 0 &&
-          isLoggedIn
+          isLoggedIn &&
+          Date.now() - loadMoreFailedAtRef.current > 5000
         ) {
           setIsLoadingMore(true);
           getLikedWallpapers();
@@ -268,6 +289,27 @@ const Liked = () => {
       return (
         <View style={styles.scrollContent}>
           <WallpaperSkeleton count={6} />
+        </View>
+      );
+    }
+
+    if (loadError && wallpaper1.length === 0) {
+      return (
+        <View style={styles.emptyStateContainer}>
+          <ListMessage
+            icon="cloud-offline-outline"
+            title="Couldn't load liked wallpapers"
+            subtitle="Check your internet connection and try again."
+            actionLabel="Try again"
+            onAction={() => {
+              existingIdsRef.current.clear();
+              leftGetsExtraRef.current = true;
+              setHasReachedEnd(false);
+              setLoadError(false);
+              setLoading(true);
+              getLikedWallpapers(0);
+            }}
+          />
         </View>
       );
     }

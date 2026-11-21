@@ -6,9 +6,11 @@ from starlette import status
 from dotenv import load_dotenv
 from db import User, Wallpaper, Category, WallpaperCategory, db_dependency
 from auth import get_current_user_dependency
+import asyncio
 import os
 import uuid
 from util.file_upload import upload_file
+from util.thumbnail import make_thumbnail, thumbnail_object_name
 from util.logger import logger
 
 load_dotenv()
@@ -18,6 +20,26 @@ SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_SECRET = os.getenv('SUPABASE_SECRET')
 
 MAX_UPLOAD_SIZE = 20 * 1024 * 1024  # 20 MB
+
+
+async def upload_thumbnail(object_name: str, contents: bytes) -> None:
+    """Store a grid thumbnail next to the original. Best effort: the app falls back
+    to the full image when a thumbnail is missing, so a failure here must not fail
+    the upload."""
+    try:
+        thumbnail = await asyncio.to_thread(make_thumbnail, contents)
+        response = await upload_file(
+            supabase_url=SUPABASE_URL,
+            bucket_name="images",
+            file_name=thumbnail_object_name(object_name),
+            file=thumbnail,
+            access_token=SUPABASE_SECRET,
+            content_type="image/webp",
+        )
+        if 'error' in response:
+            logger.error(f"Thumbnail upload failed for {object_name}: {response}")
+    except Exception as e:
+        logger.error(f"Thumbnail generation failed for {object_name}: {str(e)}")
 
 
 @router.post('/upload', status_code=status.HTTP_200_OK, response_model=Dict)
@@ -64,6 +86,8 @@ async def upload(request: Request, name: Annotated[str, Form()],
         if not image_key:
             logger.error(f"Upload response missing Key: {response}")
             raise HTTPException(status_code=500, detail="Upload succeeded but response missing file key")
+
+        await upload_thumbnail(unique_filename, contents)
 
         # DB Operations
         wallpaper = Wallpaper(name=name, image=image_key, uploaded_by=user.get('user_id'))

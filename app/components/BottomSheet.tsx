@@ -85,6 +85,7 @@ export default function BottomSheetComponent({
   const [likeAnimation] = useState(new Animated.Value(1));
   const [liked, setLiked] = useState(hasLiked ?? false);
   const [likeCount, setLikeCount] = useState(likes ?? 0);
+  const [downloadCount, setDownloadCount] = useState(downloads ?? 0);
 
   // This sheet is mounted once in the root layout and reused for every wallpaper,
   // so the local like state has to be re-synced whenever a different wallpaper opens.
@@ -92,6 +93,10 @@ export default function BottomSheetComponent({
     setLiked(hasLiked ?? false);
     setLikeCount(likes ?? 0);
   }, [id, hasLiked, likes]);
+
+  useEffect(() => {
+    setDownloadCount(downloads ?? 0);
+  }, [id, downloads]);
   const [showAllCategories, setShowAllCategories] = useState(false);
   const isClosingRef = useRef(false);
   const isOpeningRef = useRef(false);
@@ -332,9 +337,15 @@ export default function BottomSheetComponent({
             Authorization: `Bearer ${session.access_token}`,
           },
         })
-          .then((response) => {
+          .then(async (response) => {
             if (!response.ok) {
               console.log("Failed to record download:", response.status);
+              return;
+            }
+            // The server counts each user once; only a first download raises the count.
+            const body = await response.json();
+            if (body?.message === "Downloaded Photo") {
+              setDownloadCount((count) => count + 1);
             }
           })
           .catch((error) => console.log("Failed to record download:", error));
@@ -546,7 +557,7 @@ export default function BottomSheetComponent({
                     { color: isDark ? "#aaaaaa" : "#666666" },
                   ]}
                 >
-                  {downloads ?? 0} downloads
+                  {downloadCount} downloads
                 </Text>
               </View>
 
